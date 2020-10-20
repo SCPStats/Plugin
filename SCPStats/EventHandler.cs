@@ -166,13 +166,13 @@ namespace SCPStats
                 SendRequest(data, "https://scpstats.com/plugin/event/escape");
             }
 
-            if (ev.Player.Role == RoleType.None || ev.Player.Role == RoleType.Spectator || ev.Player.DoNotTrack) return;
+            if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator || ev.Player.DoNotTrack) return;
 
             var data2 = new Dictionary<string, string>()
             {
                 {"serverid", SCPStats.Singleton.Config.ServerId},
                 {"playerid", HandleId(ev.Player.RawUserId)},
-                {"spawnrole", ((int) ev.Player.Role).ToString()}
+                {"spawnrole", ((int) ev.NewRole).ToString()}
             };
             
             SendRequest(data2, "https://scpstats.com/plugin/event/spawns");
