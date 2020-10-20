@@ -18,7 +18,7 @@ jobs:
       uses: warrenbuckley/Setup-Nuget@v1
     
     - name: Restore Packages
-      run: nuget restore EasyEvents.sln
+      run: nuget restore SCPStats.sln
       
     - name: Setup MSBuild
       uses: warrenbuckley/Setup-MSBuild@v1
