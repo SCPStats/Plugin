@@ -231,7 +231,7 @@ namespace SCPStats
                 {"playerid", HandleId(ev.Player.RawUserId)},
             };
                 
-            SendRequest(data, "https://scpstats.com/plugin/event/join");
+            SendRequest(data, "https://scpstats.com/plugin/event/leave");
 
             if (Players.Contains(ev.Player.RawUserId)) Players.Remove(ev.Player.RawUserId);
         }
