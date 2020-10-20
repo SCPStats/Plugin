@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -83,6 +84,14 @@ namespace SCPStats
             };
             
             SendRequest(data, "https://scpstats.com/plugin/event/roundstart");
+            
+            foreach (var player in Players)
+            {
+                if (Player.List.All(p => HandleId(p.RawUserId) != player))
+                {
+                    Players.Remove(player);
+                }
+            }
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
