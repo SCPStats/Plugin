@@ -29,6 +29,11 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;
             Exiled.Events.Handlers.Player.Died += EventHandler.OnKill;
+            Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
+            Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
+            Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
+            Exiled.Events.Handlers.Player.Joined += EventHandler.OnJoin;
+            Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
         }
 
         public override void OnDisabled()
@@ -38,6 +43,10 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded -= EventHandler.OnRoundEnd;
             Exiled.Events.Handlers.Player.Died -= EventHandler.OnKill;
+            Exiled.Events.Handlers.Player.PickingUpItem -= EventHandler.OnPickup;
+            Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
+            Exiled.Events.Handlers.Player.Joined -= EventHandler.OnJoin;
+            Exiled.Events.Handlers.Player.Left -= EventHandler.OnLeave;
             
             base.OnDisabled();
         }

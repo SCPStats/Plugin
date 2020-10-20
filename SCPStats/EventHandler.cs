@@ -76,6 +76,17 @@ namespace SCPStats
             };
             
             SendRequest(data, "https://scpstats.com/plugin/event/roundstart");
+            
+            foreach (var player in Player.List)
+            {
+                var data2 = new Dictionary<string, string>()
+                {
+                    {"serverid", SCPStats.Singleton.Config.ServerId},
+                    {"playerid", HandleId(player.RawUserId)},
+                };
+                                
+                SendRequest(data2, "https://scpstats.com/plugin/event/join");
+            }
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
@@ -100,6 +111,95 @@ namespace SCPStats
             };
             
             SendRequest(data, "https://scpstats.com/plugin/event/death");
+            
+            data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId},
+                {"playerid", HandleId(ev.Killer.RawUserId)},
+                {"targetrole", ((int) ev.Target.Role).ToString()},
+                {"playerrole", ((int) ev.Killer.Role).ToString()},
+                {"damagetype", DamageTypes.ToIndex(ev.HitInformations.GetDamageType()).ToString()}
+            };
+            
+            SendRequest(data, "https://scpstats.com/plugin/event/kill");
+        }
+
+        internal static void OnRoleChanged(ChangingRoleEventArgs ev)
+        {
+            if (ev.IsEscaped)
+            {
+                var data = new Dictionary<string, string>()
+                {
+                    {"serverid", SCPStats.Singleton.Config.ServerId},
+                    {"playerid", HandleId(ev.Player.RawUserId)},
+                    {"targetrole", ((int) ev.Player.Role).ToString()}
+                };
+                
+                SendRequest(data, "https://scpstats.com/plugin/event/escape");
+            }
+
+            var data2 = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId},
+                {"playerid", HandleId(ev.Player.RawUserId)},
+                {"spawnrole", ((int) ev.Player.Role).ToString()}
+            };
+            
+            SendRequest(data2, "https://scpstats.com/plugin/event/spawns");
+        }
+
+        internal static void OnPickup(PickingUpItemEventArgs ev)
+        {
+            if (!ev.IsAllowed) return;
+
+            var data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId},
+                {"playerid", HandleId(ev.Player.RawUserId)},
+                {"itemid", ((int) ev.Pickup.itemId).ToString()}
+            };
+                
+            SendRequest(data, "https://scpstats.com/plugin/event/pickup");
+        }
+
+        internal static void OnDrop(DroppingItemEventArgs ev)
+        {
+            if (!ev.IsAllowed) return;
+
+            var data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId},
+                {"playerid", HandleId(ev.Player.RawUserId)},
+                {"itemid", ((int) ev.Item.id).ToString()}
+            };
+                
+            SendRequest(data, "https://scpstats.com/plugin/event/drop");
+        }
+
+        internal static void OnJoin(JoinedEventArgs ev)
+        {
+            if (!Round.IsStarted) return;
+            
+            var data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId},
+                {"playerid", HandleId(ev.Player.RawUserId)},
+            };
+                
+            SendRequest(data, "https://scpstats.com/plugin/event/join");
+        }
+        
+        internal static void OnLeave(LeftEventArgs ev)
+        {
+            if (!Round.IsStarted) return;
+            
+            var data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId},
+                {"playerid", HandleId(ev.Player.RawUserId)},
+            };
+                
+            SendRequest(data, "https://scpstats.com/plugin/event/join");
         }
     }
 }
