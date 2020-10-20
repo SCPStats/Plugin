@@ -10,7 +10,7 @@ The SCPStats website is very WIP and does not have much effort put into actual t
 To register your server, first login to SCPStats through https://scpstats.com/login . Then, register your server through https://scpstats.com/account/servers/add/ (you can register as many servers as you want). Once your server is registered, you will be redirected to a page where you can view all of your registered servers, along with their Server ID and Secret. You will need the Server ID and Secret to configure the SCPStats plugin.
 
 ## Configuration
-Once you have your Server ID and Secret, registration is simple. Simply put your Server ID and Secret under the relevent configuration options in your server's config. That's it. SCPStats will begin recording stats.
+Once you have your Server ID and Secret, configuration is simple. Simply put your Server ID and Secret under the relevent configuration options in your server's config. That's it. SCPStats will begin recording stats.
 
 ## Request Data Removal
 Because of the limited functionality of the site, it isn't currently possible to remove data yourself. If you want to remove any data from the site, simply contact me at contact@scpstats.com and your data will be removed.
