@@ -166,6 +166,8 @@ namespace SCPStats
                 SendRequest(data, "https://scpstats.com/plugin/event/escape");
             }
 
+            if (ev.Player.Role == RoleType.None || ev.Player.Role == RoleType.Spectator) return;
+
             var data2 = new Dictionary<string, string>()
             {
                 {"serverid", SCPStats.Singleton.Config.ServerId},
