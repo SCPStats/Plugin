@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>lib\Assembly-CSharp-Publicized.dll</HintPath>
+    </Reference>
     <Reference Include="Exiled.API, Version=2.1.7.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\EXILED.2.1.7\lib\net472\Exiled.API.dll</HintPath>
       <Private>True</Private>

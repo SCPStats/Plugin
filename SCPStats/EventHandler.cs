@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Exiled.API.Features;
+using Exiled.Events.EventArgs;
 
 namespace SCPStats
 {
@@ -31,6 +32,11 @@ namespace SCPStats
             return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
 
+        private static string HandleId(string id)
+        {
+            return id.Split('@')[0];
+        }
+
         private static async Task SendRequest(Dictionary<string, string> data, string url)
         {
             var str = DictToString(data);
@@ -44,10 +50,14 @@ namespace SCPStats
                     var res = await Client.SendAsync(requestMessage);
                     res.EnsureSuccessStatusCode();
 
-#if DEBUG
                     var body = await res.Content.ReadAsStringAsync();
+#if DEBUG
                     Log.Info(body);
 #endif
+                    if (body == "E")
+                    {
+                        Log.Warn("Failed to send an event to SCPStats. Make sure that your Server ID and Secret are correct.");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -66,6 +76,30 @@ namespace SCPStats
             };
             
             SendRequest(data, "https://scpstats.com/plugin/event/roundstart");
+        }
+        
+        internal static void OnRoundEnd(RoundEndedEventArgs ev)
+        {
+            var data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId}
+            };
+            
+            SendRequest(data, "https://scpstats.com/plugin/event/roundend");
+        }
+        
+        internal static void OnKill(DiedEventArgs ev)
+        {
+            var data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId},
+                {"playerid", HandleId(ev.Target.RawUserId)},
+                {"killerrole", ((int) ev.Killer.Role).ToString()},
+                {"playerrole", ((int) ev.Target.Role).ToString()},
+                {"damagetype", DamageTypes.ToIndex(ev.HitInformations.GetDamageType()).ToString()}
+            };
+            
+            SendRequest(data, "https://scpstats.com/plugin/event/death");
         }
     }
 }

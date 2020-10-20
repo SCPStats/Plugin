@@ -27,6 +27,8 @@ namespace SCPStats
             }
 
             Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
+            Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;
+            Exiled.Events.Handlers.Player.Died += EventHandler.OnKill;
         }
 
         public override void OnDisabled()
@@ -34,6 +36,8 @@ namespace SCPStats
             Singleton = null;
             
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
+            Exiled.Events.Handlers.Server.RoundEnded -= EventHandler.OnRoundEnd;
+            Exiled.Events.Handlers.Player.Died -= EventHandler.OnKill;
             
             base.OnDisabled();
         }
