@@ -135,8 +135,10 @@ namespace SCPStats
                 {"playerrole", ((int) ev.Target.Role).ToString()},
                 {"damagetype", DamageTypes.ToIndex(ev.HitInformations.GetDamageType()).ToString()}
             };
-            
+
             SendRequest(data, "https://scpstats.com/plugin/event/death");
+            
+            if (ev.Killer.RawUserId == ev.Target.RawUserId) return;
             
             data = new Dictionary<string, string>()
             {
