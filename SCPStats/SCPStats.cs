@@ -6,7 +6,7 @@ namespace SCPStats
 {
     public class SCPStats : Plugin<Config>
     {
-        public override string Name { get; } = "SCPStats";
+        public override string Name { get; } = "ScpStats";
         public override string Author { get; } = "PintTheDragon";
         public override Version Version { get; } = new Version(1, 0, 0);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
