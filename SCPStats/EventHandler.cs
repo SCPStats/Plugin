@@ -210,7 +210,7 @@ namespace SCPStats
         
         internal static void OnLeave(LeftEventArgs ev)
         {
-            if (!Restarting) return;
+            if (Restarting) return;
             
             var data = new Dictionary<string, string>()
             {
