@@ -12,6 +12,8 @@ namespace SCPStats
     internal static class EventHandler
     {
         private static readonly HttpClient Client = new HttpClient();
+        
+        private static bool DidRoundEnd = false;
 
         private static string DictToString(Dictionary<string, string> dict)
         {
@@ -70,6 +72,8 @@ namespace SCPStats
 
         internal static void OnRoundStart()
         {
+            DidRoundEnd = false;
+            
             var data = new Dictionary<string, string>()
             {
                 {"serverid", SCPStats.Singleton.Config.ServerId}
@@ -91,6 +95,20 @@ namespace SCPStats
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
         {
+            DidRoundEnd = true;
+            
+            var data = new Dictionary<string, string>()
+            {
+                {"serverid", SCPStats.Singleton.Config.ServerId}
+            };
+            
+            SendRequest(data, "https://scpstats.com/plugin/event/roundend");
+        }
+        
+        internal static void OnRoundRestart()
+        {
+            if (DidRoundEnd) return;
+            
             var data = new Dictionary<string, string>()
             {
                 {"serverid", SCPStats.Singleton.Config.ServerId}
@@ -132,7 +150,7 @@ namespace SCPStats
                 {
                     {"serverid", SCPStats.Singleton.Config.ServerId},
                     {"playerid", HandleId(ev.Player.RawUserId)},
-                    {"targetrole", ((int) ev.Player.Role).ToString()}
+                    {"role", ((int) ev.Player.Role).ToString()}
                 };
                 
                 SendRequest(data, "https://scpstats.com/plugin/event/escape");
