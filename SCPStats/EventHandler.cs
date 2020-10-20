@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
+using Exiled.API.Features;
 
 namespace SCPStats
 {
-    public class EventHandler
+    internal static class EventHandler
     {
         private static readonly HttpClient Client = new HttpClient();
 
@@ -19,30 +21,40 @@ namespace SCPStats
                 output += "\"" + kv.Key + "\": \"" + kv.Value + "\", ";
             }
 
-            return output.Substring(0, output.Length - 1) + "}";
+            return output.Substring(0, output.Length - 2) + "}";
         }
         
-        public static string HmacSha256Digest(string secret, string message)
+        private static string HmacSha256Digest(string secret, string message)
         {
             var encoding = new ASCIIEncoding();
-            var keyBytes = encoding.GetBytes(secret);
-            var messageBytes = encoding.GetBytes(message);
-            var cryptographer = new HMACSHA256(keyBytes);
-
-            var bytes = cryptographer.ComputeHash(messageBytes);
-
-            return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+            
+            return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
 
-        private static void SendRequest(Dictionary<string, string> data, string url)
+        private static async Task SendRequest(Dictionary<string, string> data, string url)
         {
             var str = DictToString(data);
             
-            using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, "https://your.site.com"))
+            using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, url))
             {
                 requestMessage.Headers.Add("Signature", HmacSha256Digest(SCPStats.Singleton.Config.Secret, str));
                 requestMessage.Content = new StringContent(str, Encoding.UTF8, "application/json");
-                Client.SendAsync(requestMessage);
+                try
+                {
+                    var res = await Client.SendAsync(requestMessage);
+                    res.EnsureSuccessStatusCode();
+
+#if DEBUG
+                    var body = await res.Content.ReadAsStringAsync();
+                    Log.Info(body);
+#endif
+                }
+                catch (Exception e)
+                {
+#if DEBUG
+                    Log.Warn(e);
+#endif
+                }
             }
         }
 
