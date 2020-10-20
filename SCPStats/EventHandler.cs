@@ -136,9 +136,9 @@ namespace SCPStats
                 {"damagetype", DamageTypes.ToIndex(ev.HitInformations.GetDamageType()).ToString()}
             };
 
-            SendRequest(data, "https://scpstats.com/plugin/event/death");
+            if(!ev.Target.DoNotTrack) SendRequest(data, "https://scpstats.com/plugin/event/death");
             
-            if (ev.Killer.RawUserId == ev.Target.RawUserId) return;
+            if (ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
             
             data = new Dictionary<string, string>()
             {
@@ -154,7 +154,7 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (ev.IsEscaped)
+            if (ev.IsEscaped && !ev.Player.DoNotTrack)
             {
                 var data = new Dictionary<string, string>()
                 {
@@ -166,7 +166,7 @@ namespace SCPStats
                 SendRequest(data, "https://scpstats.com/plugin/event/escape");
             }
 
-            if (ev.Player.Role == RoleType.None || ev.Player.Role == RoleType.Spectator) return;
+            if (ev.Player.Role == RoleType.None || ev.Player.Role == RoleType.Spectator || ev.Player.DoNotTrack) return;
 
             var data2 = new Dictionary<string, string>()
             {
@@ -180,7 +180,7 @@ namespace SCPStats
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
-            if (!ev.IsAllowed) return;
+            if (!ev.IsAllowed || ev.Player.DoNotTrack) return;
 
             var data = new Dictionary<string, string>()
             {
@@ -194,7 +194,7 @@ namespace SCPStats
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
-            if (!ev.IsAllowed) return;
+            if (!ev.IsAllowed || ev.Player.DoNotTrack) return;
 
             var data = new Dictionary<string, string>()
             {
@@ -208,7 +208,7 @@ namespace SCPStats
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
-            if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId)) return;
+            if ((!Round.IsStarted && Players.Contains(ev.Player.RawUserId)) || ev.Player.DoNotTrack) return;
             
             var data = new Dictionary<string, string>()
             {
@@ -223,7 +223,7 @@ namespace SCPStats
         
         internal static void OnLeave(LeftEventArgs ev)
         {
-            if (Restarting) return;
+            if (Restarting || ev.Player.DoNotTrack) return;
             
             var data = new Dictionary<string, string>()
             {
