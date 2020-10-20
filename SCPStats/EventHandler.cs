@@ -87,7 +87,7 @@ namespace SCPStats
             
             foreach (var player in Players)
             {
-                if (Player.List.All(p => HandleId(p.RawUserId) != player))
+                if (Player.List.All(p => p.RawUserId != player))
                 {
                     Players.Remove(player);
                 }
