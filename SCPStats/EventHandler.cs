@@ -14,6 +14,8 @@ namespace SCPStats
         private static readonly HttpClient Client = new HttpClient();
         
         private static bool DidRoundEnd = false;
+        private static bool Restarting = false;
+        private static List<string> Players = new List<string>();
 
         private static string DictToString(Dictionary<string, string> dict)
         {
@@ -72,6 +74,7 @@ namespace SCPStats
 
         internal static void OnRoundStart()
         {
+            Restarting = false;
             DidRoundEnd = false;
             
             var data = new Dictionary<string, string>()
@@ -80,17 +83,6 @@ namespace SCPStats
             };
             
             SendRequest(data, "https://scpstats.com/plugin/event/roundstart");
-            
-            foreach (var player in Player.List)
-            {
-                var data2 = new Dictionary<string, string>()
-                {
-                    {"serverid", SCPStats.Singleton.Config.ServerId},
-                    {"playerid", HandleId(player.RawUserId)},
-                };
-                                
-                SendRequest(data2, "https://scpstats.com/plugin/event/join");
-            }
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
@@ -107,14 +99,21 @@ namespace SCPStats
         
         internal static void OnRoundRestart()
         {
+            Restarting = true;
             if (DidRoundEnd) return;
-            
+
             var data = new Dictionary<string, string>()
             {
                 {"serverid", SCPStats.Singleton.Config.ServerId}
             };
             
             SendRequest(data, "https://scpstats.com/plugin/event/roundend");
+        }
+
+        internal static void Waiting()
+        {
+            Restarting = false;
+            DidRoundEnd = false;
         }
         
         internal static void OnKill(DiedEventArgs ev)
@@ -196,7 +195,7 @@ namespace SCPStats
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
-            if (!Round.IsStarted) return;
+            if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId)) return;
             
             var data = new Dictionary<string, string>()
             {
@@ -205,11 +204,13 @@ namespace SCPStats
             };
                 
             SendRequest(data, "https://scpstats.com/plugin/event/join");
+            
+            Players.Add(ev.Player.RawUserId);
         }
         
         internal static void OnLeave(LeftEventArgs ev)
         {
-            if (!Round.IsStarted) return;
+            if (!Restarting) return;
             
             var data = new Dictionary<string, string>()
             {
@@ -218,6 +219,8 @@ namespace SCPStats
             };
                 
             SendRequest(data, "https://scpstats.com/plugin/event/join");
+
+            if (Players.Contains(ev.Player.RawUserId)) Players.Remove(ev.Player.RawUserId);
         }
     }
 }

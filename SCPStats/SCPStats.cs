@@ -29,6 +29,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;
             Exiled.Events.Handlers.Server.RestartingRound += EventHandler.OnRoundRestart;
+            Exiled.Events.Handlers.Server.WaitingForPlayers += EventHandler.Waiting;
             Exiled.Events.Handlers.Player.Died += EventHandler.OnKill;
             Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
             Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
@@ -44,6 +45,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded -= EventHandler.OnRoundEnd;
             Exiled.Events.Handlers.Server.RestartingRound -= EventHandler.OnRoundRestart;
+            Exiled.Events.Handlers.Server.WaitingForPlayers -= EventHandler.Waiting;
             Exiled.Events.Handlers.Player.Died -= EventHandler.OnKill;
             Exiled.Events.Handlers.Player.PickingUpItem -= EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
