@@ -57,6 +57,8 @@ namespace SCPStats
             EventHandler.Exited = false;
             EventHandler.Listener?.Dispose();
             EventHandler.Listener = null;
+            EventHandler.Pinger?.Dispose();
+            EventHandler.Pinger = null;
             
             base.OnDisabled();
         }

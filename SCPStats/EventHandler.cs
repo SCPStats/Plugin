@@ -20,10 +20,12 @@ namespace SCPStats
         private static bool DidRoundEnd = false;
         private static bool Restarting = false;
         private static List<string> Players = new List<string>();
-        
+        private static bool Pinged = false;
+
         internal static bool Exited = false;
         internal static ClientWebSocket ws = null;
         internal static Task Listener = null;
+        internal static Task Pinger = null;
 
         private static string DictToString(Dictionary<string, string> dict)
         {
@@ -64,10 +66,30 @@ namespace SCPStats
             
             Listener?.Dispose();
             Listener = Listen();
+            
+            Pinger?.Dispose();
+            Pinger = Ping();
         }
         
         static async Task Send(string data) => await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(data)), WebSocketMessageType.Text, true, CancellationToken.None);
 
+        private static async Task Ping()
+        {
+            while (true)
+            {
+                if (Pinged)
+                {
+                    CreateConnection();
+                    return;
+                }
+
+                Pinged = true;
+                
+                await Send("b");
+                await Task.Delay(10000);
+            }
+        }
+        
         private static async Task Listen()
         {
             var buffer = new ArraySegment<byte>(new byte[2048]);
@@ -82,7 +104,7 @@ namespace SCPStats
                         result = await ws.ReceiveAsync(buffer, CancellationToken.None);
                         ms.Write(buffer.Array, buffer.Offset, result.Count);
                     } while (!result.EndOfMessage);
-
+                    
                     if (result.MessageType == WebSocketMessageType.Close)
                         break;
 
@@ -102,11 +124,18 @@ namespace SCPStats
                                 ws?.Dispose();
                                 SCPStats.Singleton.OnDisabled();
                                 return;
+                            
                             case "c":
                                 await CreateConnection();
+                                return;
                                 break;
+                            
                             case "b":
                                 await Send("a");
+                                break;
+                            
+                            case "a":
+                                Pinged = false;
                                 break;
                         }
                     }
