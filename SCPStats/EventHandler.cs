@@ -18,13 +18,22 @@ namespace SCPStats
         private static bool DidRoundEnd = false;
         private static bool Restarting = false;
         private static List<string> Players = new List<string>();
-        private static bool Pinged = false;
+        private static bool Pinged = true;
 
         internal static bool Exited = false;
-        internal static ClientWebSocket ws = new ClientWebSocket();
-        internal static Task Listener = null;
+        internal static Websocket ws = null;
         internal static Task Pinger = null;
 
+        internal static void Reset()
+        {
+            ws?.Close(false);
+
+            ws = new Websocket("wss://scpstats.com/plugin");
+            
+            Exited = false;
+            Pinged = false;
+        }
+        
         private static string DictToString(Dictionary<string, string> dict)
         {
             var output = "{";
@@ -58,22 +67,54 @@ namespace SCPStats
             if (Exited)
             {
                 Log.Info("Disposing websocket");
-                ws?.Dispose();
+                ws?.Close(false);
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
 
-            Log.Info(ws.State);
-
             try
             {
-                ws.Abort();
-                ws.Dispose();
+                ws?.Close(false);
 
-                await Task.Delay(10000);
+                ws = new Websocket("wss://scpstats.com/plugin");
+
+                ws.OnMessage = msg =>
+                {
+#if DEBUG
+                    Log.Info(msg);
+#endif
+
+                    switch (msg)
+                    {
+                        case "i":
+                            Log.Warn("Authentication failed. Exiting.");
+
+                            Exited = true;
+                            ws?.Close(false);
+                            SCPStats.Singleton.OnDisabled();
+                            return;
+
+                        case "c":
+                            ws?.Close();
+                            break;
+
+                        case "b":
+                            ws?.Send("a");
+                            break;
+
+                        case "a":
+                            Pinged = false;
+                            break;
+                    }
+                };
+
+                ws.OnClose = () =>
+                {
+                    Log.Info("Socket closed");
+                    CreateConnection();
+                };
                 
-                ws = new ClientWebSocket();
-                await ws.ConnectAsync(new Uri("wss://scpstats.com/plugin"), CancellationToken.None);
+                await ws.Connect();
             }
             catch (Exception e)
             {
@@ -81,99 +122,45 @@ namespace SCPStats
             }
 
             Log.Info("Websocket connected");
-            
-            Listener = Listen();
 
-            if(Pinger == null) Pinger = Ping();
+            await Task.Delay(500);
+
+            if(Pinger?.Status != TaskStatus.Running) Pinger = Ping();
         }
         
-        static async Task Send(string data) => await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(data)), WebSocketMessageType.Text, true, CancellationToken.None);
-
+        
         private static async Task Ping()
         {
-            while (!Exited)
+            Log.Info("Pinger created");
+            
+            while (ws.ws.State == WebSocketState.Open)
             {
                 if (Pinged)
                 {
                     Log.Info("Ping failed");
-                    await CreateConnection();
+                    CreateConnection();
+                    return;
                 }
-                else
-                {
-                    Pinged = true;
 
-                    Log.Info("Pinging");
+                Pinged = true;
+
+                Log.Info("Pinging");
                     
-                    await Send("b");
-                    await Task.Delay(10000);
-                }
+                ws?.Send("b");
+                await Task.Delay(10000);
             }
-        }
-        
-        private static async Task Listen()
-        {
-            var buffer = new ArraySegment<byte>(new byte[2048]);
-            
-            do
-            {
-                WebSocketReceiveResult result;
-                using (var ms = new MemoryStream())
-                {
-                    do
-                    {
-                        result = await ws.ReceiveAsync(buffer, CancellationToken.None);
-                        ms.Write(buffer.Array, buffer.Offset, result.Count);
-                    } while (!result.EndOfMessage);
-                    
-                    if (result.MessageType == WebSocketMessageType.Close)
-                        break;
-
-                    ms.Seek(0, SeekOrigin.Begin);
-                    using (var reader = new StreamReader(ms, Encoding.UTF8))
-                    {
-                        var str = await reader.ReadToEndAsync();
-#if DEBUG
-                        Log.Info(str);
-#endif
-                        switch (str)
-                        {
-                            case "i":
-                                Log.Warn("Authentication failed. Exiting.");
-                            
-                                Exited = true;
-                                ws?.Abort();
-                                ws?.Dispose();
-                                ws = null;
-                                SCPStats.Singleton.OnDisabled();
-                                return;
-                            
-                            case "c":
-                                await CreateConnection();
-                                break;
-                            
-                            case "b":
-                                await Send("a");
-                                break;
-                            
-                            case "a":
-                                Pinged = false;
-                                break;
-                        }
-                    }
-                }
-            } while (!Exited);
         }
 
         private static async Task SendRequest(string type, Dictionary<string, string> data)
         {
             if (Exited)
             {
-                ws?.Dispose();
+                ws?.Close(false);
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
             
-            if (ws.State != WebSocketState.Open && ws.State != WebSocketState.Connecting)
+            if (ws == null || ws.ws.State != WebSocketState.Open)
             {
                 await CreateConnection();
             }
@@ -182,7 +169,7 @@ namespace SCPStats
 
             var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length.ToString() + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
-            await Send(message);
+            await ws.Send(message);
         }
 
         internal static void OnRoundStart()
