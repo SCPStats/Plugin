@@ -13,17 +13,15 @@ using Exiled.Events.EventArgs;
 
 namespace SCPStats
 {
-    internal static class EventHandler
+    internal class EventHandler
     {
-        private static readonly HttpClient Client = new HttpClient();
-        
         private static bool DidRoundEnd = false;
         private static bool Restarting = false;
         private static List<string> Players = new List<string>();
         private static bool Pinged = false;
 
         internal static bool Exited = false;
-        internal static ClientWebSocket ws = null;
+        internal static ClientWebSocket ws = new ClientWebSocket();
         internal static Task Listener = null;
         internal static Task Pinger = null;
 
@@ -53,40 +51,62 @@ namespace SCPStats
 
         private static async Task CreateConnection()
         {
+            Pinged = false;
+            
+            Log.Info("Creating websocket");
+            
             if (Exited)
             {
+                Log.Info("Disposing websocket");
                 ws?.Dispose();
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
 
-            ws?.Dispose();
-            ws = new ClientWebSocket();
-            await ws.ConnectAsync(new Uri("wss://scpstats.com/plugin"), CancellationToken.None);
+            Log.Info(ws.State);
+
+            try
+            {
+                ws.Abort();
+                ws.Dispose();
+
+                await Task.Delay(10000);
+                
+                ws = new ClientWebSocket();
+                await ws.ConnectAsync(new Uri("wss://scpstats.com/plugin"), CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
+
+            Log.Info("Websocket connected");
             
-            Listener?.Dispose();
             Listener = Listen();
-            
-            Pinger?.Dispose();
-            Pinger = Ping();
+
+            if(Pinger == null) Pinger = Ping();
         }
         
         static async Task Send(string data) => await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(data)), WebSocketMessageType.Text, true, CancellationToken.None);
 
         private static async Task Ping()
         {
-            while (true)
+            while (!Exited)
             {
                 if (Pinged)
                 {
-                    CreateConnection();
-                    return;
+                    Log.Info("Ping failed");
+                    await CreateConnection();
                 }
+                else
+                {
+                    Pinged = true;
 
-                Pinged = true;
-                
-                await Send("b");
-                await Task.Delay(10000);
+                    Log.Info("Pinging");
+                    
+                    await Send("b");
+                    await Task.Delay(10000);
+                }
             }
         }
         
@@ -121,13 +141,14 @@ namespace SCPStats
                                 Log.Warn("Authentication failed. Exiting.");
                             
                                 Exited = true;
+                                ws?.Abort();
                                 ws?.Dispose();
+                                ws = null;
                                 SCPStats.Singleton.OnDisabled();
                                 return;
                             
                             case "c":
                                 await CreateConnection();
-                                return;
                                 break;
                             
                             case "b":
@@ -152,7 +173,7 @@ namespace SCPStats
                 return;
             }
             
-            if (ws == null)
+            if (ws.State != WebSocketState.Open && ws.State != WebSocketState.Connecting)
             {
                 await CreateConnection();
             }
@@ -161,7 +182,7 @@ namespace SCPStats
 
             var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length.ToString() + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
-            Send(message);
+            await Send(message);
         }
 
         internal static void OnRoundStart()

@@ -52,12 +52,11 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Joined -= EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Left -= EventHandler.OnLeave;
             
+            EventHandler.ws?.Abort();
             EventHandler.ws?.Dispose();
             EventHandler.ws = null;
             EventHandler.Exited = false;
-            EventHandler.Listener?.Dispose();
             EventHandler.Listener = null;
-            EventHandler.Pinger?.Dispose();
             EventHandler.Pinger = null;
             
             base.OnDisabled();
