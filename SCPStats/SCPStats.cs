@@ -8,7 +8,7 @@ namespace SCPStats
     {
         public override string Name { get; } = "ScpStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 0, 3);
+        public override Version Version { get; } = new Version(1, 0, 4);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
 
         internal static SCPStats Singleton;
@@ -25,6 +25,8 @@ namespace SCPStats
                 base.OnDisabled();
                 return;
             }
+            
+            EventHandler.Start();
 
             Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;

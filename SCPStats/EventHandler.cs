@@ -20,18 +20,28 @@ namespace SCPStats
         private static List<string> Players = new List<string>();
         private static bool Pinged = true;
 
-        internal static bool Exited = false;
-        internal static Websocket ws = null;
-        internal static Task Pinger = null;
+        private static bool Exited = false;
+        private static Websocket ws = null;
+        private static Task Pinger = null;
+        private static bool PingerActive = false;
+
+        private static bool ConnectGrace = false;
+        private static List<string> Queue = new List<string>();
 
         internal static void Reset()
         {
             ws?.Close(false);
-
-            ws = new Websocket("wss://scpstats.com/plugin");
+            ws = null;
             
             Exited = false;
-            Pinged = false;
+            Pinged = true;
+            Queue = new List<string>();
+            ConnectGrace = false;
+        }
+
+        internal static void Start()
+        {
+            CreateConnection();
         }
         
         private static string DictToString(Dictionary<string, string> dict)
@@ -61,12 +71,9 @@ namespace SCPStats
         private static async Task CreateConnection()
         {
             Pinged = false;
-            
-            Log.Info("Creating websocket");
-            
+
             if (Exited)
             {
-                Log.Info("Disposing websocket");
                 ws?.Close(false);
                 SCPStats.Singleton.OnDisabled();
                 return;
@@ -110,7 +117,6 @@ namespace SCPStats
 
                 ws.OnClose = () =>
                 {
-                    Log.Info("Socket closed");
                     CreateConnection();
                 };
                 
@@ -121,34 +127,46 @@ namespace SCPStats
                 Log.Error(e);
             }
 
-            Log.Info("Websocket connected");
-
             await Task.Delay(500);
+            
+            if (!PingerActive)
+            {
+                Pinger = Ping();
+                PingerActive = true;
+            }
 
-            if(Pinger?.Status != TaskStatus.Running) Pinger = Ping();
+            foreach (var s in Queue)
+            {
+                ws?.Send(s);
+            }
+            
+            Queue = new List<string>();
         }
         
         
         private static async Task Ping()
         {
-            Log.Info("Pinger created");
-            
             while (ws.ws.State == WebSocketState.Open)
             {
                 if (Pinged)
                 {
-                    Log.Info("Ping failed");
                     CreateConnection();
                     return;
                 }
 
                 Pinged = true;
 
-                Log.Info("Pinging");
-                    
                 ws?.Send("b");
                 await Task.Delay(10000);
             }
+
+            PingerActive = false;
+        }
+
+        private static async Task UnGrace()
+        {
+            await Task.Delay(10000);
+            ConnectGrace = false;
         }
 
         private static async Task SendRequest(string type, Dictionary<string, string> data)
@@ -159,9 +177,21 @@ namespace SCPStats
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
+
+            if (ConnectGrace && (ws == null || ws.ws.State != WebSocketState.Open))
+            {
+                var str1 = type+(data != null ? DictToString(data) : "");
+
+                var message1 = "p" + SCPStats.Singleton.Config.ServerId + str1.Length.ToString() + " " + str1 + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str1);
+                
+                Queue.Add(message1);
+                return;
+            }
             
             if (ws == null || ws.ws.State != WebSocketState.Open)
             {
+                ConnectGrace = true;
+                UnGrace();
                 await CreateConnection();
             }
             
