@@ -12,5 +12,8 @@ namespace SCPStats
         
         [Description("The Secret for your server. This should be treated like a password. You must register your server at https://scpstats.com to obtain this.")]
         public string Secret { get; set; } = "fill this";
+
+        [Description("Serpant's hand is supported and stats for them will be recorded, even if this is disabled. If you have other plugins that use tutorials, it is recommended that you enable this option.")]
+        public bool RecordTutorialStats { get; set; } = false;
     }
 }

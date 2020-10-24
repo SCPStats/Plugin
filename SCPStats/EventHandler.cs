@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using Exiled.Loader;
 
 namespace SCPStats
 {
@@ -202,6 +203,13 @@ namespace SCPStats
             await ws.Send(message);
         }
 
+        private static bool IsPlayerValid(Player p)
+        {
+            var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
+            
+            return p.DoNotTrack && p.Role != RoleType.None && p.Role != RoleType.Spectator && !(!SCPStats.Singleton.Config.RecordTutorialStats && p.Role == RoleType.Tutorial && !playerIsSh);
+        }
+
         internal static void OnRoundStart()
         {
             Restarting = false;
@@ -241,7 +249,7 @@ namespace SCPStats
         
         internal static void OnKill(DiedEventArgs ev)
         {
-            if (!RoundSummary.RoundInProgress() || ev.Killer.Role == RoleType.None || ev.Killer.Role == RoleType.Spectator) return;
+            if (!IsPlayerValid(ev.Target) || !IsPlayerValid(ev.Killer) || !RoundSummary.RoundInProgress()) return;
             
             var data = new Dictionary<string, string>()
             {
@@ -268,6 +276,8 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
+            if (!IsPlayerValid(ev.Player)) return;
+            
             if (!RoundSummary.RoundInProgress() || ev.IsEscaped && !ev.Player.DoNotTrack)
             {
                 var data = new Dictionary<string, string>()
@@ -292,7 +302,7 @@ namespace SCPStats
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
-            if (!RoundSummary.RoundInProgress() || !ev.IsAllowed || ev.Player.DoNotTrack) return;
+            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
             var data = new Dictionary<string, string>()
             {
@@ -305,7 +315,7 @@ namespace SCPStats
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
-            if (!RoundSummary.RoundInProgress() || !ev.IsAllowed || ev.Player.DoNotTrack) return;
+            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
             var data = new Dictionary<string, string>()
             {
