@@ -241,7 +241,7 @@ namespace SCPStats
         
         internal static void OnKill(DiedEventArgs ev)
         {
-            if (ev.Killer.Role == RoleType.None || ev.Killer.Role == RoleType.Spectator) return;
+            if (!RoundSummary.RoundInProgress() || ev.Killer.Role == RoleType.None || ev.Killer.Role == RoleType.Spectator) return;
             
             var data = new Dictionary<string, string>()
             {
@@ -268,7 +268,7 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (ev.IsEscaped && !ev.Player.DoNotTrack)
+            if (!RoundSummary.RoundInProgress() || ev.IsEscaped && !ev.Player.DoNotTrack)
             {
                 var data = new Dictionary<string, string>()
                 {
@@ -292,7 +292,7 @@ namespace SCPStats
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
-            if (!ev.IsAllowed || ev.Player.DoNotTrack) return;
+            if (!RoundSummary.RoundInProgress() || !ev.IsAllowed || ev.Player.DoNotTrack) return;
 
             var data = new Dictionary<string, string>()
             {
@@ -305,7 +305,7 @@ namespace SCPStats
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
-            if (!ev.IsAllowed || ev.Player.DoNotTrack) return;
+            if (!RoundSummary.RoundInProgress() || !ev.IsAllowed || ev.Player.DoNotTrack) return;
 
             var data = new Dictionary<string, string>()
             {
