@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
+using Grenades;
 
 namespace SCPStats
 {
@@ -324,7 +325,7 @@ namespace SCPStats
                 {"playerid", HandleId(ev.Player.RawUserId)},
                 {"itemid", ((int) ev.Item.id).ToString()}
             };
-                
+
             SendRequest("06", data);
         }
 
@@ -354,6 +355,32 @@ namespace SCPStats
             SendRequest("09", data);
 
             if (Players.Contains(ev.Player.RawUserId)) Players.Remove(ev.Player.RawUserId);
+        }
+
+        internal static void OnUse(UsedMedicalItemEventArgs ev)
+        {
+            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress()) return;
+            
+            var data = new Dictionary<string, string>()
+            {
+                {"playerid", HandleId(ev.Player.RawUserId)},
+                {"itemid", ((int) ev.Item).ToString()}
+            };
+
+            SendRequest("10", data);
+        }
+
+        internal static void OnThrow(ThrowingGrenadeEventArgs ev)
+        {
+            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
+            
+            var data = new Dictionary<string, string>()
+            {
+                {"playerid", HandleId(ev.Player.RawUserId)},
+                {"itemid", ((int) ev.GrenadeManager.availableGrenades[ev.Id].inventoryID).ToString()}
+            };
+
+            SendRequest("10", data);
         }
     }
 }

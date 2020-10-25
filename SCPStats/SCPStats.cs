@@ -38,6 +38,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Joined += EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
+            Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
         }
 
         public override void OnDisabled()
@@ -53,6 +55,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Joined -= EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Left -= EventHandler.OnLeave;
+            Exiled.Events.Handlers.Player.MedicalItemUsed -= EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             
             EventHandler.Reset();
 
