@@ -203,11 +203,13 @@ namespace SCPStats
             await ws.Send(message);
         }
 
-        private static bool IsPlayerValid(Player p)
+        private static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
         {
             var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
-            
-            return p.DoNotTrack && p.Role != RoleType.None && p.Role != RoleType.Spectator && !(!SCPStats.Singleton.Config.RecordTutorialStats && p.Role == RoleType.Tutorial && !playerIsSh);
+
+            if (dnt && p.DoNotTrack) return false;
+            if (role && (p.Role == RoleType.None || p.Role == RoleType.Spectator)) return false;
+            return !(!SCPStats.Singleton.Config.RecordTutorialStats && p.Role == RoleType.Tutorial && !playerIsSh);
         }
 
         internal static void OnRoundStart()
@@ -249,7 +251,7 @@ namespace SCPStats
         
         internal static void OnKill(DiedEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Target) || !IsPlayerValid(ev.Killer) || !RoundSummary.RoundInProgress()) return;
+            if (!IsPlayerValid(ev.Target, false, false) || !IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
             
             var data = new Dictionary<string, string>()
             {
@@ -276,7 +278,7 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Player)) return;
+            if (!IsPlayerValid(ev.Player, true, false)) return;
             
             if (!RoundSummary.RoundInProgress() || ev.IsEscaped && !ev.Player.DoNotTrack)
             {
@@ -289,7 +291,7 @@ namespace SCPStats
                 SendRequest("07", data);
             }
 
-            if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator || ev.Player.DoNotTrack) return;
+            if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
 
             var data2 = new Dictionary<string, string>()
             {
