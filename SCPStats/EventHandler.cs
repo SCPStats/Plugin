@@ -250,16 +250,16 @@ namespace SCPStats
             DidRoundEnd = false;
         }
         
-        internal static void OnKill(DiedEventArgs ev)
+        internal static void OnKill(DyingEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Target, false, false) || !IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
+            if (!ev.IsAllowed || !IsPlayerValid(ev.Target, false) || !IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
             
             var data = new Dictionary<string, string>()
             {
                 {"playerid", HandleId(ev.Target.RawUserId)},
                 {"killerrole", ((int) ev.Killer.Role).ToString()},
                 {"playerrole", ((int) ev.Target.Role).ToString()},
-                {"damagetype", DamageTypes.ToIndex(ev.HitInformations.GetDamageType()).ToString()}
+                {"damagetype", DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()}
             };
 
             if(!ev.Target.DoNotTrack) SendRequest("02", data);
@@ -271,7 +271,7 @@ namespace SCPStats
                 {"playerid", HandleId(ev.Killer.RawUserId)},
                 {"targetrole", ((int) ev.Target.Role).ToString()},
                 {"playerrole", ((int) ev.Killer.Role).ToString()},
-                {"damagetype", DamageTypes.ToIndex(ev.HitInformations.GetDamageType()).ToString()}
+                {"damagetype", DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()}
             };
             
             SendRequest("03", data);
