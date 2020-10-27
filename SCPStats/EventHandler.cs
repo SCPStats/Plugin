@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
+using MEC;
 using WebSocketSharp;
 
 namespace SCPStats
@@ -192,11 +193,11 @@ namespace SCPStats
             return !(!SCPStats.Singleton.Config.RecordTutorialStats && p.Role == RoleType.Tutorial && !playerIsSh);
         }
 
-        private static async Task ClearPlayers()
+        private static IEnumerator<float> ClearPlayers()
         {
-            await Task.Delay(30000);
+            yield return Timing.WaitForSeconds(30f);
 
-            if (Exited) return;
+            if (Exited) yield break;
 
             foreach (var player in Players)
             {
@@ -234,7 +235,7 @@ namespace SCPStats
 
         internal static void Waiting()
         {
-            ClearPlayers();
+            Timing.RunCoroutine(ClearPlayers());
             
             Restarting = false;
             DidRoundEnd = false;
