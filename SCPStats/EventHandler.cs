@@ -38,19 +38,7 @@ namespace SCPStats
         {
             CreateConnection();
         }
-        
-        private static string DictToString(Dictionary<string, string> dict)
-        {
-            var output = "{";
 
-            foreach (var kv in dict)
-            {
-                output += "\"" + kv.Key + "\": \"" + kv.Value + "\", ";
-            }
-
-            return output.Substring(0, output.Length - 2) + "}";
-        }
-        
         private static string HmacSha256Digest(string secret, string message)
         {
             var encoding = new ASCIIEncoding();
@@ -174,7 +162,7 @@ namespace SCPStats
             PingerActive = false;
         }
 
-        private static async Task SendRequest(string type, Dictionary<string, string> data)
+        private static async Task SendRequest(string type, string data)
         {
             if (Exited)
             {
@@ -188,7 +176,7 @@ namespace SCPStats
                 await CreateConnection();
             }
             
-            var str = type+(data != null ? DictToString(data) : "");
+            var str = type+data;
 
             var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length.ToString() + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
@@ -214,12 +202,7 @@ namespace SCPStats
             {
                 if (Player.List.All(p => p.RawUserId != player))
                 {
-                    var data = new Dictionary<string, string>()
-                    {
-                        {"playerid", HandleId(player)},
-                    };
-                
-                    SendRequest("09", data);
+                    SendRequest("09", "{\"playerid\": \""+HandleId(player)+"\"}");
                     
                     Players.Remove(player);
                 }
@@ -261,28 +244,11 @@ namespace SCPStats
         {
             if (!ev.IsAllowed || !IsPlayerValid(ev.Target, false) || !IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
 
-            var data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Target.RawUserId)},
-                {"killerrole", ((int) ev.Killer.Role).ToString()},
-                {"playerrole", ((int) ev.Target.Role).ToString()},
-                {"damagetype", DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()}
-            };
-
-
-            if(!ev.Target.DoNotTrack) SendRequest("02", data);
+            if(!ev.Target.DoNotTrack) SendRequest("02", "{\"playerid\": \""+HandleId(ev.Target.RawUserId)+"\", \"killerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
             
             if (ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
 
-            data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Killer.RawUserId)},
-                {"targetrole", ((int) ev.Target.Role).ToString()},
-                {"playerrole", ((int) ev.Killer.Role).ToString()},
-                {"damagetype", DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()}
-            };
-            
-            SendRequest("03", data);
+            SendRequest("03", "{\"playerid\": \""+HandleId(ev.Target.RawUserId)+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
@@ -291,62 +257,33 @@ namespace SCPStats
             
             if (!RoundSummary.RoundInProgress() || ev.IsEscaped && !ev.Player.DoNotTrack)
             {
-                var data = new Dictionary<string, string>()
-                {
-                    {"playerid", HandleId(ev.Player.RawUserId)},
-                    {"role", ((int) ev.Player.Role).ToString()}
-                };
-                
-                SendRequest("07", data);
+                SendRequest("07", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"role\": \""+((int) ev.Player.Role).ToString()+"\"}");
             }
 
             if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
 
-            var data2 = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Player.RawUserId)},
-                {"spawnrole", ((int) ev.NewRole).ToString()}
-            };
-            
-            SendRequest("04", data2);
+            SendRequest("04", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"spawnrole\": \""+((int) ev.NewRole).ToString()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
             if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
-            var data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Player.RawUserId)},
-                {"itemid", ((int) ev.Pickup.itemId).ToString()}
-            };
-                
-            SendRequest("05", data);
+            SendRequest("05", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.Pickup.itemId).ToString()+"\"}");
         }
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
             if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
-            var data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Player.RawUserId)},
-                {"itemid", ((int) ev.Item.id).ToString()}
-            };
-
-            SendRequest("06", data);
+            SendRequest("06", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.Item.id).ToString()+"\"}");
         }
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
-            if ((!Round.IsStarted && Players.Contains(ev.Player.RawUserId)) || ev.Player.DoNotTrack) return;
-            
-            var data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Player.RawUserId)},
-            };
-                
-            SendRequest("08", data);
+            if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
+
+            SendRequest("08", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\"}");
             
             Players.Add(ev.Player.RawUserId);
         }
@@ -354,13 +291,8 @@ namespace SCPStats
         internal static void OnLeave(LeftEventArgs ev)
         {
             if (Restarting || ev.Player.DoNotTrack) return;
-            
-            var data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Player.RawUserId)},
-            };
-                
-            SendRequest("09", data);
+
+            SendRequest("09", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\"}");
 
             if (Players.Contains(ev.Player.RawUserId)) Players.Remove(ev.Player.RawUserId);
         }
@@ -368,27 +300,15 @@ namespace SCPStats
         internal static void OnUse(UsedMedicalItemEventArgs ev)
         {
             if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress()) return;
-            
-            var data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Player.RawUserId)},
-                {"itemid", ((int) ev.Item).ToString()}
-            };
 
-            SendRequest("10", data);
+            SendRequest("10", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.Item).ToString()+"\"}");
         }
 
         internal static void OnThrow(ThrowingGrenadeEventArgs ev)
         {
             if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
-            
-            var data = new Dictionary<string, string>()
-            {
-                {"playerid", HandleId(ev.Player.RawUserId)},
-                {"itemid", ((int) ev.GrenadeManager.availableGrenades[ev.Id].inventoryID).ToString()}
-            };
 
-            SendRequest("10", data);
+            SendRequest("10", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.GrenadeManager.availableGrenades[ev.Id].inventoryID).ToString()+"\"}");
         }
     }
 }
