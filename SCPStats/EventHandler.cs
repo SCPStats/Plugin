@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
-using Grenades;
+using WebSocketSharp;
 
 namespace SCPStats
 {
@@ -23,22 +19,19 @@ namespace SCPStats
         private static bool Pinged = true;
 
         private static bool Exited = false;
-        private static Websocket ws = null;
+        private static WebSocket ws = null;
         private static Task Pinger = null;
         private static bool PingerActive = false;
-
-        private static bool ConnectGrace = false;
+        
         private static List<string> Queue = new List<string>();
 
         internal static void Reset()
         {
-            ws?.Close(false);
+            ws?.Close();
             ws = null;
             
             Exited = false;
             Pinged = true;
-            Queue = new List<string>();
-            ConnectGrace = false;
         }
 
         internal static void Start()
@@ -72,34 +65,37 @@ namespace SCPStats
 
         private static async Task CreateConnection()
         {
+            if (ws != null && ws.IsAlive) return;
+            
             Pinged = false;
 
             if (Exited)
             {
-                ws?.Close(false);
+                ws?.Close();
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
 
             try
             {
-                ws?.Close(false);
+                if(ws != null && ws.IsAlive) ws?.Close();
 
-                ws = new Websocket("wss://scpstats.com/plugin");
+                ws = new WebSocket("wss://scpstats.com/plugin");
 
-                ws.OnMessage = msg =>
+                ws.OnMessage += (sender, e) =>
                 {
+                    if (!e.IsText) return;
 #if DEBUG
-                    Log.Info(msg);
+                    Log.Info(e.Data);
 #endif
 
-                    switch (msg)
+                    switch (e.Data)
                     {
                         case "i":
                             Log.Warn("Authentication failed. Exiting.");
 
                             Exited = true;
-                            ws?.Close(false);
+                            ws?.Close();
                             SCPStats.Singleton.OnDisabled();
                             return;
 
@@ -117,12 +113,14 @@ namespace SCPStats
                     }
                 };
 
-                ws.OnClose = () =>
+                ws.OnClose += (sender, e) =>
                 {
+                    if (Exited) return;
+                    
                     CreateConnection();
                 };
                 
-                await ws.Connect();
+                ws.Connect();
             }
             catch (Exception e)
             {
@@ -148,11 +146,11 @@ namespace SCPStats
         
         private static async Task Ping()
         {
-            while (ws.ws.State == WebSocketState.Open)
+            while (ws.IsAlive)
             {
                 if (Pinged)
                 {
-                    CreateConnection();
+                    ws?.Close();
                     return;
                 }
 
@@ -165,35 +163,17 @@ namespace SCPStats
             PingerActive = false;
         }
 
-        private static async Task UnGrace()
-        {
-            await Task.Delay(10000);
-            ConnectGrace = false;
-        }
-
         private static async Task SendRequest(string type, Dictionary<string, string> data)
         {
             if (Exited)
             {
-                ws?.Close(false);
+                ws?.Close();
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
 
-            if (ConnectGrace && (ws == null || ws.ws.State != WebSocketState.Open))
+            if (ws == null || !ws.IsAlive)
             {
-                var str1 = type+(data != null ? DictToString(data) : "");
-
-                var message1 = "p" + SCPStats.Singleton.Config.ServerId + str1.Length.ToString() + " " + str1 + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str1);
-                
-                Queue.Add(message1);
-                return;
-            }
-            
-            if (ws == null || ws.ws.State != WebSocketState.Open)
-            {
-                ConnectGrace = true;
-                UnGrace();
                 await CreateConnection();
             }
             
@@ -201,7 +181,7 @@ namespace SCPStats
 
             var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length.ToString() + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
-            await ws.Send(message);
+            ws.Send(message);
         }
 
         private static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
@@ -253,7 +233,7 @@ namespace SCPStats
         internal static void OnKill(DyingEventArgs ev)
         {
             if (!ev.IsAllowed || !IsPlayerValid(ev.Target, false) || !IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
-            
+
             var data = new Dictionary<string, string>()
             {
                 {"playerid", HandleId(ev.Target.RawUserId)},
@@ -262,10 +242,11 @@ namespace SCPStats
                 {"damagetype", DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()}
             };
 
+
             if(!ev.Target.DoNotTrack) SendRequest("02", data);
             
             if (ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
-            
+
             data = new Dictionary<string, string>()
             {
                 {"playerid", HandleId(ev.Killer.RawUserId)},
