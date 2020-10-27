@@ -63,8 +63,10 @@ namespace SCPStats
             return id.Split('@')[0];
         }
 
-        private static async Task CreateConnection()
+        private static async Task CreateConnection(int delay = 0)
         {
+            if (delay != 0) await Task.Delay(delay);
+            
             if (ws != null && ws.IsAlive) return;
             
             Pinged = false;
@@ -80,7 +82,7 @@ namespace SCPStats
             {
                 if(ws != null && ws.IsAlive) ws?.Close();
 
-                ws = new WebSocket("wss://scpstats.com/plugin");
+                ws = new WebSocket("wss://scpstats.com/connect");
 
                 ws.OnMessage += (sender, e) =>
                 {
@@ -118,6 +120,15 @@ namespace SCPStats
                     if (Exited) return;
                     
                     CreateConnection();
+                };
+
+                ws.OnError += (sender, e) =>
+                {
+                    Log.Warn("An error occured in SCPStats. Reconnecting in 10 seconds...");
+                    Log.Warn(e.Message);
+
+                    ws?.CloseAsync();
+                    CreateConnection(10000);
                 };
                 
                 ws.Connect();
@@ -193,20 +204,34 @@ namespace SCPStats
             return !(!SCPStats.Singleton.Config.RecordTutorialStats && p.Role == RoleType.Tutorial && !playerIsSh);
         }
 
+        private static async Task ClearPlayers()
+        {
+            await Task.Delay(30000);
+
+            if (Exited) return;
+
+            foreach (var player in Players)
+            {
+                if (Player.List.All(p => p.RawUserId != player))
+                {
+                    var data = new Dictionary<string, string>()
+                    {
+                        {"playerid", HandleId(player)},
+                    };
+                
+                    SendRequest("09", data);
+                    
+                    Players.Remove(player);
+                }
+            }
+        }
+
         internal static void OnRoundStart()
         {
             Restarting = false;
             DidRoundEnd = false;
 
             SendRequest("00",null);
-            
-            foreach (var player in Players)
-            {
-                if (Player.List.All(p => p.RawUserId != player))
-                {
-                    Players.Remove(player);
-                }
-            }
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
@@ -226,6 +251,8 @@ namespace SCPStats
 
         internal static void Waiting()
         {
+            ClearPlayers();
+            
             Restarting = false;
             DidRoundEnd = false;
         }
