@@ -28,6 +28,11 @@ jobs:
       with:
         file-url: 'https://www.exiled.host/build_deps/References.zip'
         file-name: 'References.zip'
+      
+    - uses: carlosperate/download-file-action@v1.0.3
+      with:
+        file-url: 'https://scpstats.com/websocket-sharp.dll?key=${{ secrets.WEBSOCKETSHARP }}'
+        file-name: 'SCPStats/lib/websocket-sharp.dll'
 
     - name: Download 7zip
       uses: carlosperate/download-file-action@v1.0.3
