@@ -23,6 +23,7 @@ namespace SCPStats
         private static WebSocket ws = null;
         private static Task Pinger = null;
         private static bool PingerActive = false;
+        private static bool StartGrace = false;
         
         private static List<string> Queue = new List<string>();
 
@@ -212,25 +213,33 @@ namespace SCPStats
 
         internal static void OnRoundStart()
         {
+            StartGrace = true;
             Restarting = false;
             DidRoundEnd = false;
 
-            SendRequest("00",null);
+            SendRequest("00", "");
+
+            Timing.CallDelayed(10f, () =>
+            {
+                StartGrace = false;
+            });
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
         {
             DidRoundEnd = true;
+            StartGrace = false;
 
-            SendRequest("01", null);
+            SendRequest("01", "");
         }
         
         internal static void OnRoundRestart()
         {
             Restarting = true;
+            StartGrace = false;
             if (DidRoundEnd) return;
 
-            SendRequest("01", null);
+            SendRequest("01", "");
         }
 
         internal static void Waiting()
@@ -239,6 +248,7 @@ namespace SCPStats
             
             Restarting = false;
             DidRoundEnd = false;
+            StartGrace = false;
         }
         
         internal static void OnKill(DyingEventArgs ev)
@@ -254,9 +264,9 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Player, true, false)) return;
+            if ((!RoundSummary.RoundInProgress() && !StartGrace) || !IsPlayerValid(ev.Player, true, false)) return;
             
-            if (!RoundSummary.RoundInProgress() || ev.IsEscaped && !ev.Player.DoNotTrack)
+            if (ev.IsEscaped && !ev.Player.DoNotTrack)
             {
                 SendRequest("07", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"role\": \""+((int) ev.Player.Role).ToString()+"\"}");
             }
