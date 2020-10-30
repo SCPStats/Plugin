@@ -76,7 +76,7 @@ namespace SCPStats
 
                 ws.OnMessage += (sender, e) =>
                 {
-                    if (!e.IsText) return;
+                    if (!e.IsText || !ws.IsAlive) return;
 #if DEBUG
                     Log.Info(e.Data);
 #endif
