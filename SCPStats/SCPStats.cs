@@ -1,6 +1,7 @@
 ﻿using System;
 using Exiled.API.Enums;
 using Exiled.API.Features;
+using HarmonyLib;
 
 namespace SCPStats
 {
@@ -8,15 +9,17 @@ namespace SCPStats
     {
         public override string Name { get; } = "ScpStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 1, 2);
+        public override Version Version { get; } = new Version(1, 1, 3);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
 
         internal static SCPStats Singleton;
 
+        internal string ID = "";
+
+        private static Harmony harmony;
+
         public override void OnEnabled()
         {
-            base.OnEnabled();
-
             Singleton = this;
 
             if (Config.Secret == "fill this" || Config.ServerId == "fill this")
@@ -25,6 +28,9 @@ namespace SCPStats
                 base.OnDisabled();
                 return;
             }
+            
+            harmony = new Harmony("SCPStats-"+Version);
+            harmony.PatchAll();
             
             EventHandler.Start();
 
@@ -40,11 +46,14 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
             Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
+            
+            base.OnEnabled();
         }
 
         public override void OnDisabled()
         {
-            Singleton = null;
+            harmony.UnpatchAll();
+            harmony = null;
             
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded -= EventHandler.OnRoundEnd;
@@ -59,6 +68,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             
             EventHandler.Reset();
+            
+            Singleton = null;
 
             base.OnDisabled();
         }
