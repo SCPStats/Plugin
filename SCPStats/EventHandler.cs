@@ -54,30 +54,9 @@ namespace SCPStats
             CreateConnection();
         }
 
-        private static void RunServer()
-        {
-            if (RanServer) return;
-            
-            if (ServerConsole._verificationRequestThread != null && ServerConsole._verificationRequestThread.IsAlive)
-            {
-                ServerConsole._verificationRequestThread.Abort();
-            }
-            ServerConsole._verificationRequestThread = new Thread(new ThreadStart(ServerConsole.singleton.RefreshServerData))
-            {
-                IsBackground = true,
-                Priority = ThreadPriority.AboveNormal,
-                Name = "SCP:SL Server list thread"
-            };
-            ServerConsole._verificationRequestThread.Start();
-
-            RanServer = true;
-        }
-        
         private static async Task UpdateID()
         {
             await Task.Delay(10000);
-
-            RunFallback();
 
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/getid"))
             {
@@ -96,7 +75,6 @@ namespace SCPStats
                     {
                         SCPStats.Singleton.ID = body;
                         ServerConsole.ReloadServerName();
-                        RunServer();
                         Verify();
                         Clear();
                     }
@@ -108,21 +86,13 @@ namespace SCPStats
                 catch (Exception e)
                 {
                     Log.Error(e);
-                    RunServer();
                 }
             }
         }
 
-        private static async Task RunFallback()
-        {
-            await Task.Delay(10000);
-            
-            RunServer();
-        }
-
         private static async Task Verify()
         {
-            await Task.Delay(80000);
+            await Task.Delay(130000);
             
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/verify"))
             {
@@ -155,7 +125,7 @@ namespace SCPStats
 
         private static async Task Clear()
         {
-            await Task.Delay(140000);
+            await Task.Delay(170000);
 
             SCPStats.Singleton.ID = "";
             ServerConsole.ReloadServerName();
