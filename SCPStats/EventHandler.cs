@@ -83,7 +83,7 @@ namespace SCPStats
 
         private static async Task Verify()
         {
-            await Task.Delay(60000);
+            await Task.Delay(80000);
             
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/verify"))
             {
@@ -116,7 +116,7 @@ namespace SCPStats
 
         private static async Task Clear()
         {
-            await Task.Delay(120000);
+            await Task.Delay(140000);
 
             SCPStats.Singleton.ID = "";
             ServerConsole.ReloadServerName();
