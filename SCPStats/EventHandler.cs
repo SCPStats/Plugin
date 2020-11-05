@@ -47,6 +47,8 @@ namespace SCPStats
 
         private static async Task UpdateID()
         {
+            await Task.Delay(20000);
+            
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/getid"))
             {
                 var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
@@ -63,6 +65,7 @@ namespace SCPStats
                     if (body != "E")
                     {
                         SCPStats.Singleton.ID = body;
+                        ServerConsole.ReloadServerName();
                         Verify();
                     }
                 }
