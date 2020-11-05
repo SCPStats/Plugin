@@ -101,10 +101,13 @@ namespace SCPStats
                     {
                         Log.Warn("SCPStats Verification failed!");
                     }
+
+                    SCPStats.Singleton.ID = "";
                 }
                 catch (Exception e)
                 {
                     Log.Error(e);
+                    SCPStats.Singleton.ID = "";
                 }
             }
         }
