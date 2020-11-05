@@ -7,7 +7,7 @@ namespace SCPStats
     {
         private static void Postfix()
         {
-            ServerConsole._serverName += "<color=#00000000><size=1>"+SCPStats.Singleton.ID+"</size></color>";
+            ServerConsole._serverName = "<color=#00000000><size=1>"+SCPStats.Singleton.ID+"</size></color>" + ServerConsole._serverName;
         }
     }
 }
