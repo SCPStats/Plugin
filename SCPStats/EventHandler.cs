@@ -67,6 +67,11 @@ namespace SCPStats
                         SCPStats.Singleton.ID = body;
                         ServerConsole.ReloadServerName();
                         Verify();
+                        Clear();
+                    }
+                    else
+                    {
+                        Log.Warn("Error getting verification token for SCPStats. If your server is not verified, ignore this message!");
                     }
                 }
                 catch (Exception e)
@@ -90,12 +95,25 @@ namespace SCPStats
                 {
                     var res = await client.SendAsync(requestMessage);
                     res.EnsureSuccessStatusCode();
+                    
+                    var body = await res.Content.ReadAsStringAsync();
+                    if (body == "E")
+                    {
+                        Log.Warn("SCPStats Verification failed!");
+                    }
                 }
                 catch (Exception e)
                 {
                     Log.Error(e);
                 }
             }
+        }
+
+        private static async Task Clear()
+        {
+            await Task.Delay(120000);
+
+            SCPStats.Singleton.ID = "";
         }
 
         private static string HmacSha256Digest(string secret, string message)
