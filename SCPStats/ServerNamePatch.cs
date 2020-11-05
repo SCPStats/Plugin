@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 
 namespace SCPStats
 {
@@ -7,7 +8,7 @@ namespace SCPStats
     {
         private static void Postfix()
         {
-            ServerConsole._serverName += "<color=#00000000><size=1>"+SCPStats.Singleton.ID+"</size></color>";
+            if(!SCPStats.Singleton.ID.Equals("")) ServerConsole._serverName += "<color=#00000000><size=1>"+SCPStats.Singleton.ID+"</size></color>";
         }
     }
 }

@@ -103,11 +103,13 @@ namespace SCPStats
                     }
 
                     SCPStats.Singleton.ID = "";
+                    ServerConsole.ReloadServerName();
                 }
                 catch (Exception e)
                 {
                     Log.Error(e);
                     SCPStats.Singleton.ID = "";
+                    ServerConsole.ReloadServerName();
                 }
             }
         }
@@ -117,6 +119,7 @@ namespace SCPStats
             await Task.Delay(120000);
 
             SCPStats.Singleton.ID = "";
+            ServerConsole.ReloadServerName();
         }
 
         private static string HmacSha256Digest(string secret, string message)
