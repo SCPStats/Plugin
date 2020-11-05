@@ -85,6 +85,9 @@
       <HintPath>lib\Mirror.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="NorthwoodLib, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>lib\NorthwoodLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\System.AppContext.4.3.0\lib\net463\System.AppContext.dll</HintPath>
@@ -218,6 +221,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="EventHandler.cs" />
+    <Compile Include="RunServerPatch.cs" />
     <Compile Include="SCPStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerNamePatch.cs" />

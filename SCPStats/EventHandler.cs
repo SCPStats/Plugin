@@ -4,12 +4,19 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Authenticator;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
+using GameCore;
 using MEC;
+using Mirror.LiteNetLib4Mirror;
+using NorthwoodLib;
+using NorthwoodLib.Pools;
 using WebSocketSharp;
+using Log = Exiled.API.Features.Log;
 
 namespace SCPStats
 {
@@ -30,6 +37,8 @@ namespace SCPStats
         
         private static readonly HttpClient client = new HttpClient();
 
+        internal static bool RanServer = false;
+
         internal static void Reset()
         {
             ws?.Close();
@@ -45,10 +54,31 @@ namespace SCPStats
             CreateConnection();
         }
 
+        private static void RunServer()
+        {
+            if (RanServer) return;
+            
+            if (ServerConsole._verificationRequestThread != null && ServerConsole._verificationRequestThread.IsAlive)
+            {
+                ServerConsole._verificationRequestThread.Abort();
+            }
+            ServerConsole._verificationRequestThread = new Thread(new ThreadStart(ServerConsole.singleton.RefreshServerData))
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.AboveNormal,
+                Name = "SCP:SL Server list thread"
+            };
+            ServerConsole._verificationRequestThread.Start();
+
+            RanServer = true;
+        }
+        
         private static async Task UpdateID()
         {
-            await Task.Delay(20000);
-            
+            await Task.Delay(10000);
+
+            RunFallback();
+
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/getid"))
             {
                 var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
@@ -66,6 +96,7 @@ namespace SCPStats
                     {
                         SCPStats.Singleton.ID = body;
                         ServerConsole.ReloadServerName();
+                        RunServer();
                         Verify();
                         Clear();
                     }
@@ -77,8 +108,16 @@ namespace SCPStats
                 catch (Exception e)
                 {
                     Log.Error(e);
+                    RunServer();
                 }
             }
+        }
+
+        private static async Task RunFallback()
+        {
+            await Task.Delay(10000);
+            
+            RunServer();
         }
 
         private static async Task Verify()
