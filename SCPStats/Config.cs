@@ -15,5 +15,8 @@ namespace SCPStats
 
         [Description("Serpant's hand is supported and stats for them will be recorded, even if this is disabled. If you have other plugins that use tutorials, it is recommended that you enable this option.")]
         public bool RecordTutorialStats { get; set; } = false;
+
+        [Description("The role that should be given to nitro boosters.")]
+        public string BoosterRole { get; set; } = "fill this";
     }
 }

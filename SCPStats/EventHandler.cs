@@ -193,6 +193,18 @@ namespace SCPStats
                             Pinged = false;
                             break;
                     }
+
+                    if (e.Data == null || !e.Data.StartsWith("u")) return;
+                    
+                    var data = e.Data.Substring(1).Split(' ');
+                        
+                    if (data[1] != "1") return;
+                    foreach (var player in Player.List)
+                    {
+                        if (HandleId(player.RawUserId) != data[0]) continue;
+                                
+                        player.GameObject.GetComponent<ServerRoles>().SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false, false, false);
+                    }
                 };
 
                 ws.OnClose += (sender, e) =>
@@ -382,6 +394,8 @@ namespace SCPStats
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
+            SendRequest("11", HandleId(ev.Player.RawUserId));
+            
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
 
             SendRequest("08", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\"}");
