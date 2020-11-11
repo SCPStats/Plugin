@@ -193,17 +193,18 @@ namespace SCPStats
                             Pinged = false;
                             break;
                     }
-
-                    if (e.Data == null || !e.Data.StartsWith("u")) return;
+                    
+                    if (e.Data == null || !e.Data.StartsWith("u") || SCPStats.Singleton.Config.BoosterRole.Equals("fill this")) return;
                     
                     var data = e.Data.Substring(1).Split(' ');
-                        
+
                     if (data[1] != "1") return;
                     foreach (var player in Player.List)
                     {
-                        if (HandleId(player.RawUserId) != data[0]) continue;
-                                
-                        player.GameObject.GetComponent<ServerRoles>().SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false, false, false);
+                        if (!HandleId(player.RawUserId).Equals(data[0])) continue;
+                        if (player.RankName != "") continue;
+
+                        player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false, false, false);
                     }
                 };
 
@@ -216,11 +217,8 @@ namespace SCPStats
 
                 ws.OnError += (sender, e) =>
                 {
-                    Log.Warn("An error occured in SCPStats. Reconnecting in 10 seconds...");
+                    Log.Warn("An error occured in SCPStats:");
                     Log.Warn(e.Message);
-
-                    ws?.CloseAsync();
-                    CreateConnection(10000);
                 };
                 
                 ws.Connect();
@@ -394,7 +392,7 @@ namespace SCPStats
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
-            SendRequest("11", HandleId(ev.Player.RawUserId));
+            Timing.CallDelayed(1f, () => SendRequest("11", HandleId(ev.Player.RawUserId)));
             
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
 
