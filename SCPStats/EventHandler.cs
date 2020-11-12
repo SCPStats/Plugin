@@ -195,18 +195,18 @@ namespace SCPStats
                     }
                     
                     if (e.Data == null || !e.Data.StartsWith("u")) return;
-                    
+
                     var data = e.Data.Substring(1).Split(' ');
 
                     var flags = data[1].Split(',');
                     if (flags.All(v => v == "0")) return;
-                    
+
                     foreach (var player in Player.List)
                     {
                         if (!HandleId(player.RawUserId).Equals(data[0])) continue;
                         if (player.RankName != "") continue;
 
-                        if (flags[0] == "1" || !SCPStats.Singleton.Config.BoosterRole.Equals("fill this"))
+                        if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this"))
                         {
                             player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false, false, false);
                         }
