@@ -39,6 +39,8 @@ namespace SCPStats
 
         internal static bool RanServer = false;
 
+        public static bool PauseRound = false;
+
         internal static void Reset()
         {
             ws?.Close();
@@ -46,6 +48,7 @@ namespace SCPStats
             
             Exited = false;
             Pinged = true;
+            PauseRound = false;
         }
 
         internal static void Start()
@@ -307,7 +310,7 @@ namespace SCPStats
         {
             yield return Timing.WaitForSeconds(30f);
 
-            if (Exited) yield break;
+            if (Exited || PauseRound) yield break;
 
             foreach (var player in Players)
             {
@@ -325,19 +328,23 @@ namespace SCPStats
             StartGrace = true;
             Restarting = false;
             DidRoundEnd = false;
-
-            SendRequest("00", "");
-
+            
             Timing.CallDelayed(10f, () =>
             {
                 StartGrace = false;
             });
+            
+            if (PauseRound) return;
+
+            SendRequest("00", "");
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
         {
             DidRoundEnd = true;
             StartGrace = false;
+
+            if (PauseRound) return;
 
             SendRequest("01", "");
         }
@@ -346,7 +353,7 @@ namespace SCPStats
         {
             Restarting = true;
             StartGrace = false;
-            if (DidRoundEnd) return;
+            if (DidRoundEnd || PauseRound) return;
 
             SendRequest("01", "");
         }
@@ -358,11 +365,12 @@ namespace SCPStats
             Restarting = false;
             DidRoundEnd = false;
             StartGrace = false;
+            PauseRound = false;
         }
         
         internal static void OnKill(DyingEventArgs ev)
         {
-            if (!ev.IsAllowed || !IsPlayerValid(ev.Target, false) || !IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
+            if (PauseRound || !ev.IsAllowed || !IsPlayerValid(ev.Target, false) || !IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
 
             if(!ev.Target.DoNotTrack) SendRequest("02", "{\"playerid\": \""+HandleId(ev.Target.RawUserId)+"\", \"killerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
             
@@ -373,7 +381,7 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if ((!RoundSummary.RoundInProgress() && !StartGrace) || !IsPlayerValid(ev.Player, true, false)) return;
+            if (PauseRound || (!RoundSummary.RoundInProgress() && !StartGrace) || !IsPlayerValid(ev.Player, true, false)) return;
             
             if (ev.IsEscaped && !ev.Player.DoNotTrack)
             {
@@ -387,20 +395,22 @@ namespace SCPStats
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
+            if (PauseRound || !IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
             SendRequest("05", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.Pickup.itemId).ToString()+"\"}");
         }
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
+            if (PauseRound || !IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
             SendRequest("06", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.Item.id).ToString()+"\"}");
         }
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
+            if (PauseRound) return;
+            
             Timing.CallDelayed(1f, () => SendRequest("11", HandleId(ev.Player.RawUserId)));
             
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
@@ -412,7 +422,7 @@ namespace SCPStats
         
         internal static void OnLeave(LeftEventArgs ev)
         {
-            if (Restarting || ev.Player.DoNotTrack) return;
+            if (PauseRound || Restarting || ev.Player.DoNotTrack) return;
 
             SendRequest("09", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\"}");
 
@@ -421,14 +431,14 @@ namespace SCPStats
 
         internal static void OnUse(UsedMedicalItemEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress()) return;
+            if (PauseRound || !IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress()) return;
 
             SendRequest("10", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.Item).ToString()+"\"}");
         }
 
         internal static void OnThrow(ThrowingGrenadeEventArgs ev)
         {
-            if (!IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
+            if (PauseRound || !IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
             SendRequest("10", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.GrenadeManager.availableGrenades[(int) ev.Type].inventoryID).ToString()+"\"}");
         }
