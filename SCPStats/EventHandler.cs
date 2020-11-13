@@ -213,11 +213,11 @@ namespace SCPStats
                             }
                         }
 
-                        if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this"))
+                        if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                         {
                             player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false, false, false);
                         }
-                        else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this"))
+                        else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
                         {
                             player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false, false, false);
                         }
