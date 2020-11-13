@@ -4,17 +4,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Authenticator;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
-using GameCore;
 using MEC;
-using Mirror.LiteNetLib4Mirror;
-using NorthwoodLib;
-using NorthwoodLib.Pools;
 using WebSocketSharp;
 using Log = Exiled.API.Features.Log;
 
@@ -310,7 +304,7 @@ namespace SCPStats
         {
             yield return Timing.WaitForSeconds(30f);
 
-            if (Exited || PauseRound) yield break;
+            if (Exited) yield break;
 
             foreach (var player in Players)
             {
@@ -333,8 +327,6 @@ namespace SCPStats
             {
                 StartGrace = false;
             });
-            
-            if (PauseRound) return;
 
             SendRequest("00", "");
         }
@@ -344,8 +336,6 @@ namespace SCPStats
             DidRoundEnd = true;
             StartGrace = false;
 
-            if (PauseRound) return;
-
             SendRequest("01", "");
         }
         
@@ -353,7 +343,7 @@ namespace SCPStats
         {
             Restarting = true;
             StartGrace = false;
-            if (DidRoundEnd || PauseRound) return;
+            if (DidRoundEnd) return;
 
             SendRequest("01", "");
         }
@@ -409,8 +399,6 @@ namespace SCPStats
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
-            if (PauseRound) return;
-            
             Timing.CallDelayed(1f, () => SendRequest("11", HandleId(ev.Player.RawUserId)));
             
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
@@ -422,7 +410,7 @@ namespace SCPStats
         
         internal static void OnLeave(LeftEventArgs ev)
         {
-            if (PauseRound || Restarting || ev.Player.DoNotTrack) return;
+            if (Restarting || ev.Player.DoNotTrack) return;
 
             SendRequest("09", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\"}");
 
