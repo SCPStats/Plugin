@@ -202,6 +202,16 @@ namespace SCPStats
                     {
                         if (!HandleId(player.RawUserId).Equals(data[0])) continue;
                         if (player.RankName != "") continue;
+                        
+                        if (flags[2] != "0")
+                        {
+                            var roles = flags[2].Split('|');
+                            foreach (var parts in SCPStats.Singleton.Config.RoleSync.Select(role => role.Split(':')).Where(parts => parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" && roles.Contains(parts[0])))
+                            {
+                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false, false, false);
+                                return;
+                            }
+                        }
 
                         if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this"))
                         {
