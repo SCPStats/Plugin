@@ -10,10 +10,10 @@ using Exiled.Events.EventArgs;
 using Exiled.Loader;
 using MEC;
 using WebSocketSharp;
-using Log = Exiled.API.Features.Log;
 
 namespace SCPStats
 {
+#pragma warning disable 4014
     internal class EventHandler
     {
         private static bool DidRoundEnd = false;
@@ -208,18 +208,18 @@ namespace SCPStats
                             var roles = flags[2].Split('|');
                             foreach (var parts in SCPStats.Singleton.Config.RoleSync.Select(role => role.Split(':')).Where(parts => parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" && roles.Contains(parts[0])))
                             {
-                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false, false, false);
+                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false);
                                 return;
                             }
                         }
 
                         if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                         {
-                            player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false, false, false);
+                            player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false);
                         }
                         else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
                         {
-                            player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false, false, false);
+                            player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false);
                         }
                     }
                 };
@@ -280,7 +280,7 @@ namespace SCPStats
             PingerActive = false;
         }
 
-        private static async Task SendRequest(string type, string data)
+        private static async Task SendRequest(string type, string data = "")
         {
             if (Exited)
             {
@@ -296,7 +296,7 @@ namespace SCPStats
             
             var str = type+data;
 
-            var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length.ToString() + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
+            var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
             ws.Send(message);
         }
@@ -316,14 +316,14 @@ namespace SCPStats
 
             if (Exited) yield break;
 
-            foreach (var player in Players)
+            for (var i = 0; i < Players.Count; i++)
             {
-                if (Player.List.All(p => p.RawUserId != player))
-                {
-                    SendRequest("09", "{\"playerid\": \""+HandleId(player)+"\"}");
-                    
-                    Players.Remove(player);
-                }
+                var player = Players[i];
+                if (Player.List.Any(p => p.RawUserId == player)) continue;
+                
+                SendRequest("09", "{\"playerid\": \"" + HandleId(player) + "\"}");
+
+                Players.Remove(player);
             }
         }
 
@@ -356,7 +356,7 @@ namespace SCPStats
                 StartGrace = false;
             });
 
-            SendRequest("00", "");
+            SendRequest("00");
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
@@ -364,7 +364,7 @@ namespace SCPStats
             DidRoundEnd = true;
             StartGrace = false;
 
-            SendRequest("01", "");
+            SendRequest("01");
         }
         
         internal static void OnRoundRestart()
@@ -373,7 +373,7 @@ namespace SCPStats
             StartGrace = false;
             if (DidRoundEnd) return;
 
-            SendRequest("01", "");
+            SendRequest("01");
         }
 
         internal static void Waiting()
