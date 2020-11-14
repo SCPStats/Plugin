@@ -327,6 +327,24 @@ namespace SCPStats
             }
         }
 
+        internal static void OnRAReload()
+        {
+            Timing.RunCoroutine(RAReloaded());
+        }
+
+        private static IEnumerator<float> RAReloaded()
+        {
+            yield return Timing.WaitForSeconds(1.5f);
+
+            if (Exited) yield break;
+            
+            foreach (var player in Player.List)
+            {
+                Timing.CallDelayed(1f, () => SendRequest("11", HandleId(player.RawUserId)));
+                yield return Timing.WaitForSeconds(.1f);
+            }
+        }
+
         internal static void OnRoundStart()
         {
             StartGrace = true;

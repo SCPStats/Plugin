@@ -46,6 +46,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
             Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
+            Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             
             base.OnEnabled();
         }
@@ -66,6 +67,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Left -= EventHandler.OnLeave;
             Exiled.Events.Handlers.Player.MedicalItemUsed -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
+            Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             
             EventHandler.Reset();
             
