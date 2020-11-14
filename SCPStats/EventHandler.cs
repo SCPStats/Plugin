@@ -9,7 +9,9 @@ using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
 using MEC;
+using UnityEngine;
 using WebSocketSharp;
+using Object = UnityEngine.Object;
 
 namespace SCPStats
 {
@@ -142,19 +144,24 @@ namespace SCPStats
 
         private static void Rainbow(Player p)
         {
-            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "RainbowTags")?.Assembly;
-            if(assembly == null) return;
-            
-            var main = assembly.GetType("RainbowTags.RainbowTagMod");
-            if(main == null) return;
-
-            var mainRef = main.GetProperty("RainbowTagRef")?.GetValue(null);
-            if (mainRef == null) return;
-            
-            var eventHandler = main.GetField("Handler")?.GetValue(mainRef);
-            if (eventHandler == null) return;
-
-            assembly.GetType("RainbowTags.EventHandler")?.GetMethod("OnPlayerJoinEvent")?.Invoke(eventHandler, new object[] {new JoinedEventArgs(p)});
+            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "ARainbowTags")?.Assembly;
+            if (assembly == null) return;
+                            
+            var extensions = assembly.GetType("ARainbowTags.Extensions");
+            if (extensions == null) return;
+                            
+            if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, new object[] {p}) ?? false)) return;
+                            
+            var component = assembly.GetType("ARainbowTags.RainbowTagController");
+                            
+            if (component == null) return;
+                            
+            if (p.GameObject.TryGetComponent(component, out var comp))
+            {
+                Object.Destroy(comp);
+            }
+                            
+            p.GameObject.AddComponent(component);
         }
 
         private static async Task CreateConnection(int delay = 0)
@@ -226,6 +233,7 @@ namespace SCPStats
                             foreach (var parts in SCPStats.Singleton.Config.RoleSync.Select(role => role.Split(':')).Where(parts => parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" && roles.Contains(parts[0])))
                             {
                                 player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false);
+                                ServerStatic.PermissionsHandler._members[player.UserId] = parts[1];
                                 Rainbow(player);
                                 return;
                             }
@@ -234,11 +242,13 @@ namespace SCPStats
                         if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                         {
                             player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false);
+                            ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
                             Rainbow(player);
                         }
                         else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
                         {
                             player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false);
+                            ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
                             Rainbow(player);
                         }
                     }
