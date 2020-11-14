@@ -140,6 +140,20 @@ namespace SCPStats
             return id.Split('@')[0];
         }
 
+        private static void Rainbow(Player p)
+        {
+            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "RainbowTags")?.Assembly;
+            if(assembly == null) return;
+            
+            var main = assembly.GetType("RainbowTags.RainbowTagMod");
+            if(main == null) return;
+
+            var eventHandler = main.GetField("Handler")?.GetValue(main.GetProperty("RainbowTagRef")?.GetValue(null));
+            if (eventHandler == null) return;
+
+            assembly.GetType("RainbowTags.EventHandler")?.GetMethod("OnPlayerJoinEvent")?.Invoke(eventHandler, new object[] {new JoinedEventArgs(p)});
+        }
+
         private static async Task CreateConnection(int delay = 0)
         {
             if (delay != 0) await Task.Delay(delay);
@@ -209,6 +223,7 @@ namespace SCPStats
                             foreach (var parts in SCPStats.Singleton.Config.RoleSync.Select(role => role.Split(':')).Where(parts => parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" && roles.Contains(parts[0])))
                             {
                                 player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false);
+                                Rainbow(player);
                                 return;
                             }
                         }
@@ -216,10 +231,12 @@ namespace SCPStats
                         if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                         {
                             player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false);
+                            Rainbow(player);
                         }
                         else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
                         {
                             player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false);
+                            Rainbow(player);
                         }
                     }
                 };
