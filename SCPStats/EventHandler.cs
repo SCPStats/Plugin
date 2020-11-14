@@ -148,7 +148,10 @@ namespace SCPStats
             var main = assembly.GetType("RainbowTags.RainbowTagMod");
             if(main == null) return;
 
-            var eventHandler = main.GetField("Handler")?.GetValue(main.GetProperty("RainbowTagRef")?.GetValue(null));
+            var mainRef = main.GetProperty("RainbowTagRef")?.GetValue(null);
+            if (mainRef == null) return;
+            
+            var eventHandler = main.GetField("Handler")?.GetValue(mainRef);
             if (eventHandler == null) return;
 
             assembly.GetType("RainbowTags.EventHandler")?.GetMethod("OnPlayerJoinEvent")?.Invoke(eventHandler, new object[] {new JoinedEventArgs(p)});
