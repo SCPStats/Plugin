@@ -201,8 +201,8 @@ namespace SCPStats
                     foreach (var player in Player.List)
                     {
                         if (!HandleId(player.RawUserId).Equals(data[0])) continue;
-                        if (player.RankName != "") continue;
-                        
+                        if (player.Group != null) continue;
+
                         if (flags[2] != "0")
                         {
                             var roles = flags[2].Split('|');
@@ -335,9 +335,9 @@ namespace SCPStats
         private static IEnumerator<float> RAReloaded()
         {
             yield return Timing.WaitForSeconds(1.5f);
-
-            if (Exited) yield break;
             
+            if (Exited) yield break;
+
             foreach (var player in Player.List)
             {
                 Timing.CallDelayed(1f, () => SendRequest("11", HandleId(player.RawUserId)));
