@@ -224,6 +224,7 @@
     <Compile Include="SCPStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerNamePatch.cs" />
+    <Compile Include="Stats.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

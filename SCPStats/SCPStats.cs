@@ -9,7 +9,7 @@ namespace SCPStats
     {
         public override string Name { get; } = "ScpStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 1, 5);
+        public override Version Version { get; } = new Version(1, 1, 6);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
 
         internal static SCPStats Singleton;
