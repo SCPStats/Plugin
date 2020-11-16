@@ -27,8 +27,9 @@ namespace SCPStats
                     Log.Warn("SCPStats auto updater couldn't determine the plugin path. Make sure your plugin dll is named \"SCPStats.dll\".");
                     return;
                 }
-
-                await client.DownloadFileTaskAsync("https://scpstats.com/update/SCPStats.dll", location);
+                
+                var githubVer = await client.DownloadStringTaskAsync("https://scpstats.com/update/github");
+                await client.DownloadFileTaskAsync("https://github.com/SCPStats/Plugin/releases/download/"+githubVer.Replace("/", "")+"/SCPStats.dll", location);
                 Log.Info("Updated SCPStats. Please restart your server to complete the update.");
             }
         }
