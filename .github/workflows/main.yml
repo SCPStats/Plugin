@@ -13,9 +13,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
+    
     - name: Setup Nuget
-      uses: warrenbuckley/Setup-Nuget@v1
+      uses: iRebbok/setup-nuget@master
     
     - name: Restore Packages
       run: nuget restore SCPStats.sln
