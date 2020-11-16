@@ -36,9 +36,17 @@ namespace SCPStats
         internal static bool RanServer = false;
 
         public static bool PauseRound = false;
+        
+        private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
+        private static List<string> SpawnsDone = new List<string>();
 
         internal static void Reset()
         {
+            Timing.KillCoroutines(coroutines.ToArray());
+            coroutines.Clear();
+            
+            SpawnsDone.Clear();
+
             ws?.Close();
             ws = null;
             
@@ -381,7 +389,7 @@ namespace SCPStats
             Restarting = false;
             DidRoundEnd = false;
             
-            Timing.CallDelayed(10f, () =>
+            Timing.CallDelayed(SCPStats.Singleton.waitTime, () =>
             {
                 StartGrace = false;
             });
@@ -395,6 +403,11 @@ namespace SCPStats
             StartGrace = false;
 
             SendRequest("01");
+            
+            Timing.KillCoroutines(coroutines.ToArray());
+            coroutines.Clear();
+            
+            SpawnsDone.Clear();
         }
         
         internal static void OnRoundRestart()
@@ -404,11 +417,16 @@ namespace SCPStats
             if (DidRoundEnd) return;
 
             SendRequest("01");
+            
+            Timing.KillCoroutines(coroutines.ToArray());
+            coroutines.Clear();
+            
+            SpawnsDone.Clear();
         }
 
         internal static void Waiting()
         {
-            Timing.RunCoroutine(ClearPlayers());
+            coroutines.Add(Timing.RunCoroutine(ClearPlayers()));
             
             Restarting = false;
             DidRoundEnd = false;
@@ -446,8 +464,17 @@ namespace SCPStats
             }
 
             if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
+            
+            if (StartGrace && SpawnsDone.Contains(ev.Player.UserId)) return;
+            if(!SpawnsDone.Contains(ev.Player.UserId)) SpawnsDone.Add(ev.Player.UserId);
+            
+            coroutines.Add(Timing.RunCoroutine(SpawnDelay(ev.Player)));
+        }
 
-            SendRequest("04", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"spawnrole\": \""+((int) ev.NewRole).ToString()+"\"}");
+        private static IEnumerator<float> SpawnDelay(Player p)
+        {
+            if (StartGrace) yield return Timing.WaitForSeconds(SCPStats.Singleton.waitTime);
+            SendRequest("04", "{\"playerid\": \""+HandleId(p.RawUserId)+"\", \"spawnrole\": \""+((int) p.Role).ToString()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)

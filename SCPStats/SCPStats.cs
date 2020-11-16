@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Exiled.API.Enums;
 using Exiled.API.Features;
+using Exiled.Loader;
 using HarmonyLib;
+using MEC;
 
 namespace SCPStats
 {
@@ -17,6 +20,8 @@ namespace SCPStats
         internal string ID = "";
 
         private static Harmony harmony;
+
+        internal float waitTime = 10;
 
         public override void OnEnabled()
         {
@@ -49,6 +54,23 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
 
             if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
+
+            Timing.CallDelayed(3f, () =>
+            {
+                var plugin = Loader.Plugins.FirstOrDefault(pl => pl.Name == "ScpSwap");
+                if (plugin == null) return;
+
+                var config = plugin.Assembly.GetType("ScpSwap.Config");
+                if (config == null) return;
+
+                var configInstance = plugin.Assembly.GetType("ScpSwap.ScpSwap")?.GetProperty("Config")?.GetValue(plugin);
+                if (configInstance == null) return;
+
+                var value = config.GetProperty("SwapTimeout")?.GetValue(configInstance);
+                if (value == null) return;
+
+                waitTime += (float) value;
+            });
             
             base.OnEnabled();
         }
@@ -72,6 +94,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             
             EventHandler.Reset();
+
+            waitTime = 10f;
             
             Singleton = null;
 
