@@ -21,7 +21,7 @@ jobs:
       run: nuget restore SCPStats.sln
       
     - name: Setup MSBuild
-      uses: warrenbuckley/Setup-MSBuild@v1
+      uses: microsoft/setup-msbuild@v1
 
     - name: Download references
       uses: carlosperate/download-file-action@v1.0.3
