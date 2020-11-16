@@ -337,7 +337,7 @@ namespace SCPStats
 
             if (dnt && p.DoNotTrack) return false;
             if (role && (p.Role == RoleType.None || p.Role == RoleType.Spectator)) return false;
-            return !(!SCPStats.Singleton.Config.RecordTutorialStats && p.Role == RoleType.Tutorial && !playerIsSh);
+            return !(p.Role == RoleType.Tutorial && !playerIsSh);
         }
 
         private static IEnumerator<float> ClearPlayers()

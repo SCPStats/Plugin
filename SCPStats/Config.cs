@@ -14,8 +14,8 @@ namespace SCPStats
         [Description("The Secret for your server. This should be treated like a password. You must register your server at https://scpstats.com to obtain this.")]
         public string Secret { get; set; } = "fill this";
 
-        [Description("Serpant's hand is supported and stats for them will be recorded, even if this is disabled. If you have other plugins that use tutorials, it is recommended that you enable this option.")]
-        public bool RecordTutorialStats { get; set; } = false;
+        [Description("Turning this off will disable the auto updater, which will automatically update the plugin.")]
+        public bool AutoUpdates { get; set; } = true;
 
         [Description("The role that should be given to nitro boosters. Your server must be linked to your discord server to do this.")]
         public string BoosterRole { get; set; } = "none";

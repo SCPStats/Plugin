@@ -47,6 +47,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
+
+            if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
             
             base.OnEnabled();
         }
