@@ -441,15 +441,11 @@ namespace SCPStats
             if (!ev.Target.DoNotTrack)
             {
                 SendRequest("12", "{\"playerid\": \""+HandleId(ev.Target.RawUserId)+"\", \"killerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
-                if (!RoundStats.Deaths.ContainsKey(ev.Target.UserId)) RoundStats.Deaths[ev.Target.UserId] = 1;
-                else RoundStats.Deaths[ev.Target.UserId]++;
             }
             
             if (ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
 
             SendRequest("13", "{\"playerid\": \""+HandleId(ev.Killer.RawUserId)+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
-            if (!RoundStats.Kills.ContainsKey(ev.Target.UserId)) RoundStats.Kills[ev.Killer.UserId] = 1;
-            else RoundStats.Kills[ev.Killer.UserId]++;
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
@@ -459,8 +455,6 @@ namespace SCPStats
             if (ev.IsEscaped && !ev.Player.DoNotTrack)
             {
                 SendRequest("07", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"role\": \""+((int) ev.Player.Role).ToString()+"\"}");
-                if (!RoundStats.Kills.ContainsKey(ev.Player.UserId)) RoundStats.Kills[ev.Player.UserId] = 1;
-                else RoundStats.Kills[ev.Player.UserId]++;
             }
 
             if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
