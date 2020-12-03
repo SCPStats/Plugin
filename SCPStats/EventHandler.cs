@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
+using Exiled.Permissions.Extensions;
 using MEC;
+using SCPStats.Hats;
 using UnityEngine;
 using WebSocketSharp;
 using Object = UnityEngine.Object;
@@ -58,7 +60,7 @@ namespace SCPStats
         internal static void Start()
         {
             UpdateID();
-            CreateConnection();
+            CreateConnection(0, true);
         }
 
         private static async Task UpdateID()
@@ -145,7 +147,7 @@ namespace SCPStats
             return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
 
-        internal static string HandleId(string id)
+        private static string HandleId(string id)
         {
             return id.Split('@')[0];
         }
@@ -172,7 +174,7 @@ namespace SCPStats
             p.GameObject.AddComponent(component);
         }
 
-        private static async Task CreateConnection(int delay = 0)
+        private static async Task CreateConnection(int delay = 0, bool sendInfo = false)
         {
             if (delay != 0) await Task.Delay(delay);
             
@@ -233,8 +235,15 @@ namespace SCPStats
                     foreach (var player in Player.List)
                     {
                         if (!HandleId(player.RawUserId).Equals(data[0])) continue;
-                        if (player.Group != null) continue;
 
+                        if (flags[3] == "1")
+                        {
+                            HatCommand.HatPlayers[player.UserId] = (ItemType) Convert.ToInt32(flags[4]);
+                        }
+                            
+                        //Rolesync stuff
+                        if (player.Group != null) continue;
+                        
                         if (flags[2] != "0")
                         {
                             var roles = flags[2].Split('|');
@@ -293,6 +302,12 @@ namespace SCPStats
             foreach (var s in Queue)
             {
                 ws?.Send(s);
+            }
+
+            foreach (var player in Player.List)
+            {
+                SendRequest("11", HandleId(player.RawUserId));
+                Players.Add(player.RawUserId);
             }
             
             Queue = new List<string>();
@@ -450,6 +465,30 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
+            if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
+            {
+                Timing.CallDelayed(.5f, () =>
+                {
+                    if (HatCommand.HatPlayers.ContainsKey(ev.Player.UserId))
+                    {
+                        HatPlayerComponent playerComponent;
+
+                        if (!ev.Player.GameObject.TryGetComponent(out playerComponent))
+                        {
+                            playerComponent = ev.Player.GameObject.AddComponent<HatPlayerComponent>();
+                        }
+
+                        if (playerComponent.item != null)
+                        {
+                            Object.Destroy(playerComponent.item);
+                            playerComponent.item = null;
+                        }
+
+                        ev.Player.SpawnHat(HatCommand.HatPlayers[ev.Player.UserId]);
+                    }
+                });
+            }
+
             if (PauseRound || (!RoundSummary.RoundInProgress() && !StartGrace) || !IsPlayerValid(ev.Player, true, false)) return;
             
             if (ev.IsEscaped && !ev.Player.DoNotTrack)
@@ -473,6 +512,12 @@ namespace SCPStats
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
+            if (ev.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
+            {
+                ev.IsAllowed = false;
+                return;
+            }
+            
             if (PauseRound || !IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
             SendRequest("05", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.Pickup.itemId).ToString()+"\"}");
@@ -517,6 +562,14 @@ namespace SCPStats
             if (PauseRound || !IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
 
             SendRequest("10", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\", \"itemid\": \""+((int) ev.GrenadeManager.availableGrenades[(int) ev.Type].inventoryID).ToString()+"\"}");
+        }
+
+        internal static void OnUpgrade(UpgradingItemsEventArgs ev)
+        {
+            var newItems = ev.Items.Where(pickup => !pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
+            
+            ev.Items.Clear();
+            ev.Items.AddRange(newItems);
         }
     }
 }

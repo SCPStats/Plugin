@@ -52,6 +52,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
+            Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
 
             if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
 
@@ -92,8 +93,10 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.MedicalItemUsed -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
-            
+            Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
+
             EventHandler.Reset();
+            Hats.Hats.Reset();
 
             waitTime = 10f;
             
