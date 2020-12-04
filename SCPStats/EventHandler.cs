@@ -238,7 +238,8 @@ namespace SCPStats
 
                         if (flags[3] == "1" || player.CheckPermission("scpstats.hat"))
                         {
-                            HatCommand.HatPlayers[player.UserId] = (ItemType) Convert.ToInt32(flags[4]);
+                            var item = (ItemType) Convert.ToInt32(flags[4]);
+                            if(HatCommand.AllowedHats.Contains(item)) HatCommand.HatPlayers[player.UserId] = item;
                         }
                             
                         //Rolesync stuff

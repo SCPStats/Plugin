@@ -54,8 +54,6 @@ namespace SCPStats.Hats
             {"18", ItemType.SCP018},
             {"medkit", ItemType.Medkit},
             {"adrenaline", ItemType.Adrenaline},
-            {"micro", ItemType.MicroHID},
-            {"microhid", ItemType.MicroHID},
             {"tablet", ItemType.WeaponManagerTablet},
             {"weapontablet", ItemType.WeaponManagerTablet},
             {"weaponmanagertablet", ItemType.WeaponManagerTablet},
@@ -130,9 +128,8 @@ namespace SCPStats.Hats
                                    "\nCoin" +
                                    "\nAmmo" +
                                    "\nSCP-018" +
-                                   "\nmedkit" +
-                                   "\nadrenaline" +
-                                   "\nMicroHID" +
+                                   "\nMedkit" +
+                                   "\nAdrenaline" +
                                    "\nWeaponManagerTablet" +
                                    "\nSCP-207";
                         return true;
