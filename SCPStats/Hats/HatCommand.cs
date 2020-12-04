@@ -25,7 +25,7 @@ namespace SCPStats.Hats
             ItemType.SCP018,
             ItemType.Medkit,
             ItemType.Adrenaline,
-            ItemType.MicroHID,
+            ItemType.None,
             ItemType.WeaponManagerTablet,
             ItemType.SCP207
         };
@@ -82,13 +82,13 @@ namespace SCPStats.Hats
                 return true;
             }
 
-            if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = ItemType.SCP268;
-
             if (arguments.Count < 1)
             {
                 response = "Usage: .hat <on/off/item>";
                 return true;
             }
+            
+            if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = ItemType.SCP268;
             
             HatPlayerComponent playerComponent;
             if (!p.GameObject.TryGetComponent(out playerComponent))

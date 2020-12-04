@@ -305,12 +305,15 @@ namespace SCPStats
                 ws?.Send(s);
             }
 
-            foreach (var player in Player.List)
+            if (sendInfo)
             {
-                SendRequest("11", HandleId(player.RawUserId));
-                Players.Add(player.RawUserId);
+                foreach (var player in Player.List)
+                {
+                    SendRequest("11", HandleId(player.RawUserId));
+                    Players.Add(player.RawUserId);
+                }
             }
-            
+
             Queue = new List<string>();
         }
         
