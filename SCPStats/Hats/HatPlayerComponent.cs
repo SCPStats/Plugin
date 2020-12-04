@@ -25,7 +25,7 @@ namespace SCPStats.Hats
         {
             _isitemNull = item == null;
 
-            Timing.RunCoroutine(MoveHat().CancelWith(this));
+            Timing.RunCoroutine(MoveHat().CancelWith(this).CancelWith(gameObject));
         }
 
         private IEnumerator<float> MoveHat()

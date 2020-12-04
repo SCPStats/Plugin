@@ -484,7 +484,7 @@ namespace SCPStats
 
                         if (playerComponent.item != null)
                         {
-                            Object.Destroy(playerComponent.item);
+                            Object.Destroy(playerComponent.item.gameObject);
                             playerComponent.item = null;
                         }
 
@@ -544,9 +544,15 @@ namespace SCPStats
             
             Players.Add(ev.Player.RawUserId);
         }
-        
+
         internal static void OnLeave(LeftEventArgs ev)
         {
+            if (ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
+            {
+                Object.Destroy(playerComponent.item.gameObject);
+                playerComponent.item = null;
+            }
+            
             if (Restarting || ev.Player.DoNotTrack) return;
 
             SendRequest("09", "{\"playerid\": \""+HandleId(ev.Player.RawUserId)+"\"}");
