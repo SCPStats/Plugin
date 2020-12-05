@@ -28,5 +28,11 @@ namespace SCPStats
         {
             "DiscordRoleID:IngameRoleName"
         };
+
+        [Description("SCPStats includes hats to give perks to its donators. If you want to reward your own donators with hats, you can give them the scpstats.hats permission.")]
+        public bool EnableHats { get; set; } = true;
+
+        [Description("This is the amount of time (in seconds) that hats positions and will be updated in. The lower the number, the smoother the hats will look, but it will also put more load on the server.")]
+        public float HatUpdateTime { get; set; } = .4f;
     }
 }

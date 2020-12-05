@@ -12,7 +12,7 @@ namespace SCPStats
     {
         public override string Name { get; } = "ScpStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 1, 6);
+        public override Version Version { get; } = new Version(1, 1, 7);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
 
         internal static SCPStats Singleton;
@@ -52,6 +52,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
+            Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
 
             if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
 
@@ -92,8 +93,10 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.MedicalItemUsed -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
-            
+            Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
+
             EventHandler.Reset();
+            Hats.Hats.Reset();
 
             waitTime = 10f;
             

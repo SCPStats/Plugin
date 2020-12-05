@@ -402,7 +402,7 @@ namespace SCPStats
             DidRoundEnd = true;
             StartGrace = false;
 
-            SendRequest("01");
+            SendRoundEnd();
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
@@ -416,12 +416,22 @@ namespace SCPStats
             StartGrace = false;
             if (DidRoundEnd) return;
 
-            SendRequest("01");
+            SendRoundEnd();
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
             
             SpawnsDone.Clear();
+        }
+
+        private static void SendRoundEnd()
+        {
+            SendRequest("01");
+
+            foreach (var player in Player.List)
+            {
+                SendRequest("12", "{\"playerID\": \"" + HandleId(player.RawUserId) + "\"}");
+            }
         }
 
         internal static void Waiting()
