@@ -449,7 +449,7 @@ namespace SCPStats
 
             foreach (var player in Player.List)
             {
-                SendRequest("12", "{\"playerID\": \"" + HandleId(player.RawUserId) + "\"}");
+                SendRequest("14", "{\"playerID\": \"" + HandleId(player.RawUserId) + "\"}");
             }
         }
 
