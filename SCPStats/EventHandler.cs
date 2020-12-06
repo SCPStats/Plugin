@@ -30,6 +30,7 @@ namespace SCPStats
         private static Task Pinger = null;
         private static bool PingerActive = false;
         private static bool StartGrace = false;
+        private static bool CreatingClient = false;
         
         private static List<string> Queue = new List<string>();
         
@@ -176,9 +177,15 @@ namespace SCPStats
 
         private static async Task CreateConnection(int delay = 0, bool sendInfo = false)
         {
-            if (delay != 0) await Task.Delay(delay);
+            CreatingClient = true;
             
-            if (ws != null && ws.IsAlive) return;
+            if (delay != 0) await Task.Delay(delay);
+
+            if (ws != null && ws.IsAlive)
+            {
+                CreatingClient = false;
+                return;
+            }
             
             Pinged = false;
 
@@ -194,6 +201,32 @@ namespace SCPStats
                 if(ws != null && ws.IsAlive) ws?.Close();
 
                 ws = new WebSocket("wss://scpstats.com/connect");
+
+                ws.OnOpen += (o, e) =>
+                {
+                    CreatingClient = false;
+                    
+                    if (!PingerActive)
+                    {
+                        Pinger = Ping();
+                        PingerActive = true;
+                    }
+
+                    foreach (var s in Queue)
+                    {
+                        ws?.Send(s);
+                    }
+                    
+                    Queue.Clear();
+
+                    if (!sendInfo) return;
+                    
+                    foreach (var player in Player.List)
+                    {
+                        SendRequest("11", HandleId(player.RawUserId));
+                        Players.Add(player.RawUserId);
+                    }
+                };
 
                 ws.OnMessage += (sender, e) =>
                 {
@@ -275,14 +308,24 @@ namespace SCPStats
                 ws.OnClose += (sender, e) =>
                 {
                     if (Exited) return;
-                    
-                    CreateConnection();
+#if DEBUG
+                    Log.Info("Restarting websocket client");
+#endif
+                    CreateConnection(10000);
                 };
 
                 ws.OnError += (sender, e) =>
                 {
+#if DEBUG
                     Log.Warn("An error occured in SCPStats:");
                     Log.Warn(e.Message);
+#endif
+                    Task.Run(() =>
+                    {
+                        Task.Delay(5000);
+                        if (CreatingClient) return;
+                        CreateConnection();
+                    });
                 };
                 
                 ws.Connect();
@@ -291,30 +334,6 @@ namespace SCPStats
             {
                 Log.Error(e);
             }
-
-            await Task.Delay(500);
-            
-            if (!PingerActive)
-            {
-                Pinger = Ping();
-                PingerActive = true;
-            }
-
-            foreach (var s in Queue)
-            {
-                ws?.Send(s);
-            }
-
-            if (sendInfo)
-            {
-                foreach (var player in Player.List)
-                {
-                    SendRequest("11", HandleId(player.RawUserId));
-                    Players.Add(player.RawUserId);
-                }
-            }
-
-            Queue = new List<string>();
         }
         
         
@@ -345,15 +364,20 @@ namespace SCPStats
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
+            
+            var str = type+data;
+            var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
+
+            if (CreatingClient)
+            {
+                Queue.Add(message);
+                return;
+            }
 
             if (ws == null || !ws.IsAlive)
             {
                 await CreateConnection();
             }
-            
-            var str = type+data;
-
-            var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
             ws.Send(message);
         }

@@ -27,7 +27,8 @@ namespace SCPStats.Hats
             ItemType.Adrenaline,
             ItemType.None,
             ItemType.WeaponManagerTablet,
-            ItemType.SCP207
+            ItemType.SCP207,
+            ItemType.GunE11SR
         };
 
         private static Dictionary<string, ItemType> items = new Dictionary<string, ItemType>()
@@ -149,7 +150,7 @@ namespace SCPStats.Hats
         {
             if (playerComponent.item == null) return false;
             
-            Object.Destroy(playerComponent.item);
+            Object.Destroy(playerComponent.item.gameObject);
             playerComponent.item = null;
             return true;
         }

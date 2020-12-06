@@ -26,7 +26,7 @@ namespace SCPStats.Hats
             if (item == ItemType.None) return;
 
             var pos = GetHatPosForRole(p.Role);
-            var rot = item == ItemType.SCP268 ? Quaternion.Euler(-90, 0, 90) : Quaternion.Euler(0, 0, 0);
+            var rot = Quaternion.Euler(-90, 0, 90);
             
             var pickup = item.Spawn(0, p.CameraTransform.position+pos, p.CameraTransform.rotation * rot);
                 
