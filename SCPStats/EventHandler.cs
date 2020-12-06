@@ -420,6 +420,8 @@ namespace SCPStats
         {
             DidRoundEnd = true;
             StartGrace = false;
+            
+            HatCommand.HatPlayers.Clear();
 
             SendRoundEnd();
             
@@ -433,6 +435,7 @@ namespace SCPStats
         {
             Restarting = true;
             StartGrace = false;
+            HatCommand.HatPlayers.Clear();
             if (DidRoundEnd) return;
 
             SendRoundEnd();
