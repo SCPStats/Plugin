@@ -44,7 +44,7 @@ namespace SCPStats.Hats
                     var camera = Player.Get(gameObject).CameraTransform;
 
                     var pos = camera.position + item.pos;
-                    var rot = camera.rotation * Quaternion.Euler(-90, 0, 90);
+                    var rot = camera.rotation * item.rot;
                     var transform1 = pickup.transform;
 
                     pickup.Networkposition = pos;

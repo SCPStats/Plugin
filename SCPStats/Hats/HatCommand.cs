@@ -28,7 +28,8 @@ namespace SCPStats.Hats
             ItemType.None,
             ItemType.WeaponManagerTablet,
             ItemType.SCP207,
-            ItemType.GunE11SR
+            ItemType.GunE11SR,
+            ItemType.KeycardScientist
         };
 
         private static Dictionary<string, ItemType> items = new Dictionary<string, ItemType>()
@@ -64,7 +65,8 @@ namespace SCPStats.Hats
             {"coke", ItemType.SCP207},
             {"207", ItemType.SCP207},
             {"scp207", ItemType.SCP207},
-            {"scp-207", ItemType.SCP207}
+            {"scp-207", ItemType.SCP207},
+            {"butter", ItemType.KeycardScientist}
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
