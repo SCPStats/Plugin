@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
@@ -23,15 +24,11 @@ namespace SCPStats
         private static bool DidRoundEnd = false;
         private static bool Restarting = false;
         private static List<string> Players = new List<string>();
-        private static bool Pinged = true;
 
         private static bool Exited = false;
-        private static WebSocket ws = null;
-        private static Task Pinger = null;
-        private static bool PingerActive = false;
-        private static bool StartGrace = false;
-        private static bool CreatingClient = false;
         
+        private static bool StartGrace = false;
+
         private static List<string> Queue = new List<string>();
         
         private static readonly HttpClient client = new HttpClient();
@@ -39,6 +36,8 @@ namespace SCPStats
         internal static bool RanServer = false;
 
         public static bool PauseRound = false;
+
+        internal static Thread wss = null;
         
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
@@ -50,18 +49,25 @@ namespace SCPStats
             
             SpawnsDone.Clear();
 
-            ws?.Close();
-            ws = null;
+            WebsocketThread.Queue.Enqueue("exit");
+            WebsocketThread.Signal.Set();
+            wss.Abort();
             
             Exited = false;
-            Pinged = true;
             PauseRound = false;
         }
 
         internal static void Start()
         {
             UpdateID();
-            CreateConnection(0, true);
+
+            if (wss != null && wss.IsAlive)
+            {
+                WebsocketThread.Queue.Enqueue("exit");
+                WebsocketThread.Signal.Set();
+            }
+            wss = new Thread(WebsocketThread.StartServer);
+            wss.Start();
         }
 
         private static async Task UpdateID()
@@ -141,226 +147,15 @@ namespace SCPStats
             ServerConsole.ReloadServerName();
         }
 
-        private static string HmacSha256Digest(string secret, string message)
-        {
-            var encoding = new ASCIIEncoding();
-            
-            return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
-        }
-
         private static string HandleId(string id)
         {
             return id.Split('@')[0];
         }
-
-        private static void Rainbow(Player p)
-        {
-            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "ARainbowTags")?.Assembly;
-            if (assembly == null) return;
-                            
-            var extensions = assembly.GetType("ARainbowTags.Extensions");
-            if (extensions == null) return;
-                            
-            if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, new object[] {p}) ?? false)) return;
-                            
-            var component = assembly.GetType("ARainbowTags.RainbowTagController");
-                            
-            if (component == null) return;
-                            
-            if (p.GameObject.TryGetComponent(component, out var comp))
-            {
-                Object.Destroy(comp);
-            }
-                            
-            p.GameObject.AddComponent(component);
-        }
-
-        private static async Task CreateConnection(int delay = 0, bool sendInfo = false)
-        {
-            CreatingClient = true;
-            
-            if (delay != 0) await Task.Delay(delay);
-
-            if (ws != null && ws.IsAlive)
-            {
-                CreatingClient = false;
-                return;
-            }
-            
-            Pinged = false;
-
-            if (Exited)
-            {
-                ws?.Close();
-                SCPStats.Singleton.OnDisabled();
-                return;
-            }
-
-            try
-            {
-                if(ws != null && ws.IsAlive) ws?.Close();
-
-                ws = new WebSocket("wss://scpstats.com/connect");
-
-                ws.OnOpen += (o, e) =>
-                {
-                    CreatingClient = false;
-                    
-                    if (!PingerActive)
-                    {
-                        Pinger = Ping();
-                        PingerActive = true;
-                    }
-
-                    foreach (var s in Queue)
-                    {
-                        ws?.Send(s);
-                    }
-                    
-                    Queue.Clear();
-
-                    if (!sendInfo) return;
-                    
-                    foreach (var player in Player.List)
-                    {
-                        SendRequest("11", HandleId(player.RawUserId));
-                        Players.Add(player.RawUserId);
-                    }
-                };
-
-                ws.OnMessage += (sender, e) =>
-                {
-                    if (!e.IsText || !ws.IsAlive) return;
-#if DEBUG
-                    Log.Info(e.Data);
-#endif
-
-                    switch (e.Data)
-                    {
-                        case "i":
-                            Log.Warn("Authentication failed. Exiting.");
-
-                            Exited = true;
-                            ws?.Close();
-                            SCPStats.Singleton.OnDisabled();
-                            return;
-
-                        case "c":
-                            ws?.Close();
-                            break;
-
-                        case "b":
-                            ws?.Send("a");
-                            break;
-
-                        case "a":
-                            Pinged = false;
-                            break;
-                    }
-                    
-                    if (e.Data == null || !e.Data.StartsWith("u")) return;
-
-                    var data = e.Data.Substring(1).Split(' ');
-
-                    var flags = data[1].Split(',');
-                    if (flags.All(v => v == "0")) return;
-
-                    foreach (var player in Player.List)
-                    {
-                        if (!HandleId(player.RawUserId).Equals(data[0])) continue;
-
-                        if (flags[3] == "1" || player.CheckPermission("scpstats.hat"))
-                        {
-                            var item = (ItemType) Convert.ToInt32(flags[4]);
-                            if(HatCommand.AllowedHats.Contains(item)) HatCommand.HatPlayers[player.UserId] = item;
-                        }
-                            
-                        //Rolesync stuff
-                        if (player.Group != null) continue;
-                        
-                        if (flags[2] != "0")
-                        {
-                            var roles = flags[2].Split('|');
-                            foreach (var parts in SCPStats.Singleton.Config.RoleSync.Select(role => role.Split(':')).Where(parts => parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" && roles.Contains(parts[0])))
-                            {
-                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false);
-                                ServerStatic.PermissionsHandler._members[player.UserId] = parts[1];
-                                Rainbow(player);
-                                return;
-                            }
-                        }
-
-                        if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
-                        {
-                            player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false);
-                            ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
-                            Rainbow(player);
-                        }
-                        else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
-                        {
-                            player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false);
-                            ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
-                            Rainbow(player);
-                        }
-                    }
-                };
-
-                ws.OnClose += (sender, e) =>
-                {
-                    if (Exited) return;
-#if DEBUG
-                    Log.Info("Restarting websocket client");
-#endif
-                    CreateConnection(10000);
-                };
-
-                ws.OnError += (sender, e) =>
-                {
-#if DEBUG
-                    Log.Warn("An error occured in SCPStats:");
-                    Log.Warn(e.Message);
-#endif
-                    Task.Run(() =>
-                    {
-                        Task.Delay(5000);
-                        if (CreatingClient) return;
-                        CreateConnection();
-                    });
-                };
-                
-                ws.Connect();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e);
-            }
-        }
         
-        
-        private static async Task Ping()
-        {
-            while (ws.IsAlive)
-            {
-                if (Pinged)
-                {
-                    ws?.Close();
-                    return;
-                }
-
-                Pinged = true;
-
-                ws?.Send("b");
-                await Task.Delay(10000);
-            }
-
-            PingerActive = false;
-        }
-
         private static async Task SendRequest(string type, string data = "")
         {
             if (Exited)
             {
-                ws?.Close();
                 SCPStats.Singleton.OnDisabled();
                 return;
             }
@@ -368,20 +163,17 @@ namespace SCPStats
             var str = type+data;
             var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
-            if (CreatingClient)
-            {
-                Queue.Add(message);
-                return;
-            }
-
-            if (ws == null || !ws.IsAlive)
-            {
-                await CreateConnection();
-            }
-
-            ws.Send(message);
+            WebsocketThread.Queue.Enqueue(message);
+            WebsocketThread.Signal.Set();
         }
-
+        
+        private static string HmacSha256Digest(string secret, string message)
+        {
+            var encoding = new ASCIIEncoding();
+            
+            return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
+        }
+        
         private static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
         {
             var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
