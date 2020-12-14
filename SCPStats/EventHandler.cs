@@ -405,10 +405,7 @@ namespace SCPStats
 
         internal static void OnUpgrade(UpgradingItemsEventArgs ev)
         {
-            var newItems = ev.Items.Where(pickup => !pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
-            
-            ev.Items.Clear();
-            ev.Items.AddRange(newItems);
+            ev.Items.RemoveAll(pickup => pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
         }
     }
 }
