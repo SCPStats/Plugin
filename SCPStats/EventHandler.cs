@@ -25,6 +25,8 @@ namespace SCPStats
         private static bool Restarting = false;
         private static List<string> Players = new List<string>();
 
+        private static bool firstJoin = true;
+
         private static bool Exited = false;
         
         private static bool StartGrace = false;
@@ -59,8 +61,8 @@ namespace SCPStats
 
         internal static void Start()
         {
-            UpdateID();
-
+            firstJoin = true;
+            
             if (wss != null && wss.IsAlive)
             {
                 WebsocketThread.Queue.Enqueue("exit");
@@ -72,7 +74,7 @@ namespace SCPStats
 
         private static async Task UpdateID()
         {
-            await Task.Delay(10000);
+            await Task.Delay(1000);
 
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/getid"))
             {
@@ -365,6 +367,12 @@ namespace SCPStats
 
         internal static void OnJoin(JoinedEventArgs ev)
         {
+            if (firstJoin)
+            {
+                firstJoin = false;
+                UpdateID();
+            }
+
             Timing.CallDelayed(1f, () => SendRequest("11", HandleId(ev.Player.RawUserId)));
             
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
