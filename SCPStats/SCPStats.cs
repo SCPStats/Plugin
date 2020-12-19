@@ -55,14 +55,11 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Player.PlayerJoinEvent += EventHandler.OnJoin;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent += EventHandler.OnLeave;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent += EventHandler.OnUse;
-            Synapse.Api.Events.EventHandler.Get.Player.PlayerThrowGrenadeEvent += EventHandler.OnThrow;
             Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent += EventHandler.OnUpgrade;
 
             if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
             
             Log.Info("SCPStats by PintTheDragon has loaded!");
-
-            base.Load();
         }
 
         public void OnDisabled()
@@ -81,7 +78,6 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Player.PlayerJoinEvent -= EventHandler.OnJoin;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent -= EventHandler.OnLeave;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent -= EventHandler.OnUse;
-            Synapse.Api.Events.EventHandler.Get.Player.PlayerThrowGrenadeEvent -= EventHandler.OnThrow;
             Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent -= EventHandler.OnUpgrade;
 
             EventHandler.Reset();

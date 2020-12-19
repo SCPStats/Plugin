@@ -259,16 +259,9 @@ namespace SCPStats
 
         internal static void OnUse(PlayerItemInteractEventArgs ev)
         {
-            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress()) return;
-
-            StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.CurrentItem.ItemType).ToString()+"\"}");
-        }
-
-        internal static void OnThrow(PlayerThrowGrenadeEventArgs ev)
-        {
             if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow) return;
 
-            StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Settings.inventoryID).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.CurrentItem.ItemType).ToString()+"\"}");
         }
 
         internal static void OnUpgrade(Scp914ActivateEventArgs ev)

@@ -10,7 +10,7 @@ namespace SCPStats.Hats
         Name = "hat",
         Aliases = new string[] { "hats" },
         Description = "Change your hat ingame. This only applies to the current round.",
-        Permission = "scpstats.hat",
+        Permission = "",
         Platforms = new Platform[] {Platform.ClientConsole},
         Usage = ".hat <on/off/item>"
     )]
@@ -80,8 +80,7 @@ namespace SCPStats.Hats
 
         public CommandResult Execute(CommandContext ctx)
         {
-            var result = new CommandResult();
-            result.State = CommandResultState.Ok;
+            var result = new CommandResult {State = CommandResultState.Ok};
 
             if (!ctx.Player)
             {
