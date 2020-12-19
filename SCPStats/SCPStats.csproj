@@ -40,10 +40,12 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\Assembly-CSharp-Publicized.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Assembly-CSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>lib\CommandSystem.Core.dll</HintPath>
@@ -52,28 +54,8 @@
       <HintPath>..\packages\Costura.Fody.5.0.0-alpha0281\lib\netstandard1.0\Costura.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.API, Version=2.1.19.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.19\lib\net472\Exiled.API.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Bootstrap, Version=2.1.19.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.19\lib\net472\Exiled.Bootstrap.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Events, Version=2.1.19.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.19\lib\net472\Exiled.Events.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Loader, Version=2.1.19.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.19\lib\net472\Exiled.Loader.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Permissions, Version=2.1.19.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.19\lib\net472\Exiled.Permissions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Exiled.Updater, Version=3.0.3.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\EXILED.2.1.19\lib\net472\Exiled.Updater.dll</HintPath>
+    <Reference Include="LiteDB, Version=5.0.9.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27">
+      <HintPath>..\packages\LiteDB.5.0.9\lib\net45\LiteDB.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.0.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
@@ -85,11 +67,16 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\Mirror.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Mirror.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="NorthwoodLib, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>lib\NorthwoodLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Synapse, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Synapse.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -212,16 +199,23 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\UnityEngine.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\UnityEngine.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\UnityEngine.CoreModule.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>lib\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="websocket-sharp, Version=1.0.2.234, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
       <HintPath>lib\websocket-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="YamlDotNet, Version=8.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e">
+      <HintPath>..\packages\YamlDotNet.8.1.2\lib\net45\YamlDotNet.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +227,7 @@
     <Compile Include="Hats\HatPlayerComponent.cs" />
     <Compile Include="Hats\Hats.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="RequestType.cs" />
     <Compile Include="SCPStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

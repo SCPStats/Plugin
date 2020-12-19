@@ -1,6 +1,5 @@
-﻿using Exiled.API.Extensions;
-using Exiled.API.Features;
-using Mirror;
+﻿using Mirror;
+using Synapse.Api;
 using UnityEngine;
 
 namespace SCPStats.Hats
@@ -13,9 +12,9 @@ namespace SCPStats.Hats
 
             HatPlayerComponent playerComponent;
             
-            if (!p.GameObject.TryGetComponent(out playerComponent))
+            if (!p.gameObject.TryGetComponent(out playerComponent))
             {
-                playerComponent = p.GameObject.AddComponent<HatPlayerComponent>();
+                playerComponent = p.gameObject.AddComponent<HatPlayerComponent>();
             }
 
             if (force && playerComponent.item != null)
@@ -26,11 +25,11 @@ namespace SCPStats.Hats
 
             if (item == ItemType.None) return;
 
-            var pos = GetHatPosForRole(p.Role);
+            var pos = GetHatPosForRole(p.RoleType);
             var rot = item == ItemType.SCP268 ? Quaternion.Euler(-90, 0, 90) : Quaternion.Euler(0, 0, 0);
             
-            var gameObject = UnityEngine.Object.Instantiate<GameObject>(Server.Host.Inventory.pickupPrefab);
-            
+            var gameObject = UnityEngine.Object.Instantiate<GameObject>( PlayerManager.localPlayer.GetComponent<Inventory>().pickupPrefab);
+
             if (item == ItemType.KeycardScientist)
             {
                 gameObject.transform.localScale+= new Vector3(1.5f, 20f, 1.5f);
@@ -38,7 +37,7 @@ namespace SCPStats.Hats
             }
             
             NetworkServer.Spawn(gameObject);
-            gameObject.GetComponent<Pickup>().SetupPickup(item, 0, Server.Host.Inventory.gameObject, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraTransform.position+pos, p.CameraTransform.rotation * rot);
+            gameObject.GetComponent<Pickup>().SetupPickup(item, 0,  PlayerManager.localPlayer, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraReference.position+pos, p.CameraReference.rotation * rot);
             
             var pickup = gameObject.GetComponent<Pickup>();
 

@@ -1,10 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
-using Exiled.API.Features;
-using Exiled.Loader;
 
 namespace SCPStats
 {
@@ -21,7 +18,10 @@ namespace SCPStats
                 var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/version");
                 if (res == Version) return;
 
-                var location = Directory.GetFiles(Paths.Plugins).FirstOrDefault(path => path.ToLower().Contains("scpstats") && path.EndsWith(".dll"));
+                var files = Directory.GetFiles(SynapseController.Server.Files.SharedPluginDirectory).ToList();
+                files.AddRange(Directory.GetFiles(SynapseController.Server.Files.PluginDirectory));
+                
+                var location = files.FirstOrDefault(path => path.ToLower().Contains("scpstats") && path.EndsWith(".dll"));
                 if (location == null)
                 {
                     Log.Warn("SCPStats auto updater couldn't determine the plugin path. Make sure your plugin dll is named \"SCPStats.dll\".");

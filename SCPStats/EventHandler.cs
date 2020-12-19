@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Exiled.API.Features;
-using Exiled.Events.EventArgs;
-using Exiled.Loader;
-using Exiled.Permissions.Extensions;
 using MEC;
 using SCPStats.Hats;
-using UnityEngine;
-using WebSocketSharp;
+using Synapse.Api;
+using Synapse.Api.Events.SynapseEventArguments;
 using Object = UnityEngine.Object;
 
 namespace SCPStats
@@ -64,7 +54,7 @@ namespace SCPStats
             for (var i = 0; i < Players.Count; i++)
             {
                 var player = Players[i];
-                if (Player.List.Any(p => p.RawUserId == player)) continue;
+                if (Synapse.Server.Get.Players.Any(p => p.RawUserId() == player)) continue;
                 
                 StatHandler.SendRequest(RequestType.Leave, "{\"playerid\": \"" + Helper.HandleId(player) + "\"}");
 
@@ -81,7 +71,7 @@ namespace SCPStats
         {
             yield return Timing.WaitForSeconds(1.5f);
 
-            foreach (var player in Player.List)
+            foreach (var player in Synapse.Server.Get.Players)
             {
                 Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player)));
                 yield return Timing.WaitForSeconds(.1f);
@@ -102,7 +92,7 @@ namespace SCPStats
             StatHandler.SendRequest(RequestType.RoundStart);
         }
         
-        internal static void OnRoundEnd(RoundEndedEventArgs ev)
+        internal static void OnRoundEnd()
         {
             DidRoundEnd = true;
             StartGrace = false;
@@ -136,7 +126,7 @@ namespace SCPStats
         {
             StatHandler.SendRequest(RequestType.RoundEnd);
 
-            foreach (var player in Player.List)
+            foreach (var player in Synapse.Server.Get.Players)
             {
                 StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + Helper.HandleId(player) + "\"}");
             }
@@ -152,23 +142,25 @@ namespace SCPStats
             PauseRound = false;
         }
         
-        internal static void OnKill(DyingEventArgs ev)
+        internal static void OnKill(PlayerDamageEventArgs ev)
         {
-            if (PauseRound || !ev.IsAllowed || !Helper.IsPlayerValid(ev.Target, false) || !Helper.IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
+            if (ev.Victim.Health + ev.Victim.ArtificialHealth - ev.DamageAmount > 0 || ev.Victim.GodMode) return;
+            
+            if (PauseRound || !Helper.IsPlayerValid(ev.Victim, false) || !Helper.IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
 
-            if (!ev.Target.DoNotTrack)
+            if (!ev.Victim.DoNotTrack)
             {
-                StatHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Target)+"\", \"killerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+                StatHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Victim)+"\", \"killerrole\": \""+((int) ev.Killer.RoleType).ToString()+"\", \"playerrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
             }
             
-            if (ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
+            if (ev.Killer.RawUserId() == ev.Victim.RawUserId() || ev.Killer.DoNotTrack) return;
 
-            StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+Helper.HandleId(ev.Killer)+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+Helper.HandleId(ev.Killer)+"\", \"targetrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.RoleType).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
         }
 
-        internal static void OnRoleChanged(ChangingRoleEventArgs ev)
+        internal static void OnRoleChanged(PlayerSetClassEventArgs ev)
         {
-            if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
+            if (ev.Role != RoleType.None && ev.Role != RoleType.Spectator)
             {
                 Timing.CallDelayed(.5f, () =>
                 {
@@ -176,9 +168,9 @@ namespace SCPStats
                     {
                         HatPlayerComponent playerComponent;
 
-                        if (!ev.Player.GameObject.TryGetComponent(out playerComponent))
+                        if (!ev.Player.gameObject.TryGetComponent(out playerComponent))
                         {
-                            playerComponent = ev.Player.GameObject.AddComponent<HatPlayerComponent>();
+                            playerComponent = ev.Player.gameObject.AddComponent<HatPlayerComponent>();
                         }
 
                         if (playerComponent.item != null)
@@ -194,12 +186,12 @@ namespace SCPStats
 
             if (PauseRound || (!RoundSummary.RoundInProgress() && !StartGrace) || !Helper.IsPlayerValid(ev.Player, true, false)) return;
             
-            if (ev.IsEscaped && !ev.Player.DoNotTrack)
+            if (ev.EscapeItems.Count > 0 && !ev.Player.DoNotTrack)
             {
-                StatHandler.SendRequest(RequestType.Escape, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"role\": \""+((int) ev.Player.Role).ToString()+"\"}");
+                StatHandler.SendRequest(RequestType.Escape, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"role\": \""+((int) ev.Player.RoleType).ToString()+"\"}");
             }
 
-            if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
+            if (ev.Role == RoleType.None || ev.Role == RoleType.Spectator) return;
             
             if (StartGrace && SpawnsDone.Contains(ev.Player.UserId)) return;
             if(!SpawnsDone.Contains(ev.Player.UserId)) SpawnsDone.Add(ev.Player.UserId);
@@ -210,30 +202,30 @@ namespace SCPStats
         private static IEnumerator<float> SpawnDelay(Player p)
         {
             if (StartGrace) yield return Timing.WaitForSeconds(SCPStats.Singleton.waitTime);
-            StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(p)+"\", \"spawnrole\": \""+((int) p.Role).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(p)+"\", \"spawnrole\": \""+((int) p.RoleType).ToString()+"\"}");
         }
 
-        internal static void OnPickup(PickingUpItemEventArgs ev)
+        internal static void OnPickup(PlayerPickUpItemEventArgs ev)
         {
-            if (ev.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
+            if (ev.Item.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
             {
-                ev.IsAllowed = false;
+                ev.Allow = false;
                 return;
             }
             
-            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
+            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow) return;
 
-            StatHandler.SendRequest(RequestType.Pickup, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Pickup.itemId).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Pickup, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Item.ItemType).ToString()+"\"}");
         }
 
-        internal static void OnDrop(DroppingItemEventArgs ev)
+        internal static void OnDrop(PlayerDropItemEventArgs ev)
         {
-            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
+            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow) return;
 
-            StatHandler.SendRequest(RequestType.Drop, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Item.id).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Drop, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Item.ItemType).ToString()+"\"}");
         }
 
-        internal static void OnJoin(JoinedEventArgs ev)
+        internal static void OnJoin(PlayerJoinEventArgs ev)
         {
             if (firstJoin)
             {
@@ -243,16 +235,16 @@ namespace SCPStats
 
             Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player)));
             
-            if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
+            if (!Synapse.Server.Get.Map.Round.RoundIsActive && Players.Contains(ev.Player.RawUserId()) || ev.Player.DoNotTrack) return;
 
             StatHandler.SendRequest(RequestType.Join, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\"}");
             
-            Players.Add(ev.Player.RawUserId);
+            Players.Add(ev.Player.RawUserId());
         }
 
-        internal static void OnLeave(LeftEventArgs ev)
+        internal static void OnLeave(PlayerLeaveEventArgs ev)
         {
-            if (ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
+            if (ev.Player.gameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
                 Object.Destroy(playerComponent.item.gameObject);
                 playerComponent.item = null;
@@ -262,26 +254,26 @@ namespace SCPStats
 
             StatHandler.SendRequest(RequestType.Leave, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\"}");
 
-            if (Players.Contains(ev.Player.RawUserId)) Players.Remove(ev.Player.RawUserId);
+            if (Players.Contains(ev.Player.RawUserId())) Players.Remove(ev.Player.RawUserId());
         }
 
-        internal static void OnUse(UsedMedicalItemEventArgs ev)
+        internal static void OnUse(PlayerItemInteractEventArgs ev)
         {
             if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress()) return;
 
-            StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Item).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.CurrentItem.ItemType).ToString()+"\"}");
         }
 
-        internal static void OnThrow(ThrowingGrenadeEventArgs ev)
+        internal static void OnThrow(PlayerThrowGrenadeEventArgs ev)
         {
-            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed) return;
+            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow) return;
 
-            StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.GrenadeManager.availableGrenades[(int) ev.Type].inventoryID).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Settings.inventoryID).ToString()+"\"}");
         }
 
-        internal static void OnUpgrade(UpgradingItemsEventArgs ev)
+        internal static void OnUpgrade(Scp914ActivateEventArgs ev)
         {
-            ev.Items.RemoveAll(pickup => pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
+            ev.Items.RemoveAll(item => item.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
         }
     }
 }

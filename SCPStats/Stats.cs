@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿/*using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Features;
+using Synapse.Api;
 
 namespace SCPStats
 {
@@ -95,4 +96,4 @@ namespace SCPStats
             return Escapes.Keys.Select(GetPlayer).Where(pl => pl != null).ToList();
         }
     }
-}
+}*/

@@ -1,20 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
-using RemoteAdmin;
+using Synapse.Api;
+using Synapse.Command;
 using Object = UnityEngine.Object;
 
 namespace SCPStats.Hats
 {
-    [CommandHandler(typeof(ClientCommandHandler))]
-    public class HatCommand: ICommand
+    [CommandInformation(
+        Name = "hat",
+        Aliases = new string[] { "hats" },
+        Description = "Change your hat ingame. This only applies to the current round.",
+        Permission = "scpstats.hat",
+        Platforms = new Platform[] {Platform.ClientConsole},
+        Usage = ".hat <on/off/item>"
+    )]
+    public class HatCommand: ISynapseCommand
     {
-        public string Command { get; } = "hat";
-        public string[] Aliases { get; } = new string[] { "hats" };
-        public string Description { get; } = "Change your hat ingame. This only applies to the current round.";
-        
+        public string Name { get; set;  } = "hat";
+        public string[] Aliases { get; set;  } = new string[] { "hats" };
+        public string Permission { get; set; }
+        public string Usage { get; set; }
+        public string Description { get; set;  } = "Change your hat ingame. This only applies to the current round.";
+        public Platform[] Platforms { get; set; }
+
         internal static Dictionary<string, ItemType> HatPlayers = new Dictionary<string, ItemType>();
         internal static List<ItemType> AllowedHats = new List<ItemType>()
         {
@@ -70,82 +78,87 @@ namespace SCPStats.Hats
             {"butter", ItemType.KeycardScientist}
         };
 
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        public CommandResult Execute(CommandContext ctx)
         {
-            if (!(sender is PlayerCommandSender))
-            {
-                response = "This command can only be ran by a player!";
-                return true;
-            }
-            
-            var p = Player.Get(((PlayerCommandSender) sender).ReferenceHub);
+            var result = new CommandResult();
+            result.State = CommandResultState.Ok;
 
-            if (!HatPlayers.ContainsKey(p.UserId) && !p.CheckPermission("scpstats.hat"))
+            if (!ctx.Player)
             {
-                response = "You do not have permission to use this command!";
-                return true;
+                result.Message = "This command can only be ran by a player!";
+
+                return result;
             }
 
-            if (arguments.Count < 1)
+            if (!HatPlayers.ContainsKey(ctx.Player.UserId) && !ctx.Player.HasPermission("scpstats.hat"))
             {
-                response = "Usage: .hat <on/off/item>";
-                return true;
+                result.Message = "You do not have permission to use this command!";
+                result.State = CommandResultState.NoPermission;
+                
+                return result;
+            }
+
+            if (ctx.Arguments.Count < 1)
+            {
+                result.Message = "Usage: .hat <on/off/item>";
+                
+                return result;
             }
             
-            if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = ItemType.SCP268;
+            if (!HatPlayers.ContainsKey(ctx.Player.UserId)) HatPlayers[ctx.Player.UserId] = ItemType.SCP268;
             
             HatPlayerComponent playerComponent;
-            if (!p.GameObject.TryGetComponent(out playerComponent))
+            if (!ctx.Player.gameObject.TryGetComponent(out playerComponent))
             {
-                playerComponent = p.GameObject.AddComponent<HatPlayerComponent>();
+                playerComponent = ctx.Player.gameObject.AddComponent<HatPlayerComponent>();
             }
 
-            var command = arguments.At(0);
+            var command = ctx.Arguments.At(0);
 
             switch (command)
             {
                 case "on":
                     if (playerComponent.item == null)
                     {
-                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId]);
-                        response = "You put on your hat.";
-                        return true;
+                        if(ctx.Player.RoleType != RoleType.None && ctx.Player.RoleType != RoleType.Spectator) ctx.Player.SpawnHat(HatPlayers[ctx.Player.UserId]);
+                        result.Message = "You put on your hat.";
+                        return result;
                     }
 
-                    response = "You can't put two hats on at once!";
-                    return true;
+                    result.Message = "You can't put two hats on at once!";
+                    return result;
                 case "off":
                     if (RemoveHat(playerComponent))
                     {
-                        response = "You took off your hat.";
-                        return true;
+                        result.Message = "You took off your hat.";
+                        return result;
                     }
 
-                    response = "You don't have a hat on. You need to put one on before you can take it off.";
-                    return true;
+                    result.Message = "You don't have a hat on. You need to put one on before you can take it off.";
+                    return result;
                 default:
                     if (!items.ContainsKey(command))
                     {
-                        response = "This hat doesn't exist! Available hats:" +
-                                   "\nSCP-268" +
-                                   "\nSCP-500" +
-                                   "\nCoin" +
-                                   "\nAmmo" +
-                                   "\nSCP-018" +
-                                   "\nMedkit" +
-                                   "\nAdrenaline" +
-                                   "\nWeaponManagerTablet" +
-                                   "\nSCP-207";
-                        return true;
+                        result.Message = "This hat doesn't exist! Available hats:" +
+                                         "\nSCP-268" +
+                                         "\nSCP-500" +
+                                         "\nCoin" +
+                                         "\nAmmo" +
+                                         "\nSCP-018" +
+                                         "\nMedkit" +
+                                         "\nAdrenaline" +
+                                         "\nWeaponManagerTablet" +
+                                         "\nSCP-207";
+                        return result;
                     }
 
                     var item = items[command];
                     
-                    HatPlayers[p.UserId] = item;
-                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(item);
+                    HatPlayers[ctx.Player.UserId] = item;
+                    if(ctx.Player.RoleType != RoleType.None && ctx.Player.RoleType != RoleType.Spectator) ctx.Player.SpawnHat(item);
                     
-                    response = "Your hat has been changed.";
-                    return true;
+                    result.Message = "Your hat has been changed.";
+                    return result;
             }
         }
 

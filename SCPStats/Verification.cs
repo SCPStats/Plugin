@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Exiled.API.Features;
 
 namespace SCPStats
 {

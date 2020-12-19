@@ -1,20 +1,26 @@
 ﻿using System;
 using System.Linq;
-using Exiled.API.Enums;
-using Exiled.API.Features;
-using Exiled.Loader;
 using HarmonyLib;
 using MEC;
+using Synapse.Api.Events.SynapseEventArguments;
+using Synapse.Api.Plugin;
 
 namespace SCPStats
 {
-    public class SCPStats : Plugin<Config>
+    [PluginInformation(
+        Author = "PintTheDragon",
+        Description = "Records stats for SCPStats.com",
+        Name = "SCPStats",
+        SynapseMajor = 2,
+        SynapseMinor = 2,
+        SynapsePatch = 0,
+        Version = "1.8.0"
+    )]
+    public class SCPStats : AbstractPlugin
     {
-        public override string Name { get; } = "ScpStats";
-        public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 1, 8);
-        public override PluginPriority Priority { get; } = PluginPriority.Last;
-
+        [Synapse.Api.Plugin.Config(section = "SCPStats")]
+        public Config Config { get; set; }
+        
         internal static SCPStats Singleton;
 
         internal string ID = "";
@@ -23,86 +29,67 @@ namespace SCPStats
 
         internal float waitTime = 10;
 
-        public override void OnEnabled()
+        public override void Load()
         {
             Singleton = this;
 
             if (Config.Secret == "fill this" || Config.ServerId == "fill this")
             {
                 Log.Warn("Config for SCPStats has not been filled out correctly. Disabling!");
-                base.OnDisabled();
                 return;
             }
             
-            harmony = new Harmony("SCPStats-"+Version);
+            harmony = new Harmony("SCPStats");
             harmony.PatchAll();
             
             EventHandler.Start();
 
-            Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
-            Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;
-            Exiled.Events.Handlers.Server.RestartingRound += EventHandler.OnRoundRestart;
-            Exiled.Events.Handlers.Server.WaitingForPlayers += EventHandler.Waiting;
-            Exiled.Events.Handlers.Player.Dying += EventHandler.OnKill;
-            Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
-            Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
-            Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
-            Exiled.Events.Handlers.Player.Joined += EventHandler.OnJoin;
-            Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
-            Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
-            Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
-            Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
+            Synapse.Api.Events.EventHandler.Get.Round.RoundStartEvent += EventHandler.OnRoundStart;
+            Synapse.Api.Events.EventHandler.Get.Round.RoundEndEvent += EventHandler.OnRoundEnd;
+            Synapse.Api.Events.EventHandler.Get.Round.RoundRestartEvent += EventHandler.OnRoundRestart;
+            Synapse.Api.Events.EventHandler.Get.Round.WaitingForPlayersEvent += EventHandler.Waiting;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerDamageEvent += EventHandler.OnKill;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerSetClassEvent += EventHandler.OnRoleChanged;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerPickUpItemEvent += EventHandler.OnPickup;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerDropItemEvent += EventHandler.OnDrop;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerJoinEvent += EventHandler.OnJoin;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent += EventHandler.OnLeave;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent += EventHandler.OnUse;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerThrowGrenadeEvent += EventHandler.OnThrow;
+            Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent += EventHandler.OnUpgrade;
 
             if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
-
-            Timing.CallDelayed(3f, () =>
-            {
-                var plugin = Loader.Plugins.FirstOrDefault(pl => pl.Name == "ScpSwap");
-                if (plugin == null) return;
-
-                var config = plugin.Assembly.GetType("ScpSwap.Config");
-                if (config == null) return;
-
-                var configInstance = plugin.Assembly.GetType("ScpSwap.ScpSwap")?.GetProperty("Config")?.GetValue(plugin);
-                if (configInstance == null) return;
-
-                var value = config.GetProperty("SwapTimeout")?.GetValue(configInstance);
-                if (value == null) return;
-
-                waitTime += (float) value;
-            });
             
-            base.OnEnabled();
+            Log.Info("SCPStats by PintTheDragon has loaded!");
+
+            base.Load();
         }
 
-        public override void OnDisabled()
+        public void OnDisabled()
         {
             harmony.UnpatchAll();
             harmony = null;
             
-            Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
-            Exiled.Events.Handlers.Server.RoundEnded -= EventHandler.OnRoundEnd;
-            Exiled.Events.Handlers.Server.RestartingRound -= EventHandler.OnRoundRestart;
-            Exiled.Events.Handlers.Server.WaitingForPlayers -= EventHandler.Waiting;
-            Exiled.Events.Handlers.Player.Dying -= EventHandler.OnKill;
-            Exiled.Events.Handlers.Player.PickingUpItem -= EventHandler.OnPickup;
-            Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
-            Exiled.Events.Handlers.Player.Joined -= EventHandler.OnJoin;
-            Exiled.Events.Handlers.Player.Left -= EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemUsed -= EventHandler.OnUse;
-            Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
-            Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
-            Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
+            Synapse.Api.Events.EventHandler.Get.Round.RoundStartEvent -= EventHandler.OnRoundStart;
+            Synapse.Api.Events.EventHandler.Get.Round.RoundEndEvent -= EventHandler.OnRoundEnd;
+            Synapse.Api.Events.EventHandler.Get.Round.RoundRestartEvent -= EventHandler.OnRoundRestart;
+            Synapse.Api.Events.EventHandler.Get.Round.WaitingForPlayersEvent -= EventHandler.Waiting;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerDamageEvent -= EventHandler.OnKill;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerSetClassEvent -= EventHandler.OnRoleChanged;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerPickUpItemEvent -= EventHandler.OnPickup;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerDropItemEvent -= EventHandler.OnDrop;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerJoinEvent -= EventHandler.OnJoin;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent -= EventHandler.OnLeave;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent -= EventHandler.OnUse;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerThrowGrenadeEvent -= EventHandler.OnThrow;
+            Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent -= EventHandler.OnUpgrade;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
 
             waitTime = 10f;
             
-            Singleton = null;
-
-            base.OnDisabled();
+            Singleton = null; ;
         }
     }
 }

@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using Exiled.API.Interfaces;
+using Synapse.Config;
 
 namespace SCPStats
 {
-    public class Config : IConfig
+    public class Config : AbstractConfigSection
     {
-        public bool IsEnabled { get; set; } = true;
-
         [Description("The Server ID for your server. You must register your server at https://scpstats.com to obtain this.")]
         public string ServerId { get; set; } = "fill this";
         

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using Exiled.API.Features;
-using Exiled.Loader;
+using Synapse.Api;
+using SynapseInjector;
 
 namespace SCPStats
 {
@@ -13,11 +12,9 @@ namespace SCPStats
     {
         internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
         {
-            var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
-
             if (dnt && p.DoNotTrack) return false;
-            if (role && (p.Role == RoleType.None || p.Role == RoleType.Spectator)) return false;
-            return !(p.Role == RoleType.Tutorial && !playerIsSh);
+            if (role && (p.RoleType == RoleType.None || p.RoleType == RoleType.Spectator)) return false;
+            return p.RoleType != RoleType.Tutorial;
         }
         
         internal static string HmacSha256Digest(string secret, string message)
@@ -34,7 +31,12 @@ namespace SCPStats
 
         internal static string HandleId(Player player)
         {
-            return HandleId(player.RawUserId);
+            return HandleId(player.RawUserId());
+        }
+
+        internal static string RawUserId(this Player p)
+        {
+            return p.UserId.Substring(0, p.UserId.LastIndexOf('@'));
         }
     }
 }

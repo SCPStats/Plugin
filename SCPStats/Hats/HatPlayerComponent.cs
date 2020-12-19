@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Exiled.API.Features;
 using MEC;
+using Synapse.Api;
 using UnityEngine;
 
 namespace SCPStats.Hats
@@ -41,7 +41,7 @@ namespace SCPStats.Hats
 
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
-                    var camera = Player.Get(gameObject).CameraTransform;
+                    var camera = gameObject.GetComponent<Player>().CameraReference;
 
                     var pos = camera.position + item.pos;
                     var rot = camera.rotation * item.rot;
