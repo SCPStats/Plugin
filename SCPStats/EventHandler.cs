@@ -184,7 +184,7 @@ namespace SCPStats
 
             if (PauseRound || (!RoundSummary.RoundInProgress() && !StartGrace) || !Helper.IsPlayerValid(ev.Player, true, false)) return;
             
-            if (ev.EscapeItems.Count > 0 && !ev.Player.DoNotTrack)
+            if (ev.IsEscaping && !ev.Player.DoNotTrack)
             {
                 StatHandler.SendRequest(RequestType.Escape, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"role\": \""+((int) ev.Player.RoleType).ToString()+"\"}");
             }

@@ -88,5 +88,11 @@ namespace SCPStats
             
             Singleton = null; ;
         }
+
+        public override void ReloadConfigs()
+        {
+            OnDisabled();
+            Load();
+        }
     }
 }
