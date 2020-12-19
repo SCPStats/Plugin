@@ -142,10 +142,8 @@ namespace SCPStats
             PauseRound = false;
         }
         
-        internal static void OnKill(PlayerDamageEventArgs ev)
+        internal static void OnKill(PlayerDeathEventArgs ev)
         {
-            if (ev.Victim.Health + ev.Victim.ArtificialHealth - ev.DamageAmount > 0 || ev.Victim.GodMode) return;
-            
             if (PauseRound || !Helper.IsPlayerValid(ev.Victim, false) || !Helper.IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
 
             if (!ev.Victim.DoNotTrack)

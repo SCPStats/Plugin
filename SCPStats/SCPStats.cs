@@ -49,7 +49,7 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Round.RoundEndEvent += EventHandler.OnRoundEnd;
             Synapse.Api.Events.EventHandler.Get.Round.RoundRestartEvent += EventHandler.OnRoundRestart;
             Synapse.Api.Events.EventHandler.Get.Round.WaitingForPlayersEvent += EventHandler.Waiting;
-            Synapse.Api.Events.EventHandler.Get.Player.PlayerDamageEvent += EventHandler.OnKill;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerDeathEvent += EventHandler.OnKill;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerSetClassEvent += EventHandler.OnRoleChanged;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerPickUpItemEvent += EventHandler.OnPickup;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerDropItemEvent += EventHandler.OnDrop;
@@ -72,7 +72,7 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Round.RoundEndEvent -= EventHandler.OnRoundEnd;
             Synapse.Api.Events.EventHandler.Get.Round.RoundRestartEvent -= EventHandler.OnRoundRestart;
             Synapse.Api.Events.EventHandler.Get.Round.WaitingForPlayersEvent -= EventHandler.Waiting;
-            Synapse.Api.Events.EventHandler.Get.Player.PlayerDamageEvent -= EventHandler.OnKill;
+            Synapse.Api.Events.EventHandler.Get.Player.PlayerDeathEvent -= EventHandler.OnKill;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerSetClassEvent -= EventHandler.OnRoleChanged;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerPickUpItemEvent -= EventHandler.OnPickup;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerDropItemEvent -= EventHandler.OnDrop;
