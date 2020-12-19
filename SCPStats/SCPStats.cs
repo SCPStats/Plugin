@@ -14,7 +14,8 @@ namespace SCPStats
         SynapseMajor = 2,
         SynapseMinor = 2,
         SynapsePatch = 0,
-        Version = "1.8.0"
+        Version = "1.8.0",
+        LoadPriority = int.MinValue
     )]
     public class SCPStats : AbstractPlugin
     {
