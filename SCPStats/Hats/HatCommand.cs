@@ -12,7 +12,7 @@ namespace SCPStats.Hats
     public class HatCommand: ICommand
     {
         public string Command { get; } = "hat";
-        public string[] Aliases { get; } = new string[] { };
+        public string[] Aliases { get; } = new string[] { "hats" };
         public string Description { get; } = "Change your hat ingame. This only applies to the current round.";
         
         internal static Dictionary<string, ItemType> HatPlayers = new Dictionary<string, ItemType>();
@@ -29,7 +29,8 @@ namespace SCPStats.Hats
             ItemType.WeaponManagerTablet,
             ItemType.SCP207,
             ItemType.GunE11SR,
-            ItemType.KeycardScientist
+            ItemType.KeycardScientist,
+            ItemType.MicroHID
         };
 
         private static Dictionary<string, ItemType> items = new Dictionary<string, ItemType>()

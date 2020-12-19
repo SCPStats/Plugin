@@ -1,0 +1,37 @@
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace SCPStats
+{
+    internal static class StatHandler
+    {
+        private static Thread wss = null;
+
+        internal static void Start()
+        {
+            if (wss != null && wss.IsAlive)
+            {
+                WebsocketThread.Queue.Enqueue("exit");
+                WebsocketThread.Signal.Set();
+            }
+            wss = new Thread(WebsocketThread.StartServer);
+            wss.Start();
+        }
+        
+        internal static void Stop()
+        {
+            WebsocketThread.Queue.Enqueue("exit");
+            WebsocketThread.Signal.Set();
+            wss.Abort();
+        }
+        
+        internal static void SendRequest(RequestType type, string data = "")
+        {
+            var str = ((int) type).ToString().PadLeft(2, '0')+data;
+            var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
+
+            WebsocketThread.Queue.Enqueue(message);
+            WebsocketThread.Signal.Set();
+        }
+    }
+}
