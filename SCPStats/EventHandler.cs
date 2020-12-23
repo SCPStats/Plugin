@@ -29,7 +29,7 @@ namespace SCPStats
 
         private static bool StartGrace = false;
 
-        private static List<string> Queue = new List<string>();
+        private static Dictionary<string, string> PocketPlayers = new Dictionary<string, string>();
 
         internal static bool RanServer = false;
 
@@ -160,6 +160,12 @@ namespace SCPStats
             {
                 StatHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Target)+"\", \"killerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
             }
+
+            if (ev.HitInformation.GetDamageType() == DamageTypes.Pocket && PocketPlayers.TryGetValue(Helper.HandleId(ev.Target), out var killer))
+            {
+                StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+killer+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) RoleType.Scp106).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+                return;
+            }
             
             if (ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
 
@@ -282,6 +288,13 @@ namespace SCPStats
         internal static void OnUpgrade(UpgradingItemsEventArgs ev)
         {
             ev.Items.RemoveAll(pickup => pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
+        }
+
+        internal static void OnEnterPocketDimension(EnteringPocketDimensionEventArgs ev)
+        {
+            if (!ev.IsAllowed || !Helper.IsPlayerValid(ev.Player) || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId) return;
+
+            PocketPlayers[Helper.HandleId(ev.Player)] = PocketPlayers[Helper.HandleId(ev.Scp106)];
         }
     }
 }

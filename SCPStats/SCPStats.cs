@@ -53,6 +53,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
+            Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
 
             if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
 
@@ -94,6 +95,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
+            Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
