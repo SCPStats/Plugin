@@ -42,10 +42,10 @@ namespace SCPStats.Hats
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
                     var camera = Player.Get(gameObject).CameraTransform;
-
-                    var pos = camera.position + item.pos;
+                    
                     var rot = camera.rotation * item.rot;
                     var transform1 = pickup.transform;
+                    var pos = (rot * item.pos) + camera.position;
 
                     pickup.Networkposition = pos;
                     transform1.position = pos;
