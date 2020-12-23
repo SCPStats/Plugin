@@ -221,6 +221,8 @@ namespace SCPStats
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
+            if (!ev.Pickup || !ev.Pickup.gameObject) return;
+
             if (ev.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
             {
                 ev.IsAllowed = false;
