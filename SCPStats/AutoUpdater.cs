@@ -10,7 +10,7 @@ namespace SCPStats
 {
     internal static class AutoUpdater
     {
-        private const string Version = "1.1.8-2";
+        private const string Version = "1.1.8-3";
 
         internal static async Task RunUpdater(int waitTime = 0)
         {

@@ -45,7 +45,7 @@ namespace SCPStats.Hats
                     
                     var rot = camera.rotation * item.rot;
                     var transform1 = pickup.transform;
-                    var pos = (rot * item.pos) + camera.position;
+                    var pos = camera.position + item.pos;
 
                     pickup.Networkposition = pos;
                     transform1.position = pos;
