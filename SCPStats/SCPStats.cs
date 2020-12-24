@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Enums;
 using Exiled.API.Features;
@@ -22,6 +23,8 @@ namespace SCPStats
         private static Harmony harmony;
 
         internal float waitTime = 10;
+
+        private CoroutineHandle update;
 
         public override void OnEnabled()
         {
@@ -55,7 +58,11 @@ namespace SCPStats
             Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
 
-            if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
+            if (Config.AutoUpdates)
+            {
+                AutoUpdater.RunUpdater(10000);
+                update = Timing.RunCoroutine(AutoUpdates());
+            }
 
             Timing.CallDelayed(3f, () =>
             {
@@ -81,6 +88,8 @@ namespace SCPStats
         {
             harmony.UnpatchAll();
             harmony = null;
+
+            if (update.IsRunning) Timing.KillCoroutines(update);
             
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded -= EventHandler.OnRoundEnd;
@@ -105,6 +114,13 @@ namespace SCPStats
             Singleton = null;
 
             base.OnDisabled();
+        }
+
+        private IEnumerator<float> AutoUpdates()
+        {
+            yield return Timing.WaitForSeconds(7200);
+            
+            AutoUpdater.RunUpdater(10000);
         }
     }
 }
