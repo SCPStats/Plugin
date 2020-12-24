@@ -296,7 +296,7 @@ namespace SCPStats
         {
             if (!ev.IsAllowed || !Helper.IsPlayerValid(ev.Player) || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId) return;
 
-            PocketPlayers[Helper.HandleId(ev.Player)] = PocketPlayers[Helper.HandleId(ev.Scp106)];
+            PocketPlayers[Helper.HandleId(ev.Player)] = Helper.HandleId(ev.Scp106);
         }
     }
 }
