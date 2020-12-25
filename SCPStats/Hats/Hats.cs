@@ -31,12 +31,18 @@ namespace SCPStats.Hats
             
             var gameObject = UnityEngine.Object.Instantiate<GameObject>(Server.Host.Inventory.pickupPrefab);
             
-            if (item == ItemType.KeycardScientist)
+            switch (item)
             {
-                gameObject.transform.localScale+= new Vector3(1.5f, 20f, 1.5f);
-                rot = Quaternion.Euler(0, 90, 0);
+                case ItemType.KeycardScientist:
+                    gameObject.transform.localScale+= new Vector3(1.5f, 20f, 1.5f);
+                    rot = Quaternion.Euler(0, 90, 0);
+                    break;
+                case ItemType.KeycardNTFCommander:
+                    gameObject.transform.localScale+= new Vector3(1.5f, 200f, 1.5f);
+                    rot = Quaternion.Euler(0, 90, 0);
+                    break;
             }
-            
+
             NetworkServer.Spawn(gameObject);
             gameObject.GetComponent<Pickup>().SetupPickup(item, 0, Server.Host.Inventory.gameObject, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraTransform.position+pos, p.CameraTransform.rotation * rot);
             

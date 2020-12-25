@@ -30,7 +30,10 @@ namespace SCPStats.Hats
             ItemType.SCP207,
             ItemType.GunE11SR,
             ItemType.KeycardScientist,
-            ItemType.MicroHID
+            ItemType.MicroHID,
+            ItemType.GrenadeFrag,
+            ItemType.GrenadeFlash,
+            ItemType.KeycardNTFCommander
         };
 
         private static Dictionary<string, ItemType> items = new Dictionary<string, ItemType>()
@@ -80,7 +83,7 @@ namespace SCPStats.Hats
             
             var p = Player.Get(((PlayerCommandSender) sender).ReferenceHub);
 
-            if (!HatPlayers.ContainsKey(p.UserId) && !p.CheckPermission("scpstats.hat"))
+            if (!HatPlayers.ContainsKey(p.UserId) && !p.CheckPermission("scpstats.hat") && !p.CheckPermission("scpstats.hats"))
             {
                 response = "You do not have permission to use this command!";
                 return true;
