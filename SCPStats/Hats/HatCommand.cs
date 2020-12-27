@@ -33,7 +33,8 @@ namespace SCPStats.Hats
             ItemType.MicroHID,
             ItemType.GrenadeFrag,
             ItemType.GrenadeFlash,
-            ItemType.KeycardNTFCommander
+            ItemType.KeycardNTFCommander,
+            ItemType.Ammo556
         };
 
         private static Dictionary<string, ItemType> items = new Dictionary<string, ItemType>()
