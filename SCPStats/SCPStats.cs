@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using MEC;
@@ -29,6 +30,8 @@ namespace SCPStats
         private static Harmony harmony;
 
         internal float waitTime = 10;
+        
+        private CoroutineHandle update;
 
         public override void Load()
         {
@@ -57,8 +60,13 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent += EventHandler.OnLeave;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent += EventHandler.OnUse;
             Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent += EventHandler.OnUpgrade;
+            Synapse.Api.Events.EventHandler.Get.Scp.Scp106.PocketDimensionEnterEvent += EventHandler.OnEnterPocketDimension;
 
-            if (Config.AutoUpdates) AutoUpdater.RunUpdater(10000);
+            if (Config.AutoUpdates)
+            {
+                AutoUpdater.RunUpdater(10000);
+                update = Timing.RunCoroutine(AutoUpdates());
+            }
             
             Log.Info("SCPStats by PintTheDragon has loaded!");
         }
@@ -80,6 +88,7 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent -= EventHandler.OnLeave;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent -= EventHandler.OnUse;
             Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent -= EventHandler.OnUpgrade;
+            Synapse.Api.Events.EventHandler.Get.Scp.Scp106.PocketDimensionEnterEvent -= EventHandler.OnEnterPocketDimension;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
@@ -93,6 +102,13 @@ namespace SCPStats
         {
             OnDisabled();
             Load();
+        }
+        
+        private IEnumerator<float> AutoUpdates()
+        {
+            yield return Timing.WaitForSeconds(7200);
+
+            AutoUpdater.RunUpdater(10000);
         }
     }
 }

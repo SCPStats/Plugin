@@ -19,7 +19,7 @@ namespace SCPStats
 
         private static bool StartGrace = false;
 
-        private static List<string> Queue = new List<string>();
+        private static Dictionary<string, string> PocketPlayers = new Dictionary<string, string>();
 
         internal static bool RanServer = false;
 
@@ -151,6 +151,12 @@ namespace SCPStats
                 StatHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Victim)+"\", \"killerrole\": \""+((int) ev.Killer.RoleType).ToString()+"\", \"playerrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
             }
             
+            if (ev.HitInfo.GetDamageType() == DamageTypes.Pocket && PocketPlayers.TryGetValue(Helper.HandleId(ev.Victim), out var killer))
+            {
+                StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+killer+"\", \"targetrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"playerrole\": \""+((int) RoleType.Scp106).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
+                return;
+            }
+            
             if (ev.Killer.RawUserId() == ev.Victim.RawUserId() || ev.Killer.DoNotTrack) return;
 
             StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+Helper.HandleId(ev.Killer)+"\", \"targetrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.RoleType).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
@@ -205,6 +211,8 @@ namespace SCPStats
 
         internal static void OnPickup(PlayerPickUpItemEventArgs ev)
         {
+            if (!ev.Pickup || !ev.Pickup.gameObject) return;
+            
             if (ev.Item.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
             {
                 ev.Allow = false;
@@ -265,6 +273,13 @@ namespace SCPStats
         internal static void OnUpgrade(Scp914ActivateEventArgs ev)
         {
             ev.Items.RemoveAll(item => item.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
+        }
+        
+        internal static void OnEnterPocketDimension(PocketDimensionEnterEventArgs ev)
+        {
+            if (!ev.Allow || !Helper.IsPlayerValid(ev.Player) || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId) return;
+
+            PocketPlayers[Helper.HandleId(ev.Player)] = Helper.HandleId(ev.Scp106);
         }
     }
 }

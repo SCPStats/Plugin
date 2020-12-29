@@ -41,11 +41,18 @@ namespace SCPStats.Hats
 
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
-                    var camera = gameObject.GetComponent<Player>().CameraReference;
+                    var player = gameObject.GetComponent<Player>();
 
-                    var pos = camera.position + item.pos;
-                    var rot = camera.rotation * item.rot;
+                    var camera = player.CameraReference;
+
+                    var rotAngles = camera.rotation.eulerAngles;
+                    if (player.Team == Team.SCP) rotAngles.x = 0;
+
+                    var rotation = Quaternion.Euler(rotAngles);
+
+                    var rot = rotation * item.rot;
                     var transform1 = pickup.transform;
+                    var pos = (player.RoleType != RoleType.Scp079 ? rotation * item.pos : item.pos) + camera.position;
 
                     pickup.Networkposition = pos;
                     transform1.position = pos;

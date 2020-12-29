@@ -26,14 +26,36 @@ namespace SCPStats.Hats
             if (item == ItemType.None) return;
 
             var pos = GetHatPosForRole(p.RoleType);
-            var rot = item == ItemType.SCP268 ? Quaternion.Euler(-90, 0, 90) : Quaternion.Euler(0, 0, 0);
+            var rot = Quaternion.Euler(0, 0, 0);
             
             var gameObject = UnityEngine.Object.Instantiate<GameObject>( PlayerManager.localPlayer.GetComponent<Inventory>().pickupPrefab);
 
-            if (item == ItemType.KeycardScientist)
+            switch (item)
             {
-                gameObject.transform.localScale+= new Vector3(1.5f, 20f, 1.5f);
-                rot = Quaternion.Euler(0, 90, 0);
+                case ItemType.KeycardScientist:
+                    gameObject.transform.localScale += new Vector3(1.5f, 20f, 1.5f);
+                    rot = Quaternion.Euler(0, 90, 0);
+                    break;
+                
+                case ItemType.KeycardNTFCommander:
+                    gameObject.transform.localScale += new Vector3(1.5f, 200f, 1.5f);
+                    rot = Quaternion.Euler(0, 90, 0);
+                    break;
+                
+                case ItemType.SCP268:
+                    gameObject.transform.localScale += new Vector3(-.1f, -.1f, -.1f);
+                    var position = gameObject.transform.position;
+                    gameObject.transform.position = new Vector3(position.x, position.y, position.z);
+                    rot = Quaternion.Euler(-90, 0, 90);
+                    break;
+
+                case ItemType.Ammo556:
+                    gameObject.transform.localScale += new Vector3(-.1f, -.1f, -.1f);
+                    var position2 = gameObject.transform.position;
+                    gameObject.transform.position = new Vector3(position2.x, position2.y, position2.z);
+                    rot = Quaternion.Euler(-90, 0, 90);
+                    item = ItemType.SCP268;
+                    break;
             }
             
             NetworkServer.Spawn(gameObject);
