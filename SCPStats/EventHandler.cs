@@ -138,6 +138,8 @@ namespace SCPStats
 
             foreach (var player in Player.List)
             {
+                if (player.DoNotTrack) continue;
+                
                 StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + Helper.HandleId(player) + "\"}");
             }
         }
