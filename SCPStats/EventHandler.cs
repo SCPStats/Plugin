@@ -128,6 +128,8 @@ namespace SCPStats
 
             foreach (var player in Synapse.Server.Get.Players)
             {
+                if (player.DoNotTrack) continue;
+
                 StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + Helper.HandleId(player) + "\"}");
             }
         }
