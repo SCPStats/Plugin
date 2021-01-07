@@ -14,7 +14,8 @@ namespace SCPStats
                 WebsocketThread.Queue.Enqueue("exit");
                 WebsocketThread.Signal.Set();
             }
-            wss = new Thread(WebsocketThread.StartServer);
+
+            wss = new Thread(WebsocketThread.StartServer) {IsBackground = true, Priority = ThreadPriority.BelowNormal};
             wss.Start();
         }
         

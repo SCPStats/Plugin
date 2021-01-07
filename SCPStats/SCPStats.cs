@@ -89,7 +89,7 @@ namespace SCPStats
             harmony.UnpatchAll();
             harmony = null;
 
-            if (update.IsRunning) Timing.KillCoroutines(update);
+            Timing.KillCoroutines(update);
             
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded -= EventHandler.OnRoundEnd;
@@ -118,9 +118,12 @@ namespace SCPStats
 
         private IEnumerator<float> AutoUpdates()
         {
-            yield return Timing.WaitForSeconds(7200);
-            
-            AutoUpdater.RunUpdater(10000);
+            while (true)
+            {
+                yield return Timing.WaitForSeconds(7200);
+
+                AutoUpdater.RunUpdater(10000);
+            }
         }
     }
 }
