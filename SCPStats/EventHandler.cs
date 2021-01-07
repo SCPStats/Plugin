@@ -73,6 +73,8 @@ namespace SCPStats
 
             foreach (var player in Synapse.Server.Get.Players)
             {
+                if (player.IpAddress == "127.0.0.WAN" || player.IpAddress == "127.0.0.1") continue;
+                
                 Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player)));
                 yield return Timing.WaitForSeconds(.1f);
             }
@@ -128,7 +130,7 @@ namespace SCPStats
 
             foreach (var player in Synapse.Server.Get.Players)
             {
-                if (player.DoNotTrack) continue;
+                if (player.DoNotTrack || player.IpAddress == "127.0.0.WAN" || player.IpAddress == "127.0.0.1") continue;
 
                 StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + Helper.HandleId(player) + "\"}");
             }
@@ -148,10 +150,12 @@ namespace SCPStats
         {
             if (PauseRound || !Helper.IsPlayerValid(ev.Victim, false) || !Helper.IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
 
-            if (!ev.Victim.DoNotTrack)
+            if (!ev.Victim.DoNotTrack && ev.Victim.IpAddress != "127.0.0.WAN" && ev.Victim.IpAddress != "127.0.0.1")
             {
                 StatHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Victim)+"\", \"killerrole\": \""+((int) ev.Killer.RoleType).ToString()+"\", \"playerrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
             }
+
+            if (ev.Killer.IpAddress == "127.0.0.WAN" || ev.Killer.IpAddress == "127.0.0.1") return;
             
             if (ev.HitInfo.GetDamageType() == DamageTypes.Pocket && PocketPlayers.TryGetValue(Helper.HandleId(ev.Victim), out var killer))
             {
@@ -166,7 +170,9 @@ namespace SCPStats
 
         internal static void OnRoleChanged(PlayerSetClassEventArgs ev)
         {
-            if (ev.Role != RoleType.None && ev.Role != RoleType.Spectator)
+            if (ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
+            
+            if (ev.Role != RoleType.None && ev.Role != RoleType.Spectator )
             {
                 Timing.CallDelayed(.5f, () =>
                 {
@@ -213,7 +219,7 @@ namespace SCPStats
 
         internal static void OnPickup(PlayerPickUpItemEventArgs ev)
         {
-            if (!ev.Item.pickup || !ev.Item.pickup.gameObject) return;
+            if (!ev.Item.pickup || !ev.Item.pickup.gameObject || ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
             
             if (ev.Item.pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
             {
@@ -228,13 +234,15 @@ namespace SCPStats
 
         internal static void OnDrop(PlayerDropItemEventArgs ev)
         {
-            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow) return;
+            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow || ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
 
             StatHandler.SendRequest(RequestType.Drop, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Item.ItemType).ToString()+"\"}");
         }
 
         internal static void OnJoin(PlayerJoinEventArgs ev)
         {
+            if (ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
+            
             if (firstJoin)
             {
                 firstJoin = false;
@@ -252,6 +260,8 @@ namespace SCPStats
 
         internal static void OnLeave(PlayerLeaveEventArgs ev)
         {
+            if (ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
+            
             if (ev.Player.gameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
                 Object.Destroy(playerComponent.item.gameObject);
@@ -267,7 +277,7 @@ namespace SCPStats
 
         internal static void OnUse(PlayerItemInteractEventArgs ev)
         {
-            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow) return;
+            if (PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.Allow || ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
 
             StatHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.CurrentItem.ItemType).ToString()+"\"}");
         }
@@ -279,7 +289,7 @@ namespace SCPStats
         
         internal static void OnEnterPocketDimension(PocketDimensionEnterEventArgs ev)
         {
-            if (!ev.Allow || !Helper.IsPlayerValid(ev.Player) || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId) return;
+            if (!ev.Allow || !Helper.IsPlayerValid(ev.Player) || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId || ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
 
             PocketPlayers[Helper.HandleId(ev.Player)] = Helper.HandleId(ev.Scp106);
         }

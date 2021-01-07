@@ -213,7 +213,7 @@ namespace SCPStats
                         if (flags[2] != "0")
                         {
                             var roles = flags[2].Split('|');
-                            foreach (var parts in SCPStats.Singleton.Config.RoleSync.Select(role => role.Split(':')).Where(parts => parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" && roles.Contains(parts[0])))
+                            foreach (var parts in from rolesync in SCPStats.Singleton.Config.RoleSync select rolesync.Split(':') into parts where parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" where parts[0].Split(',').All(discordRole => roles.Contains(discordRole)) select parts)
                             {
                                 lock(Synapse.Server.Get.PermissionHandler)
                                 lock(player.SynapseGroup)
