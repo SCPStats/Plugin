@@ -40,11 +40,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.4.0\lib\net472\Assembly-CSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.4.0\lib\net472\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -67,15 +67,15 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Mirror.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.4.0\lib\net472\Mirror.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="NorthwoodLib, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>lib\NorthwoodLib.dll</HintPath>
     </Reference>
-    <Reference Include="Synapse, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\Synapse.dll</HintPath>
+    <Reference Include="Synapse, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\SynapseSL.2.4.0\lib\net472\Synapse.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -199,15 +199,15 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\UnityEngine.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.4.0\lib\net472\UnityEngine.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.4.0\lib\net472\UnityEngine.CoreModule.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SynapseSL.2.3.0\lib\net472\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>..\packages\SynapseSL.2.4.0\lib\net472\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="websocket-sharp, Version=1.0.2.234, Culture=neutral, PublicKeyToken=5660b08a1845a91e">

@@ -213,9 +213,9 @@ namespace SCPStats
 
         internal static void OnPickup(PlayerPickUpItemEventArgs ev)
         {
-            if (!ev.Pickup || !ev.Pickup.gameObject) return;
+            if (!ev.Item.pickup || !ev.Item.pickup.gameObject) return;
             
-            if (ev.Item.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
+            if (ev.Item.pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
             {
                 ev.Allow = false;
                 return;
@@ -274,7 +274,7 @@ namespace SCPStats
 
         internal static void OnUpgrade(Scp914ActivateEventArgs ev)
         {
-            ev.Items.RemoveAll(item => item.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
+            ev.Items.RemoveAll(item => item.pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
         }
         
         internal static void OnEnterPocketDimension(PocketDimensionEnterEventArgs ev)
