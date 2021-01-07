@@ -83,6 +83,7 @@ namespace SCPStats
 
             foreach (var player in Player.List)
             {
+                if (player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
                 Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player)));
                 yield return Timing.WaitForSeconds(.1f);
             }
