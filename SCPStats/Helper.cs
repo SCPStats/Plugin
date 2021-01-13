@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using Exiled.API.Features;
-using Exiled.Loader;
+using ETAPI.Enums;
+using ETAPI.Features;
+using PluginFramework.Classes;
+using VirtualBrightPlayz.SCP_ET.Player;
+using VirtualBrightPlayz.SCP_ET.ServerGroups;
 
 namespace SCPStats
 {
@@ -13,11 +13,7 @@ namespace SCPStats
     {
         internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
         {
-            var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
-
-            if (dnt && p.DoNotTrack) return false;
-            if (role && (p.Role == RoleType.None || p.Role == RoleType.Spectator)) return false;
-            return !(p.Role == RoleType.Tutorial && !playerIsSh);
+            return (!dnt || true) && !string.IsNullOrEmpty(p.SteamID) && (!role || (p.Role != Role.None && p.Role != Role.Spectator));
         }
         
         internal static string HmacSha256Digest(string secret, string message)
@@ -26,15 +22,10 @@ namespace SCPStats
             
             return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
-        
-        internal static string HandleId(string id)
-        {
-            return id.Split('@')[0];
-        }
 
-        internal static string HandleId(Player player)
+        internal static bool CheckPermissions(this Player player, string node)
         {
-            return HandleId(player.RawUserId);
+            return ServerGroups.CheckPermission(player.PlayerController.ConnectionToClient, node);
         }
     }
 }

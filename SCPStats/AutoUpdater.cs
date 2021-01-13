@@ -1,10 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
-using Exiled.API.Features;
-using Exiled.Loader;
+using ETAPI.Features;
 
 namespace SCPStats
 {
@@ -18,7 +15,7 @@ namespace SCPStats
             
             using (var client = new WebClient())
             {
-                var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/version");
+                var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/versionet");
                 if (res == Version) return;
 
                 var location = Directory.GetFiles(Paths.Plugins).FirstOrDefault(path => path.ToLower().Contains("scpstats") && path.EndsWith(".dll"));
@@ -28,7 +25,7 @@ namespace SCPStats
                     return;
                 }
                 
-                var githubVer = await client.DownloadStringTaskAsync("https://scpstats.com/update/github");
+                var githubVer = await client.DownloadStringTaskAsync("https://scpstats.com/update/githubet");
                 await client.DownloadFileTaskAsync("https://github.com/SCPStats/Plugin/releases/download/"+githubVer.Replace("/", "")+"/SCPStats.dll", location);
                 Log.Info("Updated SCPStats. Please restart your server to complete the update.");
             }

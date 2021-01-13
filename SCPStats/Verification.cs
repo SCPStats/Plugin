@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Exiled.API.Features;
+using ETAPI.Features;
 
 namespace SCPStats
 {
@@ -16,7 +16,7 @@ namespace SCPStats
 
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/getid"))
             {
-                var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
+                var str = "{\"ip\": \"" + Server.IP + "\",\"port\": \"" + Server.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
                 
                 requestMessage.Headers.Add("Signature", Helper.HmacSha256Digest(SCPStats.Singleton.Config.Secret, str));
                 requestMessage.Content = new StringContent(str, Encoding.UTF8, "application/json");
@@ -30,7 +30,7 @@ namespace SCPStats
                     if (body != "E")
                     {
                         SCPStats.Singleton.ID = body;
-                        ServerConsole.ReloadServerName();
+                        Server.AddToName(SCPStats.Singleton.ID);
                         Verify();
                         Clear();
                     }
@@ -52,7 +52,7 @@ namespace SCPStats
             
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/verify"))
             {
-                var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
+                var str = "{\"ip\": \"" + Server.IP + "\",\"port\": \"" + Server.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
                 
                 requestMessage.Headers.Add("Signature", Helper.HmacSha256Digest(SCPStats.Singleton.Config.Secret, str));
                 requestMessage.Content = new StringContent(str, Encoding.UTF8, "application/json");
@@ -67,14 +67,14 @@ namespace SCPStats
                         Log.Warn("SCPStats Verification failed!");
                     }
 
+                    Server.RemoveFromName(SCPStats.Singleton.ID);
                     SCPStats.Singleton.ID = "";
-                    ServerConsole.ReloadServerName();
                 }
                 catch (Exception e)
                 {
                     Log.Error(e);
+                    Server.RemoveFromName(SCPStats.Singleton.ID);
                     SCPStats.Singleton.ID = "";
-                    ServerConsole.ReloadServerName();
                 }
             }
         }
@@ -83,8 +83,8 @@ namespace SCPStats
         {
             await Task.Delay(170000);
 
+            Server.RemoveFromName(SCPStats.Singleton.ID);
             SCPStats.Singleton.ID = "";
-            ServerConsole.ReloadServerName();
         }
     }
 }

@@ -5,10 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Exiled.API.Features;
-using Exiled.Loader;
-using Exiled.Permissions.Extensions;
-using SCPStats.Hats;
+using ETAPI.Features;
 using WebSocketSharp;
 
 namespace SCPStats
@@ -105,33 +102,6 @@ namespace SCPStats
             return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
 
-        private static void Rainbow(Player p)
-        {
-            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "ARainbowTags")?.Assembly;
-            if (assembly == null) return;
-                            
-            var extensions = assembly.GetType("ARainbowTags.Extensions");
-            if (extensions == null) return;
-                            
-            if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, new object[] {p}) ?? false)) return;
-                            
-            var component = assembly.GetType("ARainbowTags.RainbowTagController");
-                            
-            if (component == null) return;
-                            
-            if (p.GameObject.TryGetComponent(component, out var comp))
-            {
-                UnityEngine.Object.Destroy(comp);
-            }
-                            
-            p.GameObject.AddComponent(component);
-        }
-        
-        private static string HandleId(string id)
-        {
-            return id.Split('@')[0];
-        }
-        
         private static async Task CreateConnection(int delay = 0, bool sendInfo = false)
         {
             CreatingClient = true;
@@ -149,7 +119,7 @@ namespace SCPStats
             if (Exited)
             {
                 ws?.Close();
-                SCPStats.Singleton.OnDisabled();
+                SCPStats.Singleton.OnDisable();
                 return;
             }
 
@@ -173,7 +143,8 @@ namespace SCPStats
                     
                     foreach (var player in Player.List)
                     {
-                        SendRequest("11", HandleId(player.RawUserId));
+                        if (string.IsNullOrEmpty(player.SteamID)) continue;
+                        SendRequest("11", player.SteamID);
                     }
                 };
 
@@ -191,7 +162,7 @@ namespace SCPStats
 
                             Exited = true;
                             ws?.Close();
-                            SCPStats.Singleton.OnDisabled();
+                            SCPStats.Singleton.OnDisable();
                             return;
 
                         case "c":
@@ -219,60 +190,38 @@ namespace SCPStats
 
                     foreach (var player in Player.List)
                     {
-                        if (!HandleId(player.RawUserId).Equals(data[0])) continue;
+                        if (player.SteamID != null && !player.SteamID.Equals(data[0])) continue;
 
-                        if (flags[3] == "1" || player.CheckPermission("scpstats.hat"))
-                        {
-                            var item = (ItemType) Convert.ToInt32(flags[4]);
-                            
-                            lock(HatCommand.AllowedHats)
-                            lock (HatCommand.HatPlayers)
-                            {
-                                if(HatCommand.AllowedHats.Contains(item)) HatCommand.HatPlayers[player.UserId] = item;
-                            }
-                        }
-                            
                         //Rolesync stuff
-                        if (player.Group != null) continue;
+                        if (!string.IsNullOrEmpty(player.PlayerGroup)) continue;
                         
                         if (flags[2] != "0")
                         {
                             var roles = flags[2].Split('|');
                             foreach (var parts in from rolesync in SCPStats.Singleton.Config.RoleSync select rolesync.Split(':') into parts where parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" where parts[0].Split(',').All(discordRole => roles.Contains(discordRole)) select parts)
                             {
-                                lock(player.ReferenceHub.serverRoles)
-                                lock (ServerStatic.PermissionsHandler._members)
+                                lock (player.PlayerGroup)
                                 {
-                                    player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false);
-                                    ServerStatic.PermissionsHandler._members[player.UserId] = parts[1];
+                                    player.PlayerGroup = parts[1];
                                 }
                                 
-                                Rainbow(player);
                                 return;
                             }
                         }
 
                         if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                         {
-                            lock(player.ReferenceHub.serverRoles)
-                            lock (ServerStatic.PermissionsHandler._members)
+                            lock (player.PlayerGroup)
                             {
-                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false);
-                                ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
+                                player.PlayerGroup = SCPStats.Singleton.Config.BoosterRole;
                             }
-
-                            Rainbow(player);
                         }
                         else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
                         {
-                            lock(player.ReferenceHub.serverRoles)
-                            lock (ServerStatic.PermissionsHandler._members)
+                            lock (player.PlayerGroup)
                             {
-                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false);
-                                ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
+                                player.PlayerGroup = SCPStats.Singleton.Config.DiscordMemberRole;
                             }
-
-                            Rainbow(player);
                         }
                     }
                 };
