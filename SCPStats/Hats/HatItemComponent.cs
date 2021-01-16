@@ -7,5 +7,6 @@ namespace SCPStats.Hats
         internal HatPlayerComponent player;
         internal Vector3 pos;
         internal Quaternion rot;
+        internal Synapse.Api.Items.SynapseItem synapseItem;
     }
 }
