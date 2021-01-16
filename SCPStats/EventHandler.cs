@@ -276,7 +276,7 @@ namespace SCPStats
 
         internal static void OnUpgrade(Scp914ActivateEventArgs ev)
         {
-            ev.Items.RemoveAll(item => item.pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
+            ev.Items.RemoveAll(item => item.pickup == null ? false : item.pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
         }
     }
 }
