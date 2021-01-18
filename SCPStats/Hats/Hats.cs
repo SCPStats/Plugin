@@ -28,7 +28,7 @@ namespace SCPStats.Hats
             var pos = GetHatPosForRole(p.RoleType);
             var rot = Quaternion.Euler(0, 0, 0);
 
-            var gameObject = SynapseController.Server.Host.VanillaInventory.SetPickup(ItemType.KeycardJanitor, 0f, Vector3.zero, Quaternion.identity, 0, 0, 0, false).gameObject;
+            var gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayerManager.localPlayer.GetComponent<Inventory>().pickupPrefab);
 
             switch (item)
             {
@@ -59,8 +59,7 @@ namespace SCPStats.Hats
             }
             
             NetworkServer.Spawn(gameObject);
-            var pickup = gameObject.GetComponent<Pickup>();
-            pickup.SetupPickup(item, 0,  PlayerManager.localPlayer, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraReference.position+pos, p.CameraReference.rotation * rot);
+            gameObject.GetComponent<Pickup>().SetupPickup(item, 0,  PlayerManager.localPlayer, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraReference.position+pos, p.CameraReference.rotation * rot);
 
             
             var rigidbody = pickup.gameObject.GetComponent<Rigidbody>();
