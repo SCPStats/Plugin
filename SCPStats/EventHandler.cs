@@ -101,6 +101,13 @@ namespace SCPStats
             });
 
             StatHandler.SendRequest(RequestType.RoundStart);
+            
+            foreach (var player in Player.List)
+            {
+                if (player == null || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
+
+                Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player)));
+            }
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
