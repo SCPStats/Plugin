@@ -19,7 +19,7 @@ namespace SCPStats.Hats
 
             if (force && playerComponent.item != null)
             {
-                playerComponent.item.synapseItem.Destroy();
+                playerComponent.item.GetComponent<Pickup>().GetSynapseItem().Destroy();
                 playerComponent.item = null;
             }
 
@@ -28,9 +28,7 @@ namespace SCPStats.Hats
             var pos = GetHatPosForRole(p.RoleType);
             var rot = Quaternion.Euler(0, 0, 0);
 
-            var synapseitem = new Synapse.Api.Items.SynapseItem(ItemType.KeycardJanitor, 0, 0, 0, 0);
-            synapseitem.Drop();
-            var gameObject = synapseitem.pickup.gameObject;
+            var gameObject = SynapseController.Server.Host.VanillaInventory.SetPickup(ItemType.KeycardJanitor, 0f, Vector3.zero, Quaternion.identity, 0, 0, 0, false).gameObject;
 
             switch (item)
             {
@@ -61,18 +59,18 @@ namespace SCPStats.Hats
             }
             
             NetworkServer.Spawn(gameObject);
-            synapseitem.pickup.SetupPickup(item, 0,  PlayerManager.localPlayer, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraReference.position+pos, p.CameraReference.rotation * rot);
+            var pickup = gameObject.GetComponent<Pickup>();
+            pickup.SetupPickup(item, 0,  PlayerManager.localPlayer, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraReference.position+pos, p.CameraReference.rotation * rot);
 
             
-            var rigidbody = synapseitem.pickup.gameObject.GetComponent<Rigidbody>();
+            var rigidbody = pickup.gameObject.GetComponent<Rigidbody>();
             rigidbody.useGravity = false;
             rigidbody.isKinematic = true;
 
-            playerComponent.item = synapseitem.pickup.gameObject.AddComponent<HatItemComponent>();
+            playerComponent.item = pickup.gameObject.AddComponent<HatItemComponent>();
             playerComponent.item.player = playerComponent;
             playerComponent.item.pos = pos;
             playerComponent.item.rot = rot;
-            playerComponent.item.synapseItem = synapseitem;
         }
 
         internal static Vector3 GetHatPosForRole(RoleType role)
