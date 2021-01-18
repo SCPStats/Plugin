@@ -60,7 +60,6 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent += EventHandler.OnLeave;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent += EventHandler.OnUse;
             Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent += EventHandler.OnUpgrade;
-            Synapse.Api.Events.EventHandler.Get.Scp.Scp106.PocketDimensionEnterEvent += EventHandler.OnEnterPocketDimension;
 
             if (Config.AutoUpdates)
             {
@@ -88,7 +87,6 @@ namespace SCPStats
             Synapse.Api.Events.EventHandler.Get.Player.PlayerLeaveEvent -= EventHandler.OnLeave;
             Synapse.Api.Events.EventHandler.Get.Player.PlayerItemUseEvent -= EventHandler.OnUse;
             Synapse.Api.Events.EventHandler.Get.Map.Scp914ActivateEvent -= EventHandler.OnUpgrade;
-            Synapse.Api.Events.EventHandler.Get.Scp.Scp106.PocketDimensionEnterEvent -= EventHandler.OnEnterPocketDimension;
 
             EventHandler.Reset();
             Hats.Hats.Reset();

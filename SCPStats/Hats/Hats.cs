@@ -19,7 +19,7 @@ namespace SCPStats.Hats
 
             if (force && playerComponent.item != null)
             {
-                Object.Destroy(playerComponent.item.gameObject);
+                playerComponent.item.GetComponent<Pickup>().GetSynapseItem().Destroy();
                 playerComponent.item = null;
             }
 
@@ -27,8 +27,8 @@ namespace SCPStats.Hats
 
             var pos = GetHatPosForRole(p.RoleType);
             var rot = Quaternion.Euler(0, 0, 0);
-            
-            var gameObject = UnityEngine.Object.Instantiate<GameObject>( PlayerManager.localPlayer.GetComponent<Inventory>().pickupPrefab);
+
+            var gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayerManager.localPlayer.GetComponent<Inventory>().pickupPrefab);
 
             switch (item)
             {
@@ -60,9 +60,8 @@ namespace SCPStats.Hats
             
             NetworkServer.Spawn(gameObject);
             gameObject.GetComponent<Pickup>().SetupPickup(item, 0,  PlayerManager.localPlayer, new Pickup.WeaponModifiers(true, 0, 0, 0), p.CameraReference.position+pos, p.CameraReference.rotation * rot);
-            
-            var pickup = gameObject.GetComponent<Pickup>();
 
+            
             var rigidbody = pickup.gameObject.GetComponent<Rigidbody>();
             rigidbody.useGravity = false;
             rigidbody.isKinematic = true;

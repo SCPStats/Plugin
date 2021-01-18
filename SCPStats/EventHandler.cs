@@ -19,8 +19,6 @@ namespace SCPStats
 
         private static bool StartGrace = false;
 
-        private static Dictionary<string, string> PocketPlayers = new Dictionary<string, string>();
-
         internal static bool RanServer = false;
 
         public static bool PauseRound = false;
@@ -157,12 +155,6 @@ namespace SCPStats
 
             if (ev.Killer.IpAddress == "127.0.0.WAN" || ev.Killer.IpAddress == "127.0.0.1") return;
             
-            if (ev.HitInfo.GetDamageType() == DamageTypes.Pocket && PocketPlayers.TryGetValue(Helper.HandleId(ev.Victim), out var killer))
-            {
-                StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+killer+"\", \"targetrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"playerrole\": \""+((int) RoleType.Scp106).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
-                return;
-            }
-            
             if (ev.Killer.RawUserId() == ev.Victim.RawUserId() || ev.Killer.DoNotTrack) return;
 
             StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+Helper.HandleId(ev.Killer)+"\", \"targetrole\": \""+((int) ev.Victim.RoleType).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.RoleType).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInfo.GetDamageType()).ToString()+"\"}");
@@ -284,14 +276,7 @@ namespace SCPStats
 
         internal static void OnUpgrade(Scp914ActivateEventArgs ev)
         {
-            ev.Items.RemoveAll(item => item.pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
-        }
-        
-        internal static void OnEnterPocketDimension(PocketDimensionEnterEventArgs ev)
-        {
-            if (!ev.Allow || !Helper.IsPlayerValid(ev.Player) || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId || ev.Player.IpAddress == "127.0.0.WAN" || ev.Player.IpAddress == "127.0.0.1") return;
-
-            PocketPlayers[Helper.HandleId(ev.Player)] = Helper.HandleId(ev.Scp106);
+            ev.Items.RemoveAll(item => item.pickup == null ? false : item.pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
         }
     }
 }

@@ -12,6 +12,7 @@ namespace SCPStats
     {
         internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
         {
+            if (p == null) return false;
             if (dnt && p.DoNotTrack) return false;
             if (role && (p.RoleType == RoleType.None || p.RoleType == RoleType.Spectator)) return false;
             return p.RoleType != RoleType.Tutorial;
