@@ -8,23 +8,10 @@ namespace SCPStats.Hats
 {
     public class HatPlayerComponent : MonoBehaviour
     {
-        internal HatItemComponent item
-        {
-            get => _item;
-            set
-            {
-                _item = value;
-                _isitemNull = _item == null;
-            }
-        }
-
-        private HatItemComponent _item;
-        private bool _isitemNull;
+        internal HatItemComponent item;
 
         private void Start()
         {
-            _isitemNull = item == null;
-
             Timing.RunCoroutine(MoveHat().CancelWith(this).CancelWith(gameObject));
         }
 
@@ -37,7 +24,7 @@ namespace SCPStats.Hats
 
                 try
                 {
-                    if (_isitemNull) continue;
+                    if (item == null || item.gameObject == null) continue;
 
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
@@ -65,7 +52,6 @@ namespace SCPStats.Hats
                 catch (Exception e)
                 {
                     Log.Error(e);
-                    _isitemNull = item == null;
                 }
             }
         }
