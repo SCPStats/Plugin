@@ -30,7 +30,7 @@ namespace SCPStats
             Thread.Sleep(2000);
 
             ws?.CloseAsync();
-            
+
             while (Queue.TryDequeue(out var _))
             {
             }
@@ -58,10 +58,22 @@ namespace SCPStats
                     }
                     else
                     {
+                        if (CreatingClient)
+                        {
+                            continue;
+                        }
+
+                        if (ws == null || !ws.IsAlive)
+                        {
+                            CreateConnection();
+                        }
+                        else
+                        {
 #if DEBUG
-                        Log.Info(">" + message);
+                            Log.Info(">" + message);
 #endif
-                        ws?.Send(message);
+                            ws?.Send(message);
+                        }
                     }
                 }
 
@@ -91,11 +103,13 @@ namespace SCPStats
             {
                 await CreateConnection();
             }
-
+            else
+            {
 #if DEBUG
-            Log.Info(">" + message);
+                Log.Info(">" + message);
 #endif
-            ws.Send(message);
+                ws.Send(message);
+            }
         }
         
         private static string HmacSha256Digest(string secret, string message)
@@ -150,6 +164,7 @@ namespace SCPStats
             {
                 ws?.Close();
                 SCPStats.Singleton.OnDisabled();
+                CreatingClient = false;
                 return;
             }
 
@@ -161,8 +176,6 @@ namespace SCPStats
 
                 ws.OnOpen += (o, e) =>
                 {
-                    CreatingClient = false;
-                    
                     if (!PingerActive)
                     {
                         Pinger = Ping();
@@ -179,7 +192,12 @@ namespace SCPStats
 
                 ws.OnMessage += (sender, e) =>
                 {
-                    if (!e.IsText || !ws.IsAlive) return;
+                    if (!e.IsText) return;
+                    if (!ws.IsAlive)
+                    {
+                        CreateConnection();
+                        return;
+                    }
 #if DEBUG
                     Log.Info("<" + e.Data);
 #endif
@@ -187,15 +205,25 @@ namespace SCPStats
                     switch (e.Data)
                     {
                         case "i":
-                            Log.Warn("Authentication failed. Exiting.");
-
-                            Exited = true;
-                            ws?.Close();
-                            SCPStats.Singleton.OnDisabled();
-                            return;
+                            if (ws != null && ws.IsAlive)
+                            {
+                                ws?.Close();
+                            }
+                            else
+                            {
+                                CreateConnection();
+                            }
+                            break;
 
                         case "c":
-                            ws?.Close();
+                            if (ws != null && ws.IsAlive)
+                            {
+                                ws?.Close();
+                            }
+                            else
+                            {
+                                CreateConnection();
+                            }
                             break;
 
                         case "b":
@@ -291,16 +319,19 @@ namespace SCPStats
                     
                     Task.Run(() =>
                     {
-                        Task.Delay(5000);
+                        Task.Delay(15000);
                         if (CreatingClient) return;
                         CreateConnection();
                     });
                 };
                 
                 ws.Connect();
+                
+                CreatingClient = false;
             }
             catch (Exception e)
             {
+                CreatingClient = false;
                 Log.Error(e);
             }
         }
@@ -311,7 +342,17 @@ namespace SCPStats
             {
                 if (Pinged)
                 {
-                    ws?.Close();
+                    PingerActive = false;
+                    
+                    if (ws != null && ws.IsAlive)
+                    {
+                        ws?.Close();
+                    }
+                    else
+                    {
+                        CreateConnection();
+                    }
+                    
                     return;
                 }
 

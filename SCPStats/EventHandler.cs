@@ -74,10 +74,10 @@ namespace SCPStats
 
         internal static void OnRAReload()
         {
-            Timing.RunCoroutine(RAReloaded());
+            Timing.RunCoroutine(ReloadPlayers());
         }
 
-        private static IEnumerator<float> RAReloaded()
+        private static IEnumerator<float> ReloadPlayers()
         {
             yield return Timing.WaitForSeconds(1.5f);
 
@@ -102,12 +102,7 @@ namespace SCPStats
 
             StatHandler.SendRequest(RequestType.RoundStart);
             
-            foreach (var player in Player.List)
-            {
-                if (player == null || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
-
-                Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player)));
-            }
+            Timing.RunCoroutine(ReloadPlayers());
         }
         
         internal static void OnRoundEnd(RoundEndedEventArgs ev)
