@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -89,11 +90,33 @@ namespace SCPStats
             }
         }
 
+        private static bool IsGamemodeRunning()
+        {
+            var gamemodeManager = Loader.Plugins.FirstOrDefault(pl => pl.Name == "Gamemode Manager");
+            if (gamemodeManager == null) return false;
+            
+            var pluginType = gamemodeManager.Assembly.GetType("Plugin");
+            if (pluginType == null) return false;
+            
+            var queueHandler = gamemodeManager.Assembly.GetType("QueueHandler");
+            if (queueHandler == null) return false;
+
+            var queueHandlerInstance = pluginType.GetField("QueueHandler")?.GetValue(gamemodeManager);
+            if (queueHandlerInstance == null) return false;
+
+            return (bool) (queueHandler.GetProperty("IsAnyGamemodeActive")?.GetValue(queueHandlerInstance) ?? false);
+        }
+
         internal static void OnRoundStart()
         {
             StartGrace = true;
             Restarting = false;
             DidRoundEnd = false;
+
+            if (IsGamemodeRunning())
+            {
+                PauseRound = true;
+            }
             
             Timing.CallDelayed(SCPStats.Singleton.waitTime, () =>
             {
