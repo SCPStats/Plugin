@@ -193,7 +193,7 @@ namespace SCPStats
                 ws.OnMessage += (sender, e) =>
                 {
                     if (!e.IsText) return;
-                    if (!ws.IsAlive)
+                    if (ws == null || !ws.IsAlive)
                     {
                         CreateConnection();
                         return;
