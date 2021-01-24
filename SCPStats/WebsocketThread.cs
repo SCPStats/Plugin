@@ -268,11 +268,18 @@ namespace SCPStats
                             var roles = flags[2].Split('|');
                             foreach (var parts in from rolesync in SCPStats.Singleton.Config.RoleSync select rolesync.Split(':') into parts where parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" where parts[0].Split(',').All(discordRole => roles.Contains(discordRole)) select parts)
                             {
-                                lock(player.ReferenceHub.serverRoles)
+                                lock (player.ReferenceHub.serverRoles)
+                                lock (ServerStatic.PermissionsHandler._groups)
                                 lock (ServerStatic.PermissionsHandler._members)
                                 {
-                                    player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(parts[1]), false);
-                                    ServerStatic.PermissionsHandler._members[player.UserId] = parts[1];
+                                    var group = ServerStatic.PermissionsHandler.GetGroup(parts[1]);
+                                    if (group == null)
+                                    {
+                                        Log.Error("Group "+parts[1]+" does not exist. There is an issue in your rolesync config!");
+                                        continue;
+                                    }
+                                    
+                                    player.SetRank(parts[1], group);
                                 }
                                 
                                 Rainbow(player);
@@ -282,22 +289,36 @@ namespace SCPStats
 
                         if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                         {
-                            lock(player.ReferenceHub.serverRoles)
+                            lock (player.ReferenceHub.serverRoles)
+                            lock (ServerStatic.PermissionsHandler._groups)
                             lock (ServerStatic.PermissionsHandler._members)
                             {
-                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole), false);
-                                ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
+                                var group = ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole);
+                                if (group == null)
+                                {
+                                    Log.Error("Group "+SCPStats.Singleton.Config.BoosterRole+" does not exist. There is an issue in your rolesync config!");
+                                    continue;
+                                }
+                                    
+                                player.SetRank(SCPStats.Singleton.Config.BoosterRole, group);
                             }
 
                             Rainbow(player);
                         }
                         else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
                         {
-                            lock(player.ReferenceHub.serverRoles)
+                            lock (player.ReferenceHub.serverRoles)
+                            lock (ServerStatic.PermissionsHandler._groups)
                             lock (ServerStatic.PermissionsHandler._members)
                             {
-                                player.ReferenceHub.serverRoles.SetGroup(ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole), false);
-                                ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
+                                var group = ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole);
+                                if (group == null)
+                                {
+                                    Log.Error("Group "+SCPStats.Singleton.Config.DiscordMemberRole+" does not exist. There is an issue in your rolesync config!");
+                                    continue;
+                                }
+                                    
+                                player.SetRank(SCPStats.Singleton.Config.DiscordMemberRole, group);
                             }
 
                             Rainbow(player);
