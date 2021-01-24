@@ -251,7 +251,7 @@ namespace SCPStats
                                         continue;
                                     }
                                     
-                                    player.SetRank(parts[1], group);
+                                    player.SetRank(group.BadgeText, group);
                                 }
                                 
                                 Rainbow(player);
@@ -272,7 +272,7 @@ namespace SCPStats
                                     continue;
                                 }
                                     
-                                player.SetRank(SCPStats.Singleton.Config.BoosterRole, group);
+                                player.SetRank(group.BadgeText, group);
                             }
 
                             Rainbow(player);
@@ -290,7 +290,7 @@ namespace SCPStats
                                     continue;
                                 }
                                     
-                                player.SetRank(SCPStats.Singleton.Config.DiscordMemberRole, group);
+                                player.SetRank(group.BadgeText, group);
                             }
 
                             Rainbow(player);
