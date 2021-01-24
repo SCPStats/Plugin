@@ -251,7 +251,8 @@ namespace SCPStats
                                         continue;
                                     }
                                     
-                                    player.SetRank(group.BadgeText, group);
+                                    player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                                    ServerStatic.PermissionsHandler._members[player.UserId] = parts[1];
                                 }
                                 
                                 Rainbow(player);
@@ -272,7 +273,8 @@ namespace SCPStats
                                     continue;
                                 }
                                     
-                                player.SetRank(group.BadgeText, group);
+                                player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                                ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
                             }
 
                             Rainbow(player);
@@ -290,7 +292,8 @@ namespace SCPStats
                                     continue;
                                 }
                                     
-                                player.SetRank(group.BadgeText, group);
+                                player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                                ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
                             }
 
                             Rainbow(player);
