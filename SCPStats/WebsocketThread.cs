@@ -244,12 +244,13 @@ namespace SCPStats
                                 lock (ServerStatic.PermissionsHandler._groups)
                                 lock (ServerStatic.PermissionsHandler._members)
                                 {
-                                    var group = ServerStatic.PermissionsHandler.GetGroup(parts[1]);
-                                    if (group == null)
+                                    if (!ServerStatic.PermissionsHandler._groups.ContainsKey(parts[1]))
                                     {
                                         Log.Error("Group "+parts[1]+" does not exist. There is an issue in your rolesync config!");
                                         continue;
                                     }
+                                
+                                    var group = ServerStatic.PermissionsHandler._groups[parts[1]];
                                     
                                     player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
                                     ServerStatic.PermissionsHandler._members[player.UserId] = parts[1];
@@ -266,12 +267,13 @@ namespace SCPStats
                             lock (ServerStatic.PermissionsHandler._groups)
                             lock (ServerStatic.PermissionsHandler._members)
                             {
-                                var group = ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.BoosterRole);
-                                if (group == null)
+                                if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole))
                                 {
                                     Log.Error("Group "+SCPStats.Singleton.Config.BoosterRole+" does not exist. There is an issue in your rolesync config!");
                                     continue;
                                 }
+                                
+                                var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole];
                                     
                                 player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
                                 ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
@@ -285,12 +287,13 @@ namespace SCPStats
                             lock (ServerStatic.PermissionsHandler._groups)
                             lock (ServerStatic.PermissionsHandler._members)
                             {
-                                var group = ServerStatic.PermissionsHandler.GetGroup(SCPStats.Singleton.Config.DiscordMemberRole);
-                                if (group == null)
+                                if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole))
                                 {
                                     Log.Error("Group "+SCPStats.Singleton.Config.DiscordMemberRole+" does not exist. There is an issue in your rolesync config!");
                                     continue;
                                 }
+                                
+                                var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole];
                                     
                                 player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
                                 ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
