@@ -42,21 +42,7 @@ namespace SCPStats
             
             EventHandler.Start();
 
-            Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
-            Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;
-            Exiled.Events.Handlers.Server.RestartingRound += EventHandler.OnRoundRestart;
-            Exiled.Events.Handlers.Server.WaitingForPlayers += EventHandler.Waiting;
-            Exiled.Events.Handlers.Player.Dying += EventHandler.OnKill;
-            Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
-            Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
-            Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
-            Exiled.Events.Handlers.Player.Joined += EventHandler.OnJoin;
-            Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
-            Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
-            Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
-            Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
-            Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
+            Timing.RunCoroutine(EnableEvents());
 
             if (Config.AutoUpdates)
             {
@@ -82,6 +68,27 @@ namespace SCPStats
             });
             
             base.OnEnabled();
+        }
+
+        private IEnumerator<float> EnableEvents()
+        {
+            yield return Timing.WaitForSeconds(1);
+            
+            Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
+            Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;
+            Exiled.Events.Handlers.Server.RestartingRound += EventHandler.OnRoundRestart;
+            Exiled.Events.Handlers.Server.WaitingForPlayers += EventHandler.Waiting;
+            Exiled.Events.Handlers.Player.Dying += EventHandler.OnKill;
+            Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
+            Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
+            Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
+            Exiled.Events.Handlers.Player.Joined += EventHandler.OnJoin;
+            Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
+            Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
+            Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
+            Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
+            Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
         }
 
         public override void OnDisabled()
