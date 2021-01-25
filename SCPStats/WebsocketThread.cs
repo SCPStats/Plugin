@@ -221,7 +221,7 @@ namespace SCPStats
                     {
                         if (!HandleId(player.RawUserId).Equals(data[0])) continue;
 
-                        if (flags[3] == "1" || player.CheckPermission("scpstats.hat"))
+                        if (flags[3] == "1")
                         {
                             var item = (ItemType) Convert.ToInt32(flags[4]);
                             
