@@ -23,10 +23,11 @@ namespace SCPStats
         [Description("The role that should be given to discord members. Your server must be linked to your discord server to do this.")]
         public string DiscordMemberRole { get; set; } = "none";
 
-        [Description("Roles that you want to sync. Adding a role here means that if the person has the role on discord, they will get it in game. If a user has multiple roles that can be synced, the highest role in this list will be chosen. Your server must be linked to your discord server to do this.")]
+        [Description("Roles that you want to sync. Adding a role here means that if the person has the role on discord, they will get it in game. If a user has multiple roles that can be synced, the highest role in this list will be chosen. Your server must be linked to your discord server to do this. You can also give roles based on how the player ranks in certain stats. For example, you can give 20 players with the highest playtime a role with the example role. All of the possible metrics are: \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", \"adrenaline\".")]
         public List<string> RoleSync { get; set; } = new List<string>()
         {
-            "DiscordRoleID:IngameRoleName"
+            "DiscordRoleID:IngameRoleName",
+            "playtime_20:IngameRoleName"
         };
 
         [Description("SCPStats includes hats to give perks to its donators. If you want to reward your own donators with hats, you can give them the scpstats.hats permission.")]

@@ -246,6 +246,8 @@ namespace SCPStats
                                 var req = s[0];
                                 var role = s[1];
 
+                                if (req == "DiscordRoleID" || role == "IngameRoleName") continue;
+
                                 if (req.Contains("_"))
                                 {
                                     var parts = req.Split('_');
