@@ -82,8 +82,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
             Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
-            Exiled.Events.Handlers.Player.Joined += EventHandler.OnJoin;
-            Exiled.Events.Handlers.Player.Left += EventHandler.OnLeave;
+            Exiled.Events.Handlers.Player.Verified += EventHandler.OnJoin;
+            Exiled.Events.Handlers.Player.Destroying += EventHandler.OnLeave;
             Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
@@ -105,8 +105,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Dying -= EventHandler.OnKill;
             Exiled.Events.Handlers.Player.PickingUpItem -= EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
-            Exiled.Events.Handlers.Player.Joined -= EventHandler.OnJoin;
-            Exiled.Events.Handlers.Player.Left -= EventHandler.OnLeave;
+            Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;
+            Exiled.Events.Handlers.Player.Destroying -= EventHandler.OnLeave;
             Exiled.Events.Handlers.Player.MedicalItemUsed -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
