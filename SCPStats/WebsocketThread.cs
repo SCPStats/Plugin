@@ -235,25 +235,67 @@ namespace SCPStats
                         //Rolesync stuff
                         if (player.Group != null) continue;
                         
-                        if (flags[2] != "0")
+                        if (flags[2] != "0" && flags[5] != "0")
                         {
                             var roles = flags[2].Split('|');
-                            foreach (var parts in from rolesync in SCPStats.Singleton.Config.RoleSync select rolesync.Split(':') into parts where parts[0] != "DiscordRoleID" && parts[1] != "IngameRoleName" where parts[0].Split(',').All(discordRole => roles.Contains(discordRole)) select parts)
+
+                            var ranks = flags[5].Split('|');
+                            
+                            foreach (var s in SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')))
                             {
+                                var req = s[0];
+                                var role = s[1];
+
+                                if (req.Contains("_"))
+                                {
+                                    var parts = req.Split('_');
+                                    if (parts.Length < 2)
+                                    {
+                                        Log.Error("Error parsing rolesync config \""+req+":"+role+"\". Expected \"metric_maxvalue\" but got \""+req+"\" instead.");
+                                        continue;
+                                    }
+
+                                    if (parts.Length > 2 && !parts[2].Split(',').All(discordRole => roles.Contains(discordRole)))
+                                    {
+                                        continue;
+                                    }
+
+                                    if (!int.TryParse(parts[1], out var max))
+                                    {
+                                        Log.Error("Error parsing rolesync config \""+req+":"+role+"\". There is an error in your max ranks. Expected an integer, but got \""+parts[1]+"\"!");
+                                        continue;
+                                    }
+
+                                    var type = parts[0].Trim().ToLower();
+                                    if (!Helper.Rankings.ContainsKey(type))
+                                    {
+                                        Log.Error("Error parsing rolesync config \""+req+":"+role+"\". The given metric (\""+type+"\" is not valid). Valid metrics are: \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", \"adrenaline\".");
+                                        continue;
+                                    }
+
+                                    var rank = int.Parse(ranks[Helper.Rankings[type]]);
+
+                                    if (rank == -1 || rank >= max) continue;
+                                }
+                                else if(!req.Split(',').All(discordRole => roles.Contains(discordRole)))
+                                {
+                                    continue;
+                                }
+                                
                                 lock (player.ReferenceHub.serverRoles)
                                 lock (ServerStatic.PermissionsHandler._groups)
                                 lock (ServerStatic.PermissionsHandler._members)
                                 {
-                                    if (!ServerStatic.PermissionsHandler._groups.ContainsKey(parts[1]))
+                                    if (!ServerStatic.PermissionsHandler._groups.ContainsKey(role))
                                     {
-                                        Log.Error("Group "+parts[1]+" does not exist. There is an issue in your rolesync config!");
+                                        Log.Error("Group "+role+" does not exist. There is an issue in your rolesync config!");
                                         continue;
                                     }
                                 
-                                    var group = ServerStatic.PermissionsHandler._groups[parts[1]];
+                                    var group = ServerStatic.PermissionsHandler._groups[role];
                                     
-                                    player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                                    ServerStatic.PermissionsHandler._members[player.UserId] = parts[1];
+                                    player.ReferenceHub.serverRoles.SetGroup(@group, false, false, @group.Cover);
+                                    ServerStatic.PermissionsHandler._members[player.UserId] = role;
                                 }
                                 
                                 Rainbow(player);

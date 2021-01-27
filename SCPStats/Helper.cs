@@ -11,6 +11,18 @@ namespace SCPStats
 {
     internal static class Helper
     {
+        internal static Dictionary<string, int> Rankings = new Dictionary<string, int>()
+        {
+            {"kills", 0},
+            {"deaths", 1},
+            {"rounds", 2},
+            {"playtime", 3},
+            {"sodas", 4},
+            {"medkits", 5},
+            {"balls", 6},
+            {"adrenaline", 7}
+        };
+        
         internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
         {
             var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
