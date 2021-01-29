@@ -187,14 +187,12 @@ namespace SCPStats
         
         internal static void OnKill(DyingEventArgs ev)
         {
-            if (ev.Killer == null || ev.Target == null || !ev.Killer.IsVerified || !ev.Target.IsVerified || PauseRound || !ev.IsAllowed || !Helper.IsPlayerValid(ev.Target, false) || !Helper.IsPlayerValid(ev.Killer, false) || !RoundSummary.RoundInProgress()) return;
+            if (ev.Target == null || !ev.Target.IsVerified || PauseRound || !ev.IsAllowed || !Helper.IsPlayerValid(ev.Target, false) || !RoundSummary.RoundInProgress()) return;
 
             if (!ev.Target.DoNotTrack && ev.Target.IPAddress != "127.0.0.WAN" && ev.Target.IPAddress != "127.0.0.1")
             {
-                StatHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Target)+"\", \"killerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+                StatHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Target)+"\", \"killerrole\": \""+(ev.Killer == null ? ((int) ev.Target.Role).ToString() : ((int) ev.Killer.Role).ToString())+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
             }
-            
-            if (ev.Killer.IPAddress == "127.0.0.WAN" || ev.Killer.IPAddress == "127.0.0.1") return;
 
             if (ev.HitInformation.GetDamageType() == DamageTypes.Pocket && PocketPlayers.TryGetValue(Helper.HandleId(ev.Target), out var killer))
             {
@@ -202,7 +200,7 @@ namespace SCPStats
                 return;
             }
             
-            if (ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
+            if (ev.Killer == null || !Helper.IsPlayerValid(ev.Killer, false) || !ev.Killer.IsVerified || ev.Killer.IPAddress == "127.0.0.WAN" || ev.Killer.IPAddress == "127.0.0.1" || ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack) return;
 
             StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+Helper.HandleId(ev.Killer)+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
         }
