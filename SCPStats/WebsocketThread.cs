@@ -298,7 +298,7 @@ namespace SCPStats
 
                                         var group = ServerStatic.PermissionsHandler._groups[role];
 
-                                        player.ReferenceHub.serverRoles.SetGroup(@group, false, false, @group.Cover);
+                                        player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
                                         ServerStatic.PermissionsHandler._members[player.UserId] = role;
                                     }
 
