@@ -14,13 +14,42 @@ namespace SCPStats
         internal static Dictionary<string, int> Rankings = new Dictionary<string, int>()
         {
             {"kills", 0},
+            {"kill", 0},
             {"deaths", 1},
+            {"death", 1},
+            {"dies", 1},
+            {"die", 1},
             {"rounds", 2},
+            {"round", 2},
+            {"roundsplayed", 2},
             {"playtime", 3},
+            {"gametime", 3},
+            {"hours", 3},
             {"sodas", 4},
+            {"soda", 4},
+            {"cokes", 4},
+            {"coke", 4},
+            {"scp207s", 4},
+            {"scp207", 4},
+            {"scp-207s", 4},
+            {"scp-207", 4},
             {"medkits", 5},
+            {"medkit", 5},
+            {"health", 5},
+            {"healthpack", 5},
+            {"healthpacks", 5},
             {"balls", 6},
-            {"adrenaline", 7}
+            {"ball", 6},
+            {"scp018s", 6},
+            {"scp018", 6},
+            {"scp18s", 6},
+            {"scp18", 6},
+            {"scp-018s", 6},
+            {"scp-018", 6},
+            {"scp-18s", 6},
+            {"scp-18", 6},
+            {"adrenaline", 7},
+            {"adrenalines", 7}
         };
         
         internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
