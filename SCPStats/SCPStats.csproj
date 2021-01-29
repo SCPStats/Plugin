@@ -233,6 +233,7 @@
     <Compile Include="Hats\HatPlayerComponent.cs" />
     <Compile Include="Hats\Hats.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="PauseStatsCommand.cs" />
     <Compile Include="RequestType.cs" />
     <Compile Include="SCPStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
