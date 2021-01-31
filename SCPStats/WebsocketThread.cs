@@ -173,6 +173,7 @@ namespace SCPStats
                     
                     foreach (var player in Player.List)
                     {
+                        if (player == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN") continue;
                         SendRequest("11", HandleId(player.RawUserId));
                     }
                 };
@@ -221,7 +222,7 @@ namespace SCPStats
 
                         foreach (var player in Player.List)
                         {
-                            if (!HandleId(player.RawUserId).Equals(data[0])) continue;
+                            if (player == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN" || !HandleId(player.RawUserId).Equals(data[0])) continue;
 
                             if (flags[3] == "1")
                             {
