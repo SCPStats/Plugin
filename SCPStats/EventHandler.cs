@@ -85,8 +85,7 @@ namespace SCPStats
             foreach (var player in Player.List)
             {
                 if (player == null || player.IsHost || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
-                Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player)));
-                yield return Timing.WaitForSeconds(.1f);
+                StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
             }
         }
 
@@ -288,7 +287,7 @@ namespace SCPStats
                 Verification.UpdateID();
             }
 
-            Timing.CallDelayed(1f, () => StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player)));
+            StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
             
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
 
