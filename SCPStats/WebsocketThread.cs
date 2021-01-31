@@ -157,7 +157,7 @@ namespace SCPStats
             {
                 if(ws != null && ws.IsAlive) ws?.Close();
 
-                ws = new WebSocket("wss://scpstats.com/connect");
+                ws = new WebSocket("wss://scpstats.com/connect") {Log = {Level = LogLevel.Fatal}};
 
                 ws.OnOpen += (o, e) =>
                 {
