@@ -21,7 +21,7 @@ namespace SCPStats
                 var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/version");
                 if (res == Version) return;
 
-                var location = Directory.GetFiles(Paths.Plugins).FirstOrDefault(path => path.ToLower().Contains("scpstats") && path.EndsWith(".dll"));
+                var location = SCPStats.Singleton.GetPath();
                 if (location == null)
                 {
                     Log.Warn("SCPStats auto updater couldn't determine the plugin path. Make sure your plugin dll is named \"SCPStats.dll\".");
