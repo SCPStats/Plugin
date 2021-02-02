@@ -58,6 +58,13 @@ namespace SCPStats
                     }
                     else
                     {
+
+                        if (CreatingClient) continue;
+                        if (ws == null || !ws.IsAlive)
+                        {
+                            CreateConnection();
+                            continue;
+                        }
 #if DEBUG
                         Log.Info(">" + message);
 #endif
@@ -190,27 +197,23 @@ namespace SCPStats
                         switch (e.Data)
                         {
                             case "i":
-                                Log.Warn("Authentication failed. Exiting.");
-
-                                Exited = true;
-                                ws?.Close();
-                                SCPStats.Singleton.OnDisabled();
+                                Log.Warn("Authentication failed. Your secret may be invalid. If you see this spammed, double check it!");
                                 return;
 
                             case "c":
                                 ws?.Close();
-                                break;
+                                return;
 
                             case "b":
 #if DEBUG
                                 Log.Info("<a");
 #endif
                                 ws?.Send("a");
-                                break;
+                                return;
 
                             case "a":
                                 Pinged = false;
-                                break;
+                                return;
                         }
 
                         if (e.Data == null || !e.Data.StartsWith("u")) return;
@@ -232,6 +235,7 @@ namespace SCPStats
                                 lock (HatCommand.HatPlayers)
                                 {
                                     if (HatCommand.AllowedHats.Contains(item)) HatCommand.HatPlayers[player.UserId] = item;
+                                    else HatCommand.HatPlayers[player.UserId] = ItemType.SCP268;
                                 }
                             }
 
