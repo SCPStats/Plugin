@@ -391,8 +391,14 @@ namespace SCPStats
         
         private static async Task Ping()
         {
-            while (ws.IsAlive)
+            while (ws != null && ws.IsAlive)
             {
+                if (Exited)
+                {
+                    PingerActive = false;
+                    return;
+                }
+                
                 if (Pinged)
                 {
                     PingerActive = false;
@@ -411,6 +417,11 @@ namespace SCPStats
             }
 
             PingerActive = false;
+
+            if (!CreatingClient)
+            {
+                CreateConnection();
+            }
         }
     }
 }
