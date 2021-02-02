@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using MEC;
 using UnityEngine;
@@ -29,7 +30,8 @@ namespace SCPStats.Hats
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
                     var player = Player.Get(gameObject);
-                    
+                    if (player.TryGetEffect(EffectType.Scp268, out var effect) && effect.Enabled && effect.TimeLeft > 0) continue;
+
                     var camera = player.CameraTransform;
 
                     var rotAngles = camera.rotation.eulerAngles;
