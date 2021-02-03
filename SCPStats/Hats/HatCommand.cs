@@ -132,7 +132,6 @@ namespace SCPStats.Hats
                                    "\nSCP-268" +
                                    "\nSCP-500" +
                                    "\nCoin" +
-                                   "\nAmmo" +
                                    "\nSCP-018" +
                                    "\nMedkit" +
                                    "\nAdrenaline" +
