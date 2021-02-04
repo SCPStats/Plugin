@@ -31,14 +31,6 @@ namespace SCPStats.Hats
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
                     var player = Player.Get(gameObject);
-                    if (player.TryGetEffect(EffectType.Scp268, out var effect) && effect.Enabled && effect.TimeLeft > 0)
-                    {
-                        pickup.Networkposition = Vector3.zero;
-                        pickup.transform.position = Vector3.zero;
-                        pickup.UpdatePosition();
-
-                        continue;
-                    }
 
                     var camera = player.CameraTransform;
 
