@@ -180,7 +180,7 @@ namespace SCPStats
                     
                     foreach (var player in Player.List)
                     {
-                        if (player == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN") continue;
+                        if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN") continue;
                         SendRequest("11", HandleId(player.RawUserId));
                     }
                 };
