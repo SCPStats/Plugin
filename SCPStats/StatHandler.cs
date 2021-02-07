@@ -28,6 +28,11 @@ namespace SCPStats
         
         internal static void SendRequest(RequestType type, string data = "")
         {
+            if (wss == null || !wss.IsAlive)
+            {
+                Start();
+            }
+            
             var str = ((int) type).ToString().PadLeft(2, '0')+data;
             var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
