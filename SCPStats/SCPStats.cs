@@ -73,7 +73,7 @@ namespace SCPStats
 
         private IEnumerator<float> EnableEvents()
         {
-            yield return Timing.WaitForSeconds(1);
+            yield return Timing.WaitForSeconds(1f);
 
             if (Singleton == null) yield break;
             
