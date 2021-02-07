@@ -51,13 +51,14 @@ namespace SCPStats
 
                 while (Queue.TryDequeue(out message))
                 {
-                    if (message == "exit")
+                    try
                     {
-                        Exited = true;
-                        ws?.Close();
-                    }
-                    else
-                    {
+                        if (message == "exit")
+                        {
+                            Exited = true;
+                            ws?.Close();
+                            break;
+                        }
 
                         if (CreatingClient) continue;
                         if (ws == null || !ws.IsAlive)
@@ -70,12 +71,16 @@ namespace SCPStats
 #endif
                         ws?.Send(message);
                     }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
                 }
 
                 Signal.Reset();
             }
             
-            ws?.Close();
+            if(ws != null && ws.IsAlive) ws.Close();
         }
         
         private static async Task SendRequest(string type, string data = "")
@@ -141,27 +146,27 @@ namespace SCPStats
         
         private static async Task CreateConnection(int delay = 0, bool sendInfo = false)
         {
-            CreatingClient = true;
-            
-            if (delay != 0) await Task.Delay(delay);
-
-            if (ws != null && ws.IsAlive)
-            {
-                CreatingClient = false;
-                return;
-            }
-            
-            Pinged = false;
-
-            if (Exited)
-            {
-                ws?.Close();
-                SCPStats.Singleton.OnDisabled();
-                return;
-            }
-
             try
             {
+                CreatingClient = true;
+            
+                if (delay != 0) await Task.Delay(delay);
+
+                if (ws != null && ws.IsAlive)
+                {
+                    CreatingClient = false;
+                    return;
+                }
+            
+                Pinged = false;
+
+                if (Exited)
+                {
+                    ws?.Close();
+                    SCPStats.Singleton.OnDisabled();
+                    return;
+                }
+                
                 if(ws != null && ws.IsAlive) ws?.Close();
 
                 ws = new WebSocket("wss://scpstats.com/connect") {Log = {Level = LogLevel.Fatal}};
@@ -386,6 +391,8 @@ namespace SCPStats
             catch (Exception e)
             {
                 Log.Error(e);
+                CreatingClient = false;
+                CreateConnection(5000);
             }
         }
         

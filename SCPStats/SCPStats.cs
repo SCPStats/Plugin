@@ -74,6 +74,8 @@ namespace SCPStats
         private IEnumerator<float> EnableEvents()
         {
             yield return Timing.WaitForSeconds(1);
+
+            if (Singleton == null) yield break;
             
             Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.RoundEnded += EventHandler.OnRoundEnd;
@@ -104,6 +106,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RestartingRound -= EventHandler.OnRoundRestart;
             Exiled.Events.Handlers.Server.WaitingForPlayers -= EventHandler.Waiting;
             Exiled.Events.Handlers.Player.Dying -= EventHandler.OnKill;
+            Exiled.Events.Handlers.Player.ChangingRole -= EventHandler.OnRoleChanged;
             Exiled.Events.Handlers.Player.PickingUpItem -= EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;

@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Exiled.API.Features;
 
 namespace SCPStats
 {
@@ -23,7 +24,6 @@ namespace SCPStats
         {
             WebsocketThread.Queue.Enqueue("exit");
             WebsocketThread.Signal.Set();
-            wss.Abort();
         }
         
         internal static void SendRequest(RequestType type, string data = "")
