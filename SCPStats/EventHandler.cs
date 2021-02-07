@@ -38,6 +38,8 @@ namespace SCPStats
 
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
+        
+        internal static Dictionary<string, UserGroup> RolesyncGroups = new Dictionary<string, UserGroup>();
 
         internal static void Reset()
         {
@@ -47,6 +49,8 @@ namespace SCPStats
             StatHandler.Stop();
             
             SpawnsDone.Clear();
+            
+            RolesyncGroups.Clear();
 
             PauseRound = false;
         }
@@ -81,6 +85,18 @@ namespace SCPStats
         private static IEnumerator<float> RAReloaded()
         {
             yield return Timing.WaitForSeconds(1.5f);
+            
+            foreach (var player in Player.List)
+            {
+                foreach (var user in RolesyncGroups)
+                {
+                    if (player.RawUserId != user.Key) continue;
+                    if (player.Group != user.Value) break;
+
+                    player.Group = null;
+                    break;
+                }
+            }
             
             var ids = (from player in Player.List where player?.UserId != null && player.IsVerified && !player.IsHost && player.IPAddress != "127.0.0.WAN" && player.IPAddress != "127.0.0.1" select Helper.HandleId(player)).ToList();
             
@@ -292,7 +308,12 @@ namespace SCPStats
                 Verification.UpdateID();
             }
 
-            StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
+            Timing.CallDelayed(.2f, () =>
+            {
+                if (RolesyncGroups.ContainsKey(ev.Player.RawUserId) && RolesyncGroups[ev.Player.RawUserId] == ev.Player.Group) ev.Player.Group = null;
+                
+                StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
+            });
             
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
 

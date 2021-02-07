@@ -299,6 +299,7 @@ namespace SCPStats
                                     lock (player.ReferenceHub.serverRoles)
                                     lock (ServerStatic.PermissionsHandler._groups)
                                     lock (ServerStatic.PermissionsHandler._members)
+                                    lock(EventHandler.RolesyncGroups)
                                     {
                                         if (!ServerStatic.PermissionsHandler._groups.ContainsKey(role))
                                         {
@@ -310,6 +311,7 @@ namespace SCPStats
 
                                         player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
                                         ServerStatic.PermissionsHandler._members[player.UserId] = role;
+                                        EventHandler.RolesyncGroups[player.RawUserId] = group;
                                     }
 
                                     Rainbow(player);
