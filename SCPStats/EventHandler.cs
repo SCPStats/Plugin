@@ -86,6 +86,8 @@ namespace SCPStats
             {
                 if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
                 StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
+                
+                yield return Timing.WaitForSeconds(.1f);
             }
         }
 
@@ -131,15 +133,17 @@ namespace SCPStats
                 StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
             }
         }
-        
-        internal static void OnRoundEnd(RoundEndedEventArgs ev)
+
+        internal static void OnRoundEnding(EndingRoundEventArgs ev)
         {
+            if (!ev.IsAllowed || !ev.IsRoundEnded) return;
+            
             DidRoundEnd = true;
             StartGrace = false;
             
             HatCommand.HatPlayers.Clear();
 
-            SendRoundEnd();
+            Timing.RunCoroutine(SendRoundEnd());
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
@@ -154,7 +158,7 @@ namespace SCPStats
             HatCommand.HatPlayers.Clear();
             if (DidRoundEnd) return;
 
-            SendRoundEnd();
+            Timing.RunCoroutine(SendRoundEnd());
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
@@ -162,7 +166,7 @@ namespace SCPStats
             SpawnsDone.Clear();
         }
 
-        private static void SendRoundEnd()
+        private static IEnumerator<float> SendRoundEnd()
         {
             StatHandler.SendRequest(RequestType.RoundEnd);
 
@@ -171,6 +175,8 @@ namespace SCPStats
                 if (player?.UserId == null || player.IsHost || !player.IsVerified || player.DoNotTrack || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(player)) continue;
                 
                 StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + Helper.HandleId(player) + "\"}");
+
+                yield return Timing.WaitForSeconds(.1f);
             }
         }
 
