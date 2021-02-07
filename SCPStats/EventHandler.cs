@@ -81,11 +81,12 @@ namespace SCPStats
         private static IEnumerator<float> RAReloaded()
         {
             yield return Timing.WaitForSeconds(1.5f);
-
-            foreach (var player in Player.List)
+            
+            var ids = (from player in Player.List where player?.UserId != null && player.IsVerified && !player.IsHost && player.IPAddress != "127.0.0.WAN" && player.IPAddress != "127.0.0.1" select Helper.HandleId(player)).ToList();
+            
+            foreach (var id in ids)
             {
-                if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
-                StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
+                StatHandler.SendRequest(RequestType.UserData, id);
                 
                 yield return Timing.WaitForSeconds(.1f);
             }
@@ -170,11 +171,11 @@ namespace SCPStats
         {
             StatHandler.SendRequest(RequestType.RoundEnd);
 
-            foreach (var player in Player.List)
+            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !player.DoNotTrack && player.IPAddress != "127.0.0.WAN" && player.IPAddress != "127.0.0.1" && Helper.IsPlayerValid(player) select Helper.HandleId(player)).ToList();
+            
+            foreach (var id in ids)
             {
-                if (player?.UserId == null || player.IsHost || !player.IsVerified || player.DoNotTrack || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(player)) continue;
-                
-                StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + Helper.HandleId(player) + "\"}");
+                StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + id + "\"}");
 
                 yield return Timing.WaitForSeconds(.1f);
             }
