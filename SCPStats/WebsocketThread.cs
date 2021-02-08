@@ -245,7 +245,24 @@ namespace SCPStats
                             }
 
                             //Rolesync stuff
-                            if (player.Group != null) continue;
+                            if (player.Group != null)
+                            {
+                                var flag = true;
+
+                                lock (ServerStatic.PermissionsHandler._groups)
+                                {
+                                    if(!SCPStats.Singleton.Config.DiscordMemberRole.Equals("none") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole) && ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] == player.Group) flag = false;
+                                    
+                                    if(!SCPStats.Singleton.Config.BoosterRole.Equals("none") && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole) && ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] == player.Group) flag = false;
+                                    
+                                    foreach (var ingameRole in from role in SCPStats.Singleton.Config.RoleSync select role.Split(':') into roles where roles.Length >= 2 select roles[1] into ingameRole where !ingameRole.Equals("none") && !ingameRole.Equals("fill this") && !ingameRole.Equals("IngameRoleName") && ServerStatic.PermissionsHandler._groups.ContainsKey(ingameRole) && ServerStatic.PermissionsHandler._groups[ingameRole] == player.Group select ingameRole)
+                                    {
+                                        flag = false;
+                                    }
+
+                                    if (flag) return;
+                                }
+                            }
 
                             if (flags[2] != "0" && flags[5] != "0")
                             {
@@ -299,7 +316,6 @@ namespace SCPStats
                                     lock (player.ReferenceHub.serverRoles)
                                     lock (ServerStatic.PermissionsHandler._groups)
                                     lock (ServerStatic.PermissionsHandler._members)
-                                    lock(EventHandler.RolesyncGroups)
                                     {
                                         if (!ServerStatic.PermissionsHandler._groups.ContainsKey(role))
                                         {
@@ -311,7 +327,6 @@ namespace SCPStats
 
                                         player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
                                         ServerStatic.PermissionsHandler._members[player.UserId] = role;
-                                        EventHandler.RolesyncGroups[player.RawUserId] = group;
                                     }
 
                                     Rainbow(player);

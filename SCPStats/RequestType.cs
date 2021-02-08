@@ -13,7 +13,6 @@
         Use = 10,
         UserData = 11,
         Death = 12,
-        Kill = 13,
-        RoundEndPlayer = 14
+        Kill = 13
     }
 }

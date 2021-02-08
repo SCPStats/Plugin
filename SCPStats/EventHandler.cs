@@ -38,8 +38,6 @@ namespace SCPStats
 
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
-        
-        internal static Dictionary<string, UserGroup> RolesyncGroups = new Dictionary<string, UserGroup>();
 
         internal static void Reset()
         {
@@ -49,8 +47,6 @@ namespace SCPStats
             StatHandler.Stop();
             
             SpawnsDone.Clear();
-            
-            RolesyncGroups.Clear();
 
             PauseRound = false;
         }
@@ -85,19 +81,7 @@ namespace SCPStats
         private static IEnumerator<float> RAReloaded()
         {
             yield return Timing.WaitForSeconds(1.5f);
-            
-            foreach (var player in Player.List)
-            {
-                foreach (var user in RolesyncGroups)
-                {
-                    if (player.RawUserId != user.Key) continue;
-                    if (player.Group != user.Value) break;
 
-                    player.Group = null;
-                    break;
-                }
-            }
-            
             var ids = (from player in Player.List where player?.UserId != null && player.IsVerified && !player.IsHost && player.IPAddress != "127.0.0.WAN" && player.IPAddress != "127.0.0.1" select Helper.HandleId(player)).ToList();
             
             foreach (var id in ids)
@@ -136,7 +120,7 @@ namespace SCPStats
                 PauseRound = true;
             }
             
-            Timing.CallDelayed(SCPStats.Singleton.waitTime, () =>
+            Timing.CallDelayed(10f, () =>
             {
                 StartGrace = false;
             });
@@ -160,7 +144,7 @@ namespace SCPStats
             
             HatCommand.HatPlayers.Clear();
 
-            Timing.RunCoroutine(SendRoundEnd());
+            StatHandler.SendRequest(RequestType.RoundEnd);
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
@@ -175,26 +159,12 @@ namespace SCPStats
             HatCommand.HatPlayers.Clear();
             if (DidRoundEnd) return;
 
-            Timing.RunCoroutine(SendRoundEnd());
+            StatHandler.SendRequest(RequestType.RoundEnd);
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
             
             SpawnsDone.Clear();
-        }
-
-        private static IEnumerator<float> SendRoundEnd()
-        {
-            StatHandler.SendRequest(RequestType.RoundEnd);
-
-            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !player.DoNotTrack && player.IPAddress != "127.0.0.WAN" && player.IPAddress != "127.0.0.1" && Helper.IsPlayerValid(player) select Helper.HandleId(player)).ToList();
-            
-            foreach (var id in ids)
-            {
-                StatHandler.SendRequest(RequestType.RoundEndPlayer, "{\"playerID\": \"" + id + "\"}");
-
-                yield return Timing.WaitForSeconds(.1f);
-            }
         }
 
         internal static void Waiting()
@@ -264,16 +234,7 @@ namespace SCPStats
 
             if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
             
-            if (StartGrace && SpawnsDone.Contains(ev.Player.UserId)) return;
-            if(!SpawnsDone.Contains(ev.Player.UserId)) SpawnsDone.Add(ev.Player.UserId);
-            
-            coroutines.Add(Timing.RunCoroutine(SpawnDelay(ev.Player)));
-        }
-
-        private static IEnumerator<float> SpawnDelay(Player p)
-        {
-            if (StartGrace) yield return Timing.WaitForSeconds(SCPStats.Singleton.waitTime);
-            StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(p)+"\", \"spawnrole\": \""+((int) p.Role).ToString()+"\"}");
+            StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"spawnrole\": \""+((int) ev.NewRole).ToString()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
@@ -310,8 +271,6 @@ namespace SCPStats
 
             Timing.CallDelayed(.2f, () =>
             {
-                if (RolesyncGroups.ContainsKey(ev.Player.RawUserId) && RolesyncGroups[ev.Player.RawUserId] == ev.Player.Group) ev.Player.Group = null;
-                
                 StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
             });
             

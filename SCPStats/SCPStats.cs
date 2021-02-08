@@ -23,8 +23,6 @@ namespace SCPStats
 
         private static Harmony harmony;
 
-        internal float waitTime = 10;
-
         private CoroutineHandle update;
 
         public override void OnEnabled()
@@ -51,23 +49,6 @@ namespace SCPStats
                 update = Timing.RunCoroutine(AutoUpdates());
             }
 
-            Timing.CallDelayed(3f, () =>
-            {
-                var plugin = Loader.Plugins.FirstOrDefault(pl => pl.Name == "ScpSwap");
-                if (plugin == null) return;
-
-                var config = plugin.Assembly.GetType("ScpSwap.Config");
-                if (config == null) return;
-
-                var configInstance = plugin.Assembly.GetType("ScpSwap.ScpSwap")?.GetProperty("Config")?.GetValue(plugin);
-                if (configInstance == null) return;
-
-                var value = config.GetProperty("SwapTimeout")?.GetValue(configInstance);
-                if (value == null) return;
-
-                waitTime += (float) value;
-            });
-            
             base.OnEnabled();
         }
 
@@ -120,8 +101,6 @@ namespace SCPStats
             EventHandler.Reset();
             Hats.Hats.Reset();
 
-            waitTime = 10f;
-            
             Singleton = null;
 
             base.OnDisabled();
