@@ -90,7 +90,7 @@ namespace SCPStats.Hats
 
             if (arguments.Count < 1)
             {
-                response = "Usage: .hat <on/off/item>";
+                response = "Usage: .hat <on/off/toggle/item>";
                 return true;
             }
             
