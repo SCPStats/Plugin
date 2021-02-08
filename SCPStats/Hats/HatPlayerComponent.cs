@@ -60,17 +60,13 @@ namespace SCPStats.Hats
                     pickup.position = pos;
                     transform1.position = pos;
 
-                    if (player.Team == Team.SCP)
-                    {
-                        pickup.Networkposition = pos;
-                        pickup.UpdatePosition();
-                        
-                        continue;
-                    }
-
                     foreach (var player1 in Player.List)
                     {
-                        if (player1.Role == RoleType.Scp93953 || player1.Role == RoleType.Scp93989)
+                        if (player1.Team == player.Team || player1 == player)
+                        {
+                            UpdatePickupPositionForPlayer(player1, pickup, pos);
+                        }
+                        else if (player1.Role == RoleType.Scp93953 || player1.Role == RoleType.Scp93989)
                         {
                             if (!player.GameObject.GetComponent<Scp939_VisionController>().CanSee(player1.ReferenceHub.characterClassManager.Scp939))
                             {
