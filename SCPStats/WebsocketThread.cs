@@ -121,21 +121,21 @@ namespace SCPStats
         {
             var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "RainbowTags")?.Assembly;
             if (assembly == null) return;
-                            
+            
             var extensions = assembly.GetType("RainbowTags.Extensions");
             if (extensions == null) return;
-                            
+            
             if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, new object[] {p}) ?? false)) return;
-                            
+            
             var component = assembly.GetType("RainbowTags.RainbowTagController");
-                            
+            
             if (component == null) return;
                             
             if (p.GameObject.TryGetComponent(component, out var comp))
             {
                 UnityEngine.Object.Destroy(comp);
             }
-                            
+            
             p.GameObject.AddComponent(component);
         }
         

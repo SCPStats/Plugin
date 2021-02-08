@@ -125,6 +125,20 @@ namespace SCPStats.Hats
 
                     response = "You don't have a hat on. You need to put one on before you can take it off.";
                     return true;
+                case "toggle":
+                    if (playerComponent.item == null)
+                    {
+                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId]);
+                        response = "You put on your hat.";
+                        return true;
+                    }
+                    else
+                    {
+                        RemoveHat(playerComponent);
+                        response = "You took off your hat.";
+                        return true;
+                    }
+                    break;
                 default:
                     if (!items.ContainsKey(command))
                     {
