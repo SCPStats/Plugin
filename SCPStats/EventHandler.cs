@@ -119,20 +119,28 @@ namespace SCPStats
 
             StatHandler.SendRequest(RequestType.RoundStart);
 
-            Timing.CallDelayed(.2f, () =>
-            {
-                foreach (var player in Player.List)
-                {
-                    if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
+            Timing.RunCoroutine(SendStart());
+        }
 
-                    StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
+        private static IEnumerator<float> SendStart()
+        {
+            yield return Timing.WaitForSeconds(.2f);
+            
+            foreach (var player in Player.List)
+            {
+                if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
+
+                StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
+
+                yield return Timing.WaitForSeconds(.05f);
                 
-                    if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
-                    {
-                        StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(player)+"\", \"spawnrole\": \""+((int) player.Role).ToString()+"\"}");
-                    }
+                if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
+                {
+                    StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(player)+"\", \"spawnrole\": \""+((int) player.Role).ToString()+"\"}");
                 }
-            });
+                
+                yield return Timing.WaitForSeconds(.05f);
+            }
         }
 
         internal static void OnRoundEnding(EndingRoundEventArgs ev)
@@ -222,7 +230,7 @@ namespace SCPStats
                 });
             }
 
-            if (PauseRound || !RoundSummary.RoundInProgress() || !Helper.IsPlayerValid(ev.Player, true, false)) return;
+            if (PauseRound || Round.ElapsedTime.Seconds < 5 || !RoundSummary.RoundInProgress() || !Helper.IsPlayerValid(ev.Player, true, false)) return;
             
             if (ev.IsEscaped)
             {
