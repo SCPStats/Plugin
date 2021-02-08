@@ -119,15 +119,15 @@ namespace SCPStats
 
         private static void Rainbow(Player p)
         {
-            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "ARainbowTags")?.Assembly;
+            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "RainbowTags")?.Assembly;
             if (assembly == null) return;
                             
-            var extensions = assembly.GetType("ARainbowTags.Extensions");
+            var extensions = assembly.GetType("RainbowTags.Extensions");
             if (extensions == null) return;
                             
             if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, new object[] {p}) ?? false)) return;
                             
-            var component = assembly.GetType("ARainbowTags.RainbowTagController");
+            var component = assembly.GetType("RainbowTags.RainbowTagController");
                             
             if (component == null) return;
                             
