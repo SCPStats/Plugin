@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using MEC;
+using Mirror;
 using UnityEngine;
 using Utf8Json.Internal.DoubleConversion;
+using Scp096 = PlayableScps.Scp096;
 
 namespace SCPStats.Hats
 {
@@ -31,6 +33,15 @@ namespace SCPStats.Hats
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
                     var player = Player.Get(gameObject);
+                    if (player.TryGetEffect(EffectType.Scp268, out var effect) && effect.Enabled)
+                    {
+                        pickup.Networkposition = Vector3.one * 6000f;
+                        pickup.position = Vector3.one * 6000f;
+                        pickup.transform.position = Vector3.one * 6000f;
+                        pickup.UpdatePosition();
+                        
+                        continue;
+                    }
 
                     var camera = player.CameraTransform;
 
@@ -42,19 +53,106 @@ namespace SCPStats.Hats
                     var rot = rotation * item.rot;
                     var transform1 = pickup.transform;
                     var pos = (player.Role != RoleType.Scp079 ? rotation * item.pos : item.pos) + camera.position;
-
-                    pickup.Networkposition = pos;
-                    transform1.position = pos;
                     
                     transform1.rotation = rot;
                     pickup.Networkrotation = rot;
-                    
-                    pickup.UpdatePosition();
+
+                    pickup.position = pos;
+                    transform1.position = pos;
+
+                    foreach (var player1 in Player.List)
+                    {
+                        if (player1.Role == RoleType.Scp93953 || player1.Role == RoleType.Scp93989)
+                        {
+                            if (!player.GameObject.GetComponent<Scp939_VisionController>().CanSee(player1.ReferenceHub.characterClassManager.Scp939))
+                            {
+                                UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
+                            }
+                            else
+                            {
+                                UpdatePickupPositionForPlayer(player1, pickup, pos);
+                            }
+                        } else if (player1.Role == RoleType.Scp096)
+                        {
+                            if (player1.GameObject.TryGetComponent<Scp096>(out var script))
+                            {
+                                if((script.Enraged || script.Enraging) && !script._targets.Contains(player.ReferenceHub))
+                                {
+                                    UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
+                                }
+                                else
+                                {
+                                    UpdatePickupPositionForPlayer(player1, pickup, pos);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            UpdatePickupPositionForPlayer(player1, pickup, pos);
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
                     Log.Error(e);
                 }
+            }
+        }
+        
+        //https://gist.github.com/sanyae2439/dbb0b4b439ad4a2a0f6c42d68e2c82dc
+        
+        private static void UpdatePickupPositionForPlayer(Player player, Pickup pickup, Vector3 position)
+        {
+            Action<NetworkWriter> customSyncVarGenerator = (targetWriter) => {
+                targetWriter.WritePackedUInt64(8UL);
+                NetworkWriterExtensions.WriteVector3(targetWriter, position);
+            };
+
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            NetworkWriter writer2 = NetworkWriterPool.GetWriter();
+            MakeCustomSyncWriter(pickup.netIdentity, typeof(Pickup), null, customSyncVarGenerator, writer, writer2);
+            NetworkServer.SendToClientOfPlayer(player.ReferenceHub.networkIdentity, new UpdateVarsMessage() { netId = pickup.netId, payload = writer.ToArraySegment() });
+            NetworkWriterPool.Recycle(writer);
+            NetworkWriterPool.Recycle(writer2);
+        }
+        
+        private static void MakeCustomSyncWriter(NetworkIdentity behaviorOwner, Type targetType, Action<NetworkWriter> customSyncObject, Action<NetworkWriter> customSyncVar, NetworkWriter owner, NetworkWriter observer)
+        {
+            ulong dirty = 0ul;
+            ulong dirty_o = 0ul;
+            NetworkBehaviour behaviour = null;
+            for(int i = 0; i < behaviorOwner.NetworkBehaviours.Length; i++)
+            {
+                behaviour = behaviorOwner.NetworkBehaviours[i];
+                if(behaviour.GetType() == targetType)
+                {
+                    dirty |= 1UL << i;
+                    if(behaviour.syncMode == SyncMode.Observers) dirty_o |= 1UL << i;
+                }
+            }
+            owner.WritePackedUInt64(dirty);
+            observer.WritePackedUInt64(dirty & dirty_o);
+
+            int position = owner.Position;
+            owner.WriteInt32(0);
+            int position2 = owner.Position;
+
+            if(customSyncObject != null)
+                customSyncObject.Invoke(owner);
+            else
+                behaviour.SerializeObjectsDelta(owner);
+
+            customSyncVar?.Invoke(owner);
+
+            int position3 = owner.Position;
+            owner.Position = position;
+            owner.WriteInt32(position3 - position2);
+            owner.Position = position3;
+
+            if(dirty_o != 0ul)
+            {
+                ArraySegment<byte> arraySegment = owner.ToArraySegment();
+                observer.WriteBytes(arraySegment.Array, position, owner.Position - position);
             }
         }
     }
