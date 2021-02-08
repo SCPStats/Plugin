@@ -28,8 +28,6 @@ namespace SCPStats
 
         private static bool firstJoin = true;
 
-        private static bool StartGrace = false;
-
         private static Dictionary<string, string> PocketPlayers = new Dictionary<string, string>();
 
         internal static bool RanServer = false;
@@ -111,7 +109,6 @@ namespace SCPStats
 
         internal static void OnRoundStart()
         {
-            StartGrace = true;
             Restarting = false;
             DidRoundEnd = false;
 
@@ -119,20 +116,23 @@ namespace SCPStats
             {
                 PauseRound = true;
             }
-            
-            Timing.CallDelayed(10f, () =>
-            {
-                StartGrace = false;
-            });
 
             StatHandler.SendRequest(RequestType.RoundStart);
-            
-            foreach (var player in Player.List)
-            {
-                if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
 
-                StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
-            }
+            Timing.CallDelayed(.2f, () =>
+            {
+                foreach (var player in Player.List)
+                {
+                    if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1") continue;
+
+                    StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
+                
+                    if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
+                    {
+                        StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(player)+"\", \"spawnrole\": \""+((int) player.Role).ToString()+"\"}");
+                    }
+                }
+            });
         }
 
         internal static void OnRoundEnding(EndingRoundEventArgs ev)
@@ -140,8 +140,7 @@ namespace SCPStats
             if (!ev.IsAllowed || !ev.IsRoundEnded) return;
             
             DidRoundEnd = true;
-            StartGrace = false;
-            
+
             HatCommand.HatPlayers.Clear();
 
             StatHandler.SendRequest(RequestType.RoundEnd);
@@ -155,7 +154,6 @@ namespace SCPStats
         internal static void OnRoundRestart()
         {
             Restarting = true;
-            StartGrace = false;
             HatCommand.HatPlayers.Clear();
             if (DidRoundEnd) return;
 
@@ -173,7 +171,6 @@ namespace SCPStats
             
             Restarting = false;
             DidRoundEnd = false;
-            StartGrace = false;
             PauseRound = false;
         }
         
@@ -225,9 +222,9 @@ namespace SCPStats
                 });
             }
 
-            if (PauseRound || (!RoundSummary.RoundInProgress() && !StartGrace) || !Helper.IsPlayerValid(ev.Player, true, false)) return;
+            if (PauseRound || !RoundSummary.RoundInProgress() || !Helper.IsPlayerValid(ev.Player, true, false)) return;
             
-            if (ev.IsEscaped && !ev.Player.DoNotTrack)
+            if (ev.IsEscaped)
             {
                 StatHandler.SendRequest(RequestType.Escape, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"role\": \""+((int) ev.Player.Role).ToString()+"\"}");
             }
