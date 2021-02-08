@@ -29,6 +29,8 @@ namespace SCPStats
             {"soda", 4},
             {"cokes", 4},
             {"coke", 4},
+            {"colas", 4},
+            {"cola", 4},
             {"scp207s", 4},
             {"scp207", 4},
             {"scp-207s", 4},
