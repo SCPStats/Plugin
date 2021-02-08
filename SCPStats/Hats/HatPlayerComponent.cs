@@ -83,16 +83,13 @@ namespace SCPStats.Hats
                         }
                         else if (player1.Role == RoleType.Scp096)
                         {
-                            if (player1.GameObject.TryGetComponent<Scp096>(out var script))
+                            if (player1.GameObject.TryGetComponent<Scp096>(out var script) && (script.Enraged || script.Enraging) && !script._targets.Contains(player.ReferenceHub))
                             {
-                                if ((script.Enraged || script.Enraging) && !script._targets.Contains(player.ReferenceHub))
-                                {
-                                    UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
-                                }
-                                else
-                                {
-                                    UpdatePickupPositionForPlayer(player1, pickup, pos);
-                                }
+                                UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
+                            }
+                            else
+                            {
+                                UpdatePickupPositionForPlayer(player1, pickup, pos);
                             }
                         }
                         else
