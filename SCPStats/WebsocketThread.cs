@@ -245,22 +245,17 @@ namespace SCPStats
                             }
 
                             //Rolesync stuff
+                            if (SCPStats.Singleton == null || ServerStatic.PermissionsHandler == null || ServerStatic.PermissionsHandler._groups == null) return;
+                            
                             if (player.Group != null)
                             {
-                                var flag = true;
-
                                 lock (ServerStatic.PermissionsHandler._groups)
                                 {
-                                    if(!SCPStats.Singleton.Config.DiscordMemberRole.Equals("none") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole) && ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] == player.Group) flag = false;
-                                    
-                                    if(!SCPStats.Singleton.Config.BoosterRole.Equals("none") && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole) && ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] == player.Group) flag = false;
-                                    
-                                    foreach (var ingameRole in from role in SCPStats.Singleton.Config.RoleSync select role.Split(':') into roles where roles.Length >= 2 select roles[1] into ingameRole where !ingameRole.Equals("none") && !ingameRole.Equals("fill this") && !ingameRole.Equals("IngameRoleName") && ServerStatic.PermissionsHandler._groups.ContainsKey(ingameRole) && ServerStatic.PermissionsHandler._groups[ingameRole] == player.Group select ingameRole)
-                                    {
-                                        flag = false;
-                                    }
+                                    if (!SCPStats.Singleton.Config.DiscordMemberRole.Equals("none") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole) && ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] == player.Group) return;
 
-                                    if (flag) return;
+                                    if (!SCPStats.Singleton.Config.BoosterRole.Equals("none") && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole) && ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] == player.Group) return;
+
+                                    if (SCPStats.Singleton.Config.RoleSync.Any(role => role.Split(':').Length >= 2 && role.Split(':')[1] != "none" && role.Split(':')[1] != "fill this" && role.Split(':')[1] != "IngameRoleName" && ServerStatic.PermissionsHandler._groups.ContainsKey(role.Split(':')[1]) && ServerStatic.PermissionsHandler._groups[role.Split(':')[1]] == player.Group)) return;
                                 }
                             }
 
