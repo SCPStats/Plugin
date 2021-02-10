@@ -6,9 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Exiled.API.Features;
-using Exiled.Loader;
-using Exiled.Permissions.Extensions;
-using SCPStats.Hats;
 using WebSocketSharp;
 
 namespace SCPStats

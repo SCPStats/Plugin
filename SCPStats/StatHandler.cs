@@ -1,6 +1,4 @@
 ﻿using System.Threading;
-using System.Threading.Tasks;
-using Exiled.API.Features;
 using MEC;
 
 namespace SCPStats

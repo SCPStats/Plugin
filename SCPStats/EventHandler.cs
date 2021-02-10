@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
-using Exiled.Permissions.Extensions;
 using MEC;
 using SCPStats.Hats;
-using UnityEngine;
-using WebSocketSharp;
 using Object = UnityEngine.Object;
 
 namespace SCPStats

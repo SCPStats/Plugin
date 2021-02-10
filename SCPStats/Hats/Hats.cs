@@ -1,5 +1,4 @@
-﻿using Exiled.API.Extensions;
-using Exiled.API.Features;
+﻿using Exiled.API.Features;
 using Mirror;
 using UnityEngine;
 

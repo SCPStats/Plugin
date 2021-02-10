@@ -5,7 +5,6 @@ using Exiled.API.Features;
 using MEC;
 using Mirror;
 using UnityEngine;
-using Utf8Json.Internal.DoubleConversion;
 using Scp096 = PlayableScps.Scp096;
 
 namespace SCPStats.Hats
