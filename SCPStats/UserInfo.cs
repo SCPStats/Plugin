@@ -157,8 +157,7 @@ namespace SCPStats
                         var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole];
 
                         player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                        ServerStatic.PermissionsHandler._members[player.UserId] =
-                            SCPStats.Singleton.Config.BoosterRole;
+                        ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
                     }
 
                     Rainbow(player);

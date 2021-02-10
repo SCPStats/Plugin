@@ -81,34 +81,7 @@ namespace SCPStats
             
             if(ws != null && ws.IsAlive) ws.Close();
         }
-        
-        private static async Task SendRequest(string type, string data = "")
-        {
-            if (Exited)
-            {
-                ws?.Close();
-                return;
-            }
-            
-            var str = type+data;
-            var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
 
-            if (CreatingClient)
-            {
-                return;
-            }
-
-            if (ws == null || !ws.IsAlive)
-            {
-                await CreateConnection();
-            }
-
-#if DEBUG
-            Log.Info(">" + message);
-#endif
-            ws.Send(message);
-        }
-        
         private static string HmacSha256Digest(string secret, string message)
         {
             var encoding = new ASCIIEncoding();
