@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Exiled.API.Features;
+using MEC;
 
 namespace SCPStats
 {
@@ -38,6 +39,8 @@ namespace SCPStats
 
             WebsocketThread.Queue.Enqueue(message);
             WebsocketThread.Signal.Set();
+
+            if (type == RequestType.UserData) Timing.RunCoroutine(UserInfo.DequeueUserInfo());
         }
     }
 }

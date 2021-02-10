@@ -240,6 +240,7 @@
     <Compile Include="ServerNamePatch.cs" />
     <Compile Include="StatHandler.cs" />
     <Compile Include="Stats.cs" />
+    <Compile Include="UserInfo.cs" />
     <Compile Include="Verification.cs" />
     <Compile Include="WebsocketThread.cs" />
   </ItemGroup>

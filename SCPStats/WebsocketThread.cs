@@ -18,6 +18,8 @@ namespace SCPStats
         internal static readonly ConcurrentQueue<string> Queue = new ConcurrentQueue<string>();
         internal static readonly AutoResetEvent Signal = new AutoResetEvent(false);
         
+        internal static readonly ConcurrentQueue<string> UserInfo = new ConcurrentQueue<string>();
+        
         private static WebSocket ws = null;
         private static Task Pinger = null;
         private static bool PingerActive = false;
@@ -117,33 +119,6 @@ namespace SCPStats
             return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
 
-        private static void Rainbow(Player p)
-        {
-            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "RainbowTags")?.Assembly;
-            if (assembly == null) return;
-            
-            var extensions = assembly.GetType("RainbowTags.Extensions");
-            if (extensions == null) return;
-            
-            if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, new object[] {p}) ?? false)) return;
-            
-            var component = assembly.GetType("RainbowTags.RainbowTagController");
-            
-            if (component == null) return;
-                            
-            if (p.GameObject.TryGetComponent(component, out var comp))
-            {
-                UnityEngine.Object.Destroy(comp);
-            }
-            
-            p.GameObject.AddComponent(component);
-        }
-        
-        private static string HandleId(string id)
-        {
-            return id.Split('@')[0];
-        }
-        
         private static async Task CreateConnection(int delay = 0)
         {
             try
@@ -289,164 +264,8 @@ namespace SCPStats
 
                 var flags = data[1].Split(',');
                 if (flags.All(v => v == "0")) return;
-
-                foreach (var player in Player.List)
-                {
-                    if (player == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN" || !HandleId(player.RawUserId).Equals(data[0])) continue;
-
-                    if (flags[3] == "1")
-                    {
-                        var item = (ItemType) Convert.ToInt32(flags[4]);
-
-                        lock (HatCommand.AllowedHats)
-                        lock (HatCommand.HatPlayers)
-                        {
-                            if (HatCommand.AllowedHats.Contains(item)) HatCommand.HatPlayers[player.UserId] = item;
-                            else HatCommand.HatPlayers[player.UserId] = ItemType.SCP268;
-                        }
-                    }
-
-                    //Rolesync stuff
-                    if (SCPStats.Singleton == null || ServerStatic.PermissionsHandler == null || ServerStatic.PermissionsHandler._groups == null) return;
-
-                    if (player.Group != null)
-                    {
-                        lock (ServerStatic.PermissionsHandler._groups)
-                        {
-                            if (!SCPStats.Singleton.Config.DiscordMemberRole.Equals("none") &&
-                                !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") &&
-                                ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole) &&
-                                ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] ==
-                                player.Group) return;
-
-                            if (!SCPStats.Singleton.Config.BoosterRole.Equals("none") &&
-                                !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") &&
-                                ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole) &&
-                                ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] ==
-                                player.Group) return;
-
-                            if (SCPStats.Singleton.Config.RoleSync.Any(role =>
-                                role.Split(':').Length >= 2 && role.Split(':')[1] != "none" &&
-                                role.Split(':')[1] != "fill this" && role.Split(':')[1] != "IngameRoleName" &&
-                                ServerStatic.PermissionsHandler._groups.ContainsKey(role.Split(':')[1]) &&
-                                ServerStatic.PermissionsHandler._groups[role.Split(':')[1]] == player.Group)) return;
-                        }
-                    }
-
-                    if (flags[2] != "0" && flags[5] != "0")
-                    {
-                        var roles = flags[2].Split('|');
-
-                        var ranks = flags[5].Split('|');
-
-                        foreach (var s in SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')))
-                        {
-                            var req = s[0];
-                            var role = s[1];
-
-                            if (req == "DiscordRoleID" || role == "IngameRoleName") continue;
-
-                            if (req.Contains("_"))
-                            {
-                                var parts = req.Split('_');
-                                if (parts.Length < 2)
-                                {
-                                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". Expected \"metric_maxvalue\" but got \"" + req + "\" instead.");
-                                    continue;
-                                }
-
-                                if (parts.Length > 2 &&
-                                    !parts[2].Split(',').All(discordRole => roles.Contains(discordRole)))
-                                {
-                                    continue;
-                                }
-
-                                if (!int.TryParse(parts[1], out var max))
-                                {
-                                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". There is an error in your max ranks. Expected an integer, but got \"" + parts[1] + "\"!");
-                                    continue;
-                                }
-
-                                var type = parts[0].Trim().ToLower();
-                                if (!Helper.Rankings.ContainsKey(type))
-                                {
-                                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", \"adrenaline\".");
-                                    continue;
-                                }
-
-                                var rank = int.Parse(ranks[Helper.Rankings[type]]);
-
-                                if (rank == -1 || rank >= max) continue;
-                            }
-                            else if (!req.Split(',').All(discordRole => roles.Contains(discordRole)))
-                            {
-                                continue;
-                            }
-
-                            lock (player.ReferenceHub.serverRoles)
-                            lock (ServerStatic.PermissionsHandler._groups)
-                            lock (ServerStatic.PermissionsHandler._members)
-                            {
-                                if (!ServerStatic.PermissionsHandler._groups.ContainsKey(role))
-                                {
-                                    Log.Error("Group " + role + " does not exist. There is an issue in your rolesync config!");
-                                    continue;
-                                }
-
-                                var group = ServerStatic.PermissionsHandler._groups[role];
-
-                                player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                                ServerStatic.PermissionsHandler._members[player.UserId] = role;
-                            }
-
-                            Rainbow(player);
-                            return;
-                        }
-                    }
-
-                    if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") &&
-                        !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
-                    {
-                        lock (player.ReferenceHub.serverRoles)
-                        lock (ServerStatic.PermissionsHandler._groups)
-                        lock (ServerStatic.PermissionsHandler._members)
-                        {
-                            if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole))
-                            {
-                                Log.Error("Group " + SCPStats.Singleton.Config.BoosterRole + " does not exist. There is an issue in your rolesync config!");
-                                continue;
-                            }
-
-                            var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole];
-
-                            player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                            ServerStatic.PermissionsHandler._members[player.UserId] =
-                                SCPStats.Singleton.Config.BoosterRole;
-                        }
-
-                        Rainbow(player);
-                    }
-                    else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
-                    {
-                        lock (player.ReferenceHub.serverRoles)
-                        lock (ServerStatic.PermissionsHandler._groups)
-                        lock (ServerStatic.PermissionsHandler._members)
-                        {
-                            if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole))
-                            {
-                                Log.Error("Group " + SCPStats.Singleton.Config.DiscordMemberRole + " does not exist. There is an issue in your rolesync config!");
-                                continue;
-                            }
-
-                            var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole];
-
-                            player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                            ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
-                        }
-
-                        Rainbow(player);
-                    }
-                }
+                
+                UserInfo.Enqueue(e.Data.Substring(1));
             }
             catch (Exception ex)
             {
