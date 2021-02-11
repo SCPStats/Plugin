@@ -153,7 +153,7 @@ namespace SCPStats
                 Pinged = true;
 
 #if DEBUG
-                    Log.Info(">b");
+                Log.Info(">b");
 #endif
                 ws?.Send("b");
                 

@@ -50,23 +50,25 @@ namespace SCPStats
                 {
                     lock (ServerStatic.PermissionsHandler._groups)
                     {
+                        var flag = true;
+
                         if (!SCPStats.Singleton.Config.DiscordMemberRole.Equals("none") &&
                             !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") &&
                             ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole) &&
-                            ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] ==
-                            player.Group) return;
+                            ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] == player.Group) flag = false;
 
                         if (!SCPStats.Singleton.Config.BoosterRole.Equals("none") &&
                             !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") &&
                             ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole) &&
-                            ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] ==
-                            player.Group) return;
+                            ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] == player.Group) flag = false;
 
                         if (SCPStats.Singleton.Config.RoleSync.Any(role =>
                             role.Split(':').Length >= 2 && role.Split(':')[1] != "none" &&
                             role.Split(':')[1] != "fill this" && role.Split(':')[1] != "IngameRoleName" &&
                             ServerStatic.PermissionsHandler._groups.ContainsKey(role.Split(':')[1]) &&
-                            ServerStatic.PermissionsHandler._groups[role.Split(':')[1]] == player.Group)) return;
+                            ServerStatic.PermissionsHandler._groups[role.Split(':')[1]] == player.Group)) flag = false;
+
+                        if (flag) return;
                     }
                 }
 
