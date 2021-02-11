@@ -48,28 +48,25 @@ namespace SCPStats
 
                 if (player.Group != null)
                 {
-                    lock (ServerStatic.PermissionsHandler._groups)
-                    {
-                        var flag = true;
+                    var flag = true;
 
-                        if (!SCPStats.Singleton.Config.DiscordMemberRole.Equals("none") &&
-                            !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") &&
-                            ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole) &&
-                            ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] == player.Group) flag = false;
+                    if (!SCPStats.Singleton.Config.DiscordMemberRole.Equals("none") &&
+                        !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") &&
+                        ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole) &&
+                        ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole] == player.Group) flag = false;
 
-                        if (!SCPStats.Singleton.Config.BoosterRole.Equals("none") &&
-                            !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") &&
-                            ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole) &&
-                            ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] == player.Group) flag = false;
+                    if (!SCPStats.Singleton.Config.BoosterRole.Equals("none") &&
+                        !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") &&
+                        ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole) &&
+                        ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole] == player.Group) flag = false;
 
-                        if (SCPStats.Singleton.Config.RoleSync.Any(role =>
-                            role.Split(':').Length >= 2 && role.Split(':')[1] != "none" &&
-                            role.Split(':')[1] != "fill this" && role.Split(':')[1] != "IngameRoleName" &&
-                            ServerStatic.PermissionsHandler._groups.ContainsKey(role.Split(':')[1]) &&
-                            ServerStatic.PermissionsHandler._groups[role.Split(':')[1]] == player.Group)) flag = false;
+                    if (SCPStats.Singleton.Config.RoleSync.Any(role =>
+                        role.Split(':').Length >= 2 && role.Split(':')[1] != "none" &&
+                        role.Split(':')[1] != "fill this" && role.Split(':')[1] != "IngameRoleName" &&
+                        ServerStatic.PermissionsHandler._groups.ContainsKey(role.Split(':')[1]) &&
+                        ServerStatic.PermissionsHandler._groups[role.Split(':')[1]] == player.Group)) flag = false;
 
-                        if (flag) return;
-                    }
+                    if (flag) return;
                 }
 
                 if (flags[2] != "0" && flags[5] != "0")
@@ -122,21 +119,16 @@ namespace SCPStats
                             continue;
                         }
 
-                        lock (player.ReferenceHub.serverRoles)
-                        lock (ServerStatic.PermissionsHandler._groups)
-                        lock (ServerStatic.PermissionsHandler._members)
+                        if (!ServerStatic.PermissionsHandler._groups.ContainsKey(role))
                         {
-                            if (!ServerStatic.PermissionsHandler._groups.ContainsKey(role))
-                            {
-                                Log.Error("Group " + role + " does not exist. There is an issue in your rolesync config!");
-                                continue;
-                            }
-
-                            var group = ServerStatic.PermissionsHandler._groups[role];
-
-                            player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                            ServerStatic.PermissionsHandler._members[player.UserId] = role;
+                            Log.Error("Group " + role + " does not exist. There is an issue in your rolesync config!");
+                            continue;
                         }
+
+                        var group = ServerStatic.PermissionsHandler._groups[role];
+
+                        player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                        ServerStatic.PermissionsHandler._members[player.UserId] = role;
 
                         Rainbow(player);
                         return;
@@ -146,41 +138,31 @@ namespace SCPStats
                 if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") &&
                     !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                 {
-                    lock (player.ReferenceHub.serverRoles)
-                    lock (ServerStatic.PermissionsHandler._groups)
-                    lock (ServerStatic.PermissionsHandler._members)
+                    if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole))
                     {
-                        if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole))
-                        {
-                            Log.Error("Group " + SCPStats.Singleton.Config.BoosterRole + " does not exist. There is an issue in your rolesync config!");
-                            continue;
-                        }
-
-                        var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole];
-
-                        player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                        ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
+                        Log.Error("Group " + SCPStats.Singleton.Config.BoosterRole + " does not exist. There is an issue in your rolesync config!");
+                        continue;
                     }
+
+                    var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole];
+
+                    player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                    ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
 
                     Rainbow(player);
                 }
                 else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
                 {
-                    lock (player.ReferenceHub.serverRoles)
-                    lock (ServerStatic.PermissionsHandler._groups)
-                    lock (ServerStatic.PermissionsHandler._members)
+                    if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole))
                     {
-                        if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.DiscordMemberRole))
-                        {
-                            Log.Error("Group " + SCPStats.Singleton.Config.DiscordMemberRole + " does not exist. There is an issue in your rolesync config!");
-                            continue;
-                        }
-
-                        var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole];
-
-                        player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
-                        ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
+                        Log.Error("Group " + SCPStats.Singleton.Config.DiscordMemberRole + " does not exist. There is an issue in your rolesync config!");
+                        continue;
                     }
+
+                    var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole];
+
+                    player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                    ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
 
                     Rainbow(player);
                 }
