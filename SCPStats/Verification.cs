@@ -14,6 +14,8 @@ namespace SCPStats
         {
             await Task.Delay(1000);
 
+            if (SCPStats.Singleton == null) return;
+
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/getid"))
             {
                 var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
@@ -50,6 +52,8 @@ namespace SCPStats
         {
             await Task.Delay(130000);
             
+            if (SCPStats.Singleton == null) return;
+            
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/verify"))
             {
                 var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
@@ -83,7 +87,7 @@ namespace SCPStats
         {
             await Task.Delay(170000);
 
-            SCPStats.Singleton.ID = "";
+            if (SCPStats.Singleton != null) SCPStats.Singleton.ID = "";
             ServerConsole.ReloadServerName();
         }
     }

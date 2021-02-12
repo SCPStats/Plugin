@@ -23,7 +23,7 @@ namespace SCPStats.Hats
 
             while (true)
             {
-                yield return Timing.WaitForSeconds(SCPStats.Singleton.Config.HatUpdateTime);
+                yield return Timing.WaitForSeconds(SCPStats.Singleton?.Config.HatUpdateTime ?? .4f);
 
                 try
                 {

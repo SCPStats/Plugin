@@ -8,7 +8,7 @@ namespace SCPStats.Hats
     {
         internal static void SpawnHat(this Player p, ItemType item, bool force = true)
         {
-            if (!SCPStats.Singleton.Config.EnableHats) return;
+            if (!SCPStats.Singleton?.Config.EnableHats ?? true) return;
 
             HatPlayerComponent playerComponent;
             

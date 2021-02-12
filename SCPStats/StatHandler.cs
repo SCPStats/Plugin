@@ -27,6 +27,8 @@ namespace SCPStats
         
         internal static void SendRequest(RequestType type, string data = "")
         {
+            if (SCPStats.Singleton == null) return;
+            
             if (wss == null || !wss.IsAlive)
             {
                 Start();
