@@ -198,26 +198,7 @@ namespace SCPStats
             
             if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
             {
-                Timing.CallDelayed(.5f, () =>
-                {
-                    if (HatCommand.HatPlayers.ContainsKey(ev.Player.UserId))
-                    {
-                        HatPlayerComponent playerComponent;
-
-                        if (!ev.Player.GameObject.TryGetComponent(out playerComponent))
-                        {
-                            playerComponent = ev.Player.GameObject.AddComponent<HatPlayerComponent>();
-                        }
-
-                        if (playerComponent.item != null)
-                        {
-                            Object.Destroy(playerComponent.item.gameObject);
-                            playerComponent.item = null;
-                        }
-
-                        ev.Player.SpawnHat(HatCommand.HatPlayers[ev.Player.UserId]);
-                    }
-                });
+                Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
             }
 
             if (PauseRound || Round.ElapsedTime.Seconds < 5 || !RoundSummary.RoundInProgress() || !Helper.IsPlayerValid(ev.Player, true, false)) return;

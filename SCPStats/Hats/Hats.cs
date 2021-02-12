@@ -6,7 +6,25 @@ namespace SCPStats.Hats
 {
     internal static class Hats
     {
-        internal static void SpawnHat(this Player p, ItemType item, bool force = true)
+        internal static void SpawnCurrentHat(this Player p)
+        {
+            if (!HatCommand.HatPlayers.ContainsKey(p.UserId)) return;
+
+            if (!p.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent))
+            {
+                playerComponent = p.GameObject.AddComponent<HatPlayerComponent>();
+            }
+
+            if (playerComponent.item != null)
+            {
+                Object.Destroy(playerComponent.item.gameObject);
+                playerComponent.item = null;
+            }
+
+            p.SpawnHat(HatCommand.HatPlayers[p.UserId]);
+        }
+        
+        public static void SpawnHat(this Player p, ItemType item, bool force = true)
         {
             if (!SCPStats.Singleton?.Config.EnableHats ?? true) return;
 
