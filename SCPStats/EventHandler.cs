@@ -123,11 +123,12 @@ namespace SCPStats
                 StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
 
                 yield return Timing.WaitForSeconds(.05f);
-                
-                if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
+
+                if (!player.DoNotTrack && player.Role != RoleType.None && player.Role != RoleType.Spectator)
                 {
-                    StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(player)+"\", \"spawnrole\": \""+((int) player.Role).ToString()+"\"}");
+                    StatHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \"" + Helper.HandleId(player) + "\", \"spawnrole\": \"" + ((int) player.Role).ToString() + "\"}");
                 }
+                else continue;
                 
                 yield return Timing.WaitForSeconds(.05f);
             }
