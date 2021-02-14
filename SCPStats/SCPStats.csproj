@@ -240,6 +240,9 @@
     <Compile Include="ServerNamePatch.cs" />
     <Compile Include="StatHandler.cs" />
     <Compile Include="Stats.cs" />
+    <Compile Include="Warnings\DeleteWarningCommand.cs" />
+    <Compile Include="Warnings\WarnCommand.cs" />
+    <Compile Include="Warnings\WarningsCommand.cs" />
     <Compile Include="WebsocketRequests.cs" />
     <Compile Include="Verification.cs" />
     <Compile Include="WebsocketThread.cs" />
@@ -249,9 +252,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Warnings" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.3.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.3.0\build\Fody.targets')" />

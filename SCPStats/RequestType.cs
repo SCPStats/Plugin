@@ -13,6 +13,9 @@
         Use = 10,
         UserData = 11,
         Death = 12,
-        Kill = 13
+        Kill = 13,
+        AddWarning = 15,
+        GetWarnings = 16,
+        DeleteWarnings = 17
     }
 }

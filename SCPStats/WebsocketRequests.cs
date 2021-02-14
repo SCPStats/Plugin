@@ -5,11 +5,20 @@ using Exiled.API.Features;
 using Exiled.Loader;
 using MEC;
 using SCPStats.Hats;
+using SCPStats.Warnings;
 
 namespace SCPStats
 {
     internal static class WebsocketRequests
     {
+        private static Dictionary<string, string> WarningTypes = new Dictionary<string, string>()
+        {
+            {"0", "Warning"},
+            {"1", "Ban"},
+            {"2", "Kick"},
+            {"3", "Mute"}
+        };
+        
         internal static IEnumerator<float> DequeueRequests(float waitTime = 2f)
         {
             yield return Timing.WaitForSeconds(waitTime);
@@ -19,7 +28,69 @@ namespace SCPStats
                 if (info.StartsWith("u"))
                 {
                     HandleUserInfo(info.Substring(1));
+                } 
+                else if (info.StartsWith("wg"))
+                {
+                    HandleWarnings(info.Substring(2));
                 }
+                else if (info.StartsWith("wd"))
+                {
+                    HandleDeleteWarning(info.Substring(2));
+                }
+            }
+        }
+
+        private static void HandleWarnings(string info)
+        {
+            var result = "ID | Type | Message\n\n";
+            
+            var warnings = info.Split('`');
+
+            foreach (var warning in warnings)
+            {
+                var warningSplit = warning.Split('|');
+
+                if (warningSplit.Length < 4) continue;
+
+                result += warningSplit[0] + (warningSplit[3] == SCPStats.Singleton?.Config?.ServerId ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + "\n";
+            }
+
+            result += "\n*=Warning was not made in this server.";
+
+            if (WarningsCommand.player != null)
+            {
+                WarningsCommand.player.RemoteAdminMessage(result, true, "ScpStats");
+            }
+            else
+            {
+                ServerConsole.AddLog(result);
+            }
+        }
+
+        private static void HandleDeleteWarning(string info)
+        {
+            var result = "";
+            
+            switch (info)
+            {
+                case "S":
+                    result = "Successfully deleted warning!";
+                    break;
+                case "D":
+                    result = "This warning was created on another server. You must remove the warning on the same server that it was created!";
+                    break;
+                case "E":
+                    result = "An error occured. Please try again.";
+                    break;
+            }
+
+            if (DeleteWarningCommand.player != null)
+            {
+                DeleteWarningCommand.player.RemoteAdminMessage(result, true, "ScpStats");
+            }
+            else
+            {
+                ServerConsole.AddLog(result);
             }
         }
         
