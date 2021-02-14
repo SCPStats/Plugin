@@ -11,8 +11,8 @@ namespace SCPStats
     {
         public override string Name { get; } = "ScpStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 2, 1);
-        public override Version RequiredExiledVersion { get; } = new Version(2, 1, 30);
+        public override Version Version { get; } = new Version(1, 2, 2);
+        public override Version RequiredExiledVersion { get; } = new Version(2, 1, 34);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
 
         internal static SCPStats Singleton;
