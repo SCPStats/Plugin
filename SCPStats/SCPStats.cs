@@ -66,7 +66,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Verified += EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying += EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemUsed += EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.MedicalItemDequipped += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
@@ -93,7 +93,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying -= EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemUsed -= EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.MedicalItemDequipped -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;

@@ -275,7 +275,7 @@ namespace SCPStats
             if (Players.Contains(ev.Player.RawUserId)) Players.Remove(ev.Player.RawUserId);
         }
 
-        internal static void OnUse(UsedMedicalItemEventArgs ev)
+        internal static void OnUse(DequippedMedicalItemEventArgs ev)
         {
             if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress()) return;
 
