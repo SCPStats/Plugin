@@ -12,5 +12,12 @@ To register your server, first login to SCPStats through https://scpstats.com/lo
 ## Configuration
 Once you have your Server ID and Secret, configuration is simple. Simply put your Server ID and Secret under the relevent configuration options in your server's config. That's it. SCPStats will begin recording stats.
 
+## Commands
+SCPStats has the following commands:
+
+* `warn <id> [message]` - `scpstats.warn` - Warn a person (with an optional message)
+* `warnings <id>` - `scpstats.warnings` - View all of a person's warnings
+* `deletewarning <id>` - `scpstats.deletewarning` - Delete a specific warning by its ID (you can view the warn ID with the `warnings` command)
+
 ## Request Data Removal
 If you would like your data to be removed from the site, go to https://scpstats.com/account, and click the `Delete Account` button at the bottom. It will delete all of your account data, as well as all stat data recorded for any accounts linked to your account. If you have any issues, send an email to contact@scpstats.com.
