@@ -78,6 +78,8 @@ namespace SCPStats
                 
                 yield return Timing.WaitForSeconds(.1f);
             }
+
+            Timing.RunCoroutine(WebsocketRequests.DequeueRequests());
         }
 
         private static bool IsGamemodeRunning()
