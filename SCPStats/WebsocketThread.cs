@@ -15,7 +15,7 @@ namespace SCPStats
         internal static readonly ConcurrentQueue<string> Queue = new ConcurrentQueue<string>();
         internal static readonly AutoResetEvent Signal = new AutoResetEvent(false);
         
-        internal static readonly ConcurrentQueue<string> UserInfo = new ConcurrentQueue<string>();
+        internal static readonly ConcurrentQueue<string> WebsocketRequests = new ConcurrentQueue<string>();
         
         private static WebSocket ws = null;
         private static Task Pinger = null;
@@ -228,14 +228,11 @@ namespace SCPStats
                         return;
                 }
 
-                if (e.Data == null || !e.Data.StartsWith("u")) return;
+                if (e.Data == null) return;
 
-                var data = e.Data.Substring(1).Split(' ');
-
-                var flags = data[1].Split(',');
-                if (flags.All(v => v == "0")) return;
                 
-                UserInfo.Enqueue(e.Data.Substring(1));
+                
+                WebsocketRequests.Enqueue(e.Data.Substring(1));
             }
             catch (Exception ex)
             {

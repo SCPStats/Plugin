@@ -40,7 +40,7 @@ namespace SCPStats
             WebsocketThread.Queue.Enqueue(message);
             WebsocketThread.Signal.Set();
 
-            if (type == RequestType.UserData) Timing.RunCoroutine(UserInfo.DequeueUserInfo());
+            if (type == RequestType.UserData) Timing.RunCoroutine(WebsocketRequests.DequeueRequests());
         }
     }
 }

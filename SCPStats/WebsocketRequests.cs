@@ -8,15 +8,18 @@ using SCPStats.Hats;
 
 namespace SCPStats
 {
-    internal static class UserInfo
+    internal static class WebsocketRequests
     {
-        internal static IEnumerator<float> DequeueUserInfo()
+        internal static IEnumerator<float> DequeueRequests(float waitTime = 2f)
         {
-            yield return Timing.WaitForSeconds(2f);
+            yield return Timing.WaitForSeconds(waitTime);
             
-            while (WebsocketThread.UserInfo.TryDequeue(out var info))
+            while (WebsocketThread.WebsocketRequests.TryDequeue(out var info))
             {
-                HandleUserInfo(info);
+                if (info.StartsWith("u"))
+                {
+                    HandleUserInfo(info.Substring(1));
+                }
             }
         }
         
