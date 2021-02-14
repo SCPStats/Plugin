@@ -71,6 +71,9 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
+            Exiled.Events.Handlers.Player.Banned += EventHandler.OnBan;
+            Exiled.Events.Handlers.Player.Kicked += EventHandler.OnKick;
+            Exiled.Events.Handlers.Player.ChangingMuteStatus += EventHandler.OnMute;
         }
 
         public override void OnDisabled()
@@ -95,6 +98,9 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
+            Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;
+            Exiled.Events.Handlers.Player.Kicked -= EventHandler.OnKick;
+            Exiled.Events.Handlers.Player.ChangingMuteStatus -= EventHandler.OnMute;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
