@@ -230,9 +230,7 @@ namespace SCPStats
 
                 if (e.Data == null) return;
 
-                
-                
-                WebsocketRequests.Enqueue(e.Data.Substring(1));
+                WebsocketRequests.Enqueue(e.Data);
             }
             catch (Exception ex)
             {

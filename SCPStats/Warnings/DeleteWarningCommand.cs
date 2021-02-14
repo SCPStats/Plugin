@@ -35,14 +35,14 @@ namespace SCPStats.Warnings
                 player = null;
             }
             
-            if (arguments.Array == null || arguments.Array.Length < 1)
+            if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = "Usage: deletewarning <id>";
                 return true;
             }
 
             Timing.RunCoroutine(WebsocketRequests.DequeueRequests(.5f));
-            StatHandler.SendRequest(RequestType.DeleteWarnings, arguments.Array[0]);
+            StatHandler.SendRequest(RequestType.DeleteWarnings, arguments.Array[1]);
 
             response = "Deleting warning...";
             return true;

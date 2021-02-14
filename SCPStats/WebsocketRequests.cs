@@ -22,7 +22,7 @@ namespace SCPStats
         internal static IEnumerator<float> DequeueRequests(float waitTime = 2f)
         {
             yield return Timing.WaitForSeconds(waitTime);
-            
+
             while (WebsocketThread.WebsocketRequests.TryDequeue(out var info))
             {
                 if (info.StartsWith("u"))
@@ -42,7 +42,7 @@ namespace SCPStats
 
         private static void HandleWarnings(string info)
         {
-            var result = "ID | Type | Message\n\n";
+            var result = "\nID | Type | Message\n\n";
             
             var warnings = info.Split('`');
 
@@ -52,14 +52,14 @@ namespace SCPStats
 
                 if (warningSplit.Length < 4) continue;
 
-                result += warningSplit[0] + (warningSplit[3] == SCPStats.Singleton?.Config?.ServerId ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + "\n";
+                result += warningSplit[0] + (warningSplit[3] != SCPStats.Singleton?.Config?.ServerId ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + "\n";
             }
 
             result += "\n*=Warning was not made in this server.";
 
             if (WarningsCommand.player != null)
             {
-                WarningsCommand.player.RemoteAdminMessage(result, true, "ScpStats");
+                WarningsCommand.player.RemoteAdminMessage(result, true, "WARNINGS");
             }
             else
             {
@@ -86,7 +86,7 @@ namespace SCPStats
 
             if (DeleteWarningCommand.player != null)
             {
-                DeleteWarningCommand.player.RemoteAdminMessage(result, true, "ScpStats");
+                DeleteWarningCommand.player.RemoteAdminMessage(result, true, "DELETEWARNING");
             }
             else
             {

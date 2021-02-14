@@ -26,7 +26,7 @@ namespace SCPStats.Warnings
                 }
             }
             
-            if (arguments.Array == null || arguments.Array.Length < 1)
+            if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = "Usage: warn <id> [reason]";
                 return true;
@@ -34,17 +34,18 @@ namespace SCPStats.Warnings
 
             var message = "Unspecified";
 
-            if (arguments.Count > 1)
+            if (arguments.Array.Length > 2)
             {
                 var messageList = arguments.Array.ToList();
+                messageList.RemoveAt(0);
                 messageList.RemoveAt(0);
 
                 message = string.Join(" ", messageList);
             }
 
-            var player = Player.Get(arguments.Array[0]);
+            var player = Player.Get(arguments.Array[1]);
             
-            if (player == null && int.TryParse(arguments.Array[0], out var id))
+            if (player == null && int.TryParse(arguments.Array[1], out var id))
             {
                 player = Player.Get(id);
             }

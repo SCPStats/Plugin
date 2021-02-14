@@ -14,7 +14,7 @@ namespace SCPStats.Warnings
         internal static Player player = null;
         
         public string Command { get; } = "warnings";
-        public string[] Aliases { get; } = new string[] {"warning", "warns"};
+        public string[] Aliases { get; } = new string[] {"warning", "warns", "getwarns", "getwarnings"};
         public string Description { get; } = "View warnings on a specific player.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
@@ -35,15 +35,15 @@ namespace SCPStats.Warnings
                 WarningsCommand.player = null;
             }
             
-            if (arguments.Array == null || arguments.Array.Length < 1)
+            if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = "Usage: warnings <id>";
                 return true;
             }
 
-            var player = Player.Get(arguments.Array[0]);
+            var player = Player.Get(arguments.Array[1]);
 
-            if (player == null && int.TryParse(arguments.Array[0], out var id))
+            if (player == null && int.TryParse(arguments.Array[1], out var id))
             {
                 player = Player.Get(id);
             }
