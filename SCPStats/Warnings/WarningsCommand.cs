@@ -43,6 +43,11 @@ namespace SCPStats.Warnings
 
             var player = Player.Get(arguments.Array[0]);
 
+            if (player == null && int.TryParse(arguments.Array[0], out var id))
+            {
+                player = Player.Get(id);
+            }
+
             if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1")
             {
                 response = "The specified player was not found!";
