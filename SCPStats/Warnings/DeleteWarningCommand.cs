@@ -40,8 +40,7 @@ namespace SCPStats.Warnings
                 response = "Usage: deletewarning <id>";
                 return true;
             }
-
-            Timing.RunCoroutine(WebsocketRequests.DequeueRequests(.5f));
+            
             StatHandler.SendRequest(RequestType.DeleteWarnings, arguments.Array[1]);
 
             response = "Deleting warning...";

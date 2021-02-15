@@ -54,7 +54,6 @@ namespace SCPStats.Warnings
                 return true;
             }
             
-            Timing.RunCoroutine(WebsocketRequests.DequeueRequests(.5f));
             StatHandler.SendRequest(RequestType.GetWarnings, Helper.HandleId(player));
 
             response = "Requesting warnings...";

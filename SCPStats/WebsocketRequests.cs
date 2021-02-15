@@ -19,23 +19,26 @@ namespace SCPStats
             {"3", "Mute"}
         };
         
-        internal static IEnumerator<float> DequeueRequests(float waitTime = 2f)
+        internal static IEnumerator<float> DequeueRequests()
         {
-            yield return Timing.WaitForSeconds(waitTime);
-
-            while (WebsocketThread.WebsocketRequests.TryDequeue(out var info))
+            while (true)
             {
-                if (info.StartsWith("u"))
+                yield return Timing.WaitForSeconds(.5f);
+
+                while (WebsocketThread.WebsocketRequests.TryDequeue(out var info))
                 {
-                    HandleUserInfo(info.Substring(1));
-                } 
-                else if (info.StartsWith("wg"))
-                {
-                    HandleWarnings(info.Substring(2));
-                }
-                else if (info.StartsWith("wd"))
-                {
-                    HandleDeleteWarning(info.Substring(2));
+                    if (info.StartsWith("u"))
+                    {
+                        HandleUserInfo(info.Substring(1));
+                    } 
+                    else if (info.StartsWith("wg"))
+                    {
+                        HandleWarnings(info.Substring(2));
+                    }
+                    else if (info.StartsWith("wd"))
+                    {
+                        HandleDeleteWarning(info.Substring(2));
+                    }
                 }
             }
         }
