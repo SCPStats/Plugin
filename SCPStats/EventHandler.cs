@@ -315,7 +315,7 @@ namespace SCPStats
         
         internal static void OnKick(KickedEventArgs ev)
         {
-            if (ev.Reason.StartsWith("You have been banned.") || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || !ev.IsAllowed) return;
+            if (ev.Reason.StartsWith("You have been banned.") || ev.Reason.StartsWith("[Kicked by uAFK]") || ev.Reason.StartsWith("You were AFK") || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || !ev.IsAllowed) return;
 
             StatHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target)+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\"", "\\\"")+"\"}");
         }
