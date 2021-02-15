@@ -64,7 +64,7 @@ namespace SCPStats
         
         internal static string HmacSha256Digest(string secret, string message)
         {
-            var encoding = new ASCIIEncoding();
+            var encoding = new UTF8Encoding();
             
             return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
