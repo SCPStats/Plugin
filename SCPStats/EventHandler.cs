@@ -134,6 +134,8 @@ namespace SCPStats
                 
                 yield return Timing.WaitForSeconds(.05f);
             }
+            
+            Timing.RunCoroutine(WebsocketRequests.DequeueRequests());
         }
 
         internal static void OnRoundEnding(EndingRoundEventArgs ev)
@@ -251,6 +253,7 @@ namespace SCPStats
             Timing.CallDelayed(.2f, () =>
             {
                 StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
+                Timing.RunCoroutine(WebsocketRequests.DequeueRequests());
             });
             
             if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
