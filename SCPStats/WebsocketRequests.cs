@@ -45,7 +45,7 @@ namespace SCPStats
 
         private static void HandleWarnings(string info)
         {
-            var result = "\nID | Type | Message\n\n";
+            var result = "\nID | Type | Message | Ban Length\n\n";
             
             var warnings = info.Split('`');
 
@@ -55,7 +55,7 @@ namespace SCPStats
 
                 if (warningSplit.Length < 4) continue;
 
-                result += warningSplit[0] + (warningSplit[3] != SCPStats.Singleton?.Config?.ServerId ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + "\n";
+                result += warningSplit[0] + (warningSplit[3] != SCPStats.Singleton?.Config?.ServerId ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + "\n" + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] : "");
             }
 
             result += "\n*=Warning was not made in this server.";
