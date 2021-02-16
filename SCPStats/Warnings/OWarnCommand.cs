@@ -59,9 +59,9 @@ namespace SCPStats.Warnings
                 return true;
             }
 
-            if (!arg.EndsWith("@northwood") && !int.TryParse(userId, out var _))
+            if (!arg.EndsWith("@northwood") && !long.TryParse(userId, out _))
             {
-                response = "User IDs cannot contain numbers!";
+                response = "User IDs cannot contain non-numbers!";
                 return true;
             }
             
