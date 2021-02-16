@@ -49,13 +49,9 @@ namespace SCPStats
             
             var warnings = info.Split('`');
 
-            foreach (var warning in warnings)
+            if (!string.IsNullOrEmpty(info))
             {
-                var warningSplit = warning.Split('|');
-
-                if (warningSplit.Length < 4) continue;
-
-                result += warningSplit[0] + (warningSplit[3] != SCPStats.Singleton?.Config?.ServerId ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + "\n" + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "");
+                result = warnings.Select(warning => warning.Split('|')).Where(warningSplit => warningSplit.Length >= 4).Aggregate(result, (current, warningSplit) => current + (warningSplit[0] + (warningSplit[3] != SCPStats.Singleton?.Config?.ServerId ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + "\n" + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "")));
             }
 
             result += "\n*=Warning was not made in this server.";
@@ -68,6 +64,8 @@ namespace SCPStats
             {
                 ServerConsole.AddLog(result);
             }
+
+            WarningsCommand.player = null;
         }
 
         private static void HandleDeleteWarning(string info)
@@ -95,6 +93,8 @@ namespace SCPStats
             {
                 ServerConsole.AddLog(result);
             }
+
+            DeleteWarningCommand.player = null;
         }
         
         private static void HandleUserInfo(string info)
