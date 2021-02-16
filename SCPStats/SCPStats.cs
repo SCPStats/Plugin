@@ -82,7 +82,7 @@ namespace SCPStats
 
         public override void OnDisabled()
         {
-            harmony.UnpatchAll();
+            harmony?.UnpatchAll();
             harmony = null;
 
             Timing.KillCoroutines(update, requests);
