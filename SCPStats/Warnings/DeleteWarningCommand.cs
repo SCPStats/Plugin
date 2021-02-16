@@ -12,7 +12,7 @@ namespace SCPStats.Warnings
     public class DeleteWarningCommand : ICommand
     {
         public string Command { get; } = "deletewarning";
-        public string[] Aliases { get; } = new string[] {"deletewarnings", "delwarning", "delwarnings"};
+        public string[] Aliases { get; } = new string[] {"deletewarnings", "delwarning", "delwarnings", "delwarn", "deletewarns", "deletewarn", "delwarns"};
         public string Description { get; } = "Delete a warning.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
