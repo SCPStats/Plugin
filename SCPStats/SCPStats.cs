@@ -31,7 +31,7 @@ namespace SCPStats
             if (Config.Secret == "fill this" || Config.ServerId == "fill this")
             {
                 Log.Warn("Config for SCPStats has not been filled out correctly. Disabling!");
-                base.OnDisabled();
+                this.OnDisabled();
                 return;
             }
             
