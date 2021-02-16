@@ -11,6 +11,10 @@ namespace SCPStats
 {
     internal static class WebsocketRequests
     {
+        internal static Random Random = new Random();
+        
+        internal static Dictionary<string, Player> MessageIDs = new Dictionary<string, Player>();
+        
         private static Dictionary<string, string> WarningTypes = new Dictionary<string, string>()
         {
             {"0", "Warning"},
@@ -47,7 +51,8 @@ namespace SCPStats
         {
             var result = "\nID | Type | Message | Ban Length\n\n";
             
-            var warnings = info.Split('`');
+            var warnings = info.Substring(4).Split('`');
+            var msgId = info.Substring(0, 4);
 
             if (!string.IsNullOrEmpty(info))
             {
@@ -56,23 +61,28 @@ namespace SCPStats
 
             result += "\n*=Warning was not made in this server.";
 
-            if (WarningsCommand.player != null)
+            if (MessageIDs.TryGetValue(msgId, out var player))
             {
-                WarningsCommand.player.RemoteAdminMessage(result, true, "WARNINGS");
+                MessageIDs.Remove(msgId);
+            }
+
+            if (player != null)
+            {
+                player.RemoteAdminMessage(result, true, "WARNINGS");
             }
             else
             {
                 ServerConsole.AddLog(result);
             }
-
-            WarningsCommand.player = null;
         }
 
         private static void HandleDeleteWarning(string info)
         {
             var result = "";
             
-            switch (info)
+            var msgId = info.Substring(0, 4);
+            
+            switch (info.Substring(4))
             {
                 case "S":
                     result = "Successfully deleted warning!";
@@ -85,16 +95,19 @@ namespace SCPStats
                     break;
             }
 
-            if (DeleteWarningCommand.player != null)
+            if (MessageIDs.TryGetValue(msgId, out var player))
             {
-                DeleteWarningCommand.player.RemoteAdminMessage(result, true, "DELETEWARNING");
+                MessageIDs.Remove(msgId);
+            }
+
+            if (player != null)
+            {
+                player.RemoteAdminMessage(result, true, "DELETEWARNING");
             }
             else
             {
                 ServerConsole.AddLog(result);
             }
-
-            DeleteWarningCommand.player = null;
         }
         
         private static void HandleUserInfo(string info)

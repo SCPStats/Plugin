@@ -11,14 +11,14 @@ namespace SCPStats.Warnings
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class DeleteWarningCommand : ICommand
     {
-        internal static Player player = null;
-        
         public string Command { get; } = "deletewarning";
         public string[] Aliases { get; } = new string[] {"deletewarnings", "delwarning", "delwarnings"};
         public string Description { get; } = "Delete a warning.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            Player pl = null;
+            
             if (sender is PlayerCommandSender commandSender)
             {
                 var p = Player.Get(commandSender.ReferenceHub);
@@ -28,20 +28,20 @@ namespace SCPStats.Warnings
                     return true;
                 }
 
-                player = p;
+                pl = p;
             }
-            else
-            {
-                player = null;
-            }
-            
+
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = "Usage: deletewarning <id>";
                 return true;
             }
             
-            StatHandler.SendRequest(RequestType.DeleteWarnings, arguments.Array[1]);
+            var msgId = WebsocketRequests.Random.Next(1000, 9999).ToString();
+            foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl)) WebsocketRequests.MessageIDs.Remove(keys.Key);
+            WebsocketRequests.MessageIDs[msgId] = pl;
+            
+            StatHandler.SendRequest(RequestType.DeleteWarnings, msgId+arguments.Array[1]);
 
             response = "Deleting warning...";
             return true;

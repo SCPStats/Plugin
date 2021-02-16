@@ -11,14 +11,14 @@ namespace SCPStats.Warnings
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class WarningsCommand : ICommand
     {
-        internal static Player player = null;
-        
         public string Command { get; } = "warnings";
         public string[] Aliases { get; } = new string[] {"warning", "warns", "getwarns", "getwarnings"};
         public string Description { get; } = "View warnings on a specific player.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            Player pl = null;
+            
             if (sender is PlayerCommandSender commandSender)
             {
                 var p = Player.Get(commandSender.ReferenceHub);
@@ -28,13 +28,9 @@ namespace SCPStats.Warnings
                     return true;
                 }
 
-                WarningsCommand.player = p;
+                pl = p;
             }
-            else
-            {
-                WarningsCommand.player = null;
-            }
-            
+
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = "Usage: warnings <id>";
@@ -53,8 +49,12 @@ namespace SCPStats.Warnings
                 response = "The specified player was not found!";
                 return true;
             }
+
+            var msgId = WebsocketRequests.Random.Next(1000, 9999).ToString();
+            foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl)) WebsocketRequests.MessageIDs.Remove(keys.Key);
+            WebsocketRequests.MessageIDs[msgId] = pl;
             
-            StatHandler.SendRequest(RequestType.GetWarnings, Helper.HandleId(player));
+            StatHandler.SendRequest(RequestType.GetWarnings, msgId+Helper.HandleId(player));
 
             response = "Requesting warnings...";
             return true;
