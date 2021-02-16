@@ -8,11 +8,11 @@ using RemoteAdmin;
 namespace SCPStats.Warnings
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class WarnCommand : ICommand
+    public class OWarnCommand : ICommand
     {
-        public string Command { get; } = "warn";
-        public string[] Aliases { get; } = new string[] {};
-        public string Description { get; } = "Warn a player.";
+        public string Command { get; } = "owarn";
+        public string[] Aliases { get; } = new string[] {"offlinewarn"};
+        public string Description { get; } = "Warn an offline player.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -43,20 +43,29 @@ namespace SCPStats.Warnings
                 message = string.Join(" ", messageList);
             }
 
-            var player = Player.Get(arguments.Array[1]);
-            
-            if (player == null && int.TryParse(arguments.Array[1], out var id))
+            var arg = arguments.Array[1].Trim().ToLower();
+
+            if (!arg.Contains("@"))
             {
-                player = Player.Get(id);
+                response = "Please enter a valid user id (for example, ID@steam)!";
+                return true;
             }
 
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1")
+            var userId = Helper.HandleId(arg);
+
+            if (userId.Length > 18)
             {
-                response = "The specified player was not found! Use the owarn command to warn offline players.";
+                response = "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
+                return true;
+            }
+
+            if (!arg.EndsWith("@northwood") && !int.TryParse(userId, out var _))
+            {
+                response = "User IDs cannot contain numbers!";
                 return true;
             }
             
-            StatHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\"", "\\\"")+"\"}");
+            StatHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+userId+"\",\"message\":\""+message.Replace("\"", "\\\"")+"\"}");
 
             response = "Added warning.";
             return true;

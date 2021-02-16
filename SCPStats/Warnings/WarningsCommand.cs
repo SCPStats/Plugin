@@ -37,24 +37,27 @@ namespace SCPStats.Warnings
                 return true;
             }
 
-            var player = Player.Get(arguments.Array[1]);
+            var arg = arguments.Array[1].Trim().ToLower();
 
-            if (player == null && int.TryParse(arguments.Array[1], out var id))
+            var player = Player.Get(arg);
+
+            if (player == null && int.TryParse(arg, out var id))
             {
                 player = Player.Get(id);
             }
 
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1")
+            var userId = Helper.HandleId(arg);
+
+            if (player?.UserId != null)
             {
-                response = "The specified player was not found!";
-                return true;
+                userId = Helper.HandleId(player);
             }
 
             var msgId = WebsocketRequests.Random.Next(1000, 9999).ToString();
             foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl)) WebsocketRequests.MessageIDs.Remove(keys.Key);
             WebsocketRequests.MessageIDs[msgId] = pl;
             
-            StatHandler.SendRequest(RequestType.GetWarnings, msgId+Helper.HandleId(player));
+            StatHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
 
             response = "Requesting warnings...";
             return true;

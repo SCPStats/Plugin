@@ -241,6 +241,7 @@
     <Compile Include="StatHandler.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="Warnings\DeleteWarningCommand.cs" />
+    <Compile Include="Warnings\OWarnCommand.cs" />
     <Compile Include="Warnings\WarnCommand.cs" />
     <Compile Include="Warnings\WarningsCommand.cs" />
     <Compile Include="WebsocketRequests.cs" />
