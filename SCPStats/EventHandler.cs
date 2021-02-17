@@ -142,8 +142,8 @@ namespace SCPStats
             DidRoundEnd = true;
 
             HatCommand.HatPlayers.Clear();
-
-            StatHandler.SendRequest(RequestType.RoundEnd);
+            
+            StatHandler.SendRequest(RequestType.RoundEnd, ((int) ev.LeadingTeam).ToString());
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
@@ -157,7 +157,7 @@ namespace SCPStats
             HatCommand.HatPlayers.Clear();
             if (DidRoundEnd) return;
 
-            StatHandler.SendRequest(RequestType.RoundEnd);
+            StatHandler.SendRequest(RequestType.RoundEnd, "-1");
             
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
