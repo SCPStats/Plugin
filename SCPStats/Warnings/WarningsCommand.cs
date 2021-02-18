@@ -48,7 +48,7 @@ namespace SCPStats.Warnings
 
             var userId = Helper.HandleId(arg);
 
-            if (player?.UserId != null)
+            if (player?.RawUserId != null)
             {
                 userId = Helper.HandleId(player);
             }
