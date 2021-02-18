@@ -76,7 +76,7 @@ namespace SCPStats
 
         internal static string HandleId(Player player)
         {
-            return HandleId(player.RawUserId);
+            return HandleId(player.UserId);
         }
     }
 }

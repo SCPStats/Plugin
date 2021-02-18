@@ -54,7 +54,7 @@ namespace SCPStats
             for (var i = 0; i < Players.Count; i++)
             {
                 var player = Players[i];
-                if (Player.List.Any(p => p != null && !p.IsHost && p.RawUserId == player)) continue;
+                if (Player.List.Any(p => p != null && !p.IsHost && p.UserId == player)) continue;
                 
                 StatHandler.SendRequest(RequestType.Leave, "{\"playerid\": \"" + Helper.HandleId(player) + "\"}");
 
@@ -189,7 +189,7 @@ namespace SCPStats
                 return;
             }
             
-            if (ev.Killer?.UserId == null || ev.Killer.IsHost || !ev.Killer.IsVerified || ev.Killer.IPAddress == "127.0.0.WAN" || ev.Killer.IPAddress == "127.0.0.1" || ev.Killer.RawUserId == ev.Target.RawUserId || ev.Killer.DoNotTrack || !Helper.IsPlayerValid(ev.Killer, false)) return;
+            if (ev.Killer?.UserId == null || ev.Killer.IsHost || !ev.Killer.IsVerified || ev.Killer.IPAddress == "127.0.0.WAN" || ev.Killer.IPAddress == "127.0.0.1" || ev.Killer.UserId == ev.Target.UserId || ev.Killer.DoNotTrack || !Helper.IsPlayerValid(ev.Killer, false)) return;
 
             StatHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+Helper.HandleId(ev.Killer)+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
         }
@@ -252,11 +252,11 @@ namespace SCPStats
                 StatHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
             });
             
-            if (!Round.IsStarted && Players.Contains(ev.Player.RawUserId) || ev.Player.DoNotTrack) return;
+            if (!Round.IsStarted && Players.Contains(ev.Player.UserId) || ev.Player.DoNotTrack) return;
 
             StatHandler.SendRequest(RequestType.Join, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\"}");
             
-            Players.Add(ev.Player.RawUserId);
+            Players.Add(ev.Player.UserId);
         }
 
         internal static void OnLeave(DestroyingEventArgs ev)
@@ -273,7 +273,7 @@ namespace SCPStats
 
             StatHandler.SendRequest(RequestType.Leave, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\"}");
 
-            if (Players.Contains(ev.Player.RawUserId)) Players.Remove(ev.Player.RawUserId);
+            if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
         }
 
         internal static void OnUse(DequippedMedicalItemEventArgs ev)
