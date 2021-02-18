@@ -160,11 +160,11 @@ namespace SCPStats
                     if (flag) return;
                 }
 
-                if (flags[2] != "0" && flags[5] != "0")
+                if (flags[2] != "0" && flags[5] != "0" && flags[6] != "0")
                 {
                     var roles = flags[2].Split('|');
-
                     var ranks = flags[5].Split('|');
+                    var stats = flags[6].Split('|');
 
                     foreach (var s in SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')))
                     {
@@ -182,28 +182,30 @@ namespace SCPStats
                                 continue;
                             }
 
-                            if (parts.Length > 2 &&
-                                !parts[2].Split(',').All(discordRole => roles.Contains(discordRole)))
+                            var offset = (parts[0] == "num" || parts[0] == "numi") ? 1 : 0;
+                            var reverse = parts[0] == "numi";
+
+                            if (parts.Length > 2+offset && !parts[2+offset].Split(',').All(discordRole => roles.Contains(discordRole)))
                             {
                                 continue;
                             }
 
-                            if (!int.TryParse(parts[1], out var max))
+                            if (!int.TryParse(parts[1+offset], out var max))
                             {
-                                Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". There is an error in your max ranks. Expected an integer, but got \"" + parts[1] + "\"!");
+                                Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". There is an error in your max ranks. Expected an integer, but got \"" + parts[1+offset] + "\"!");
                                 continue;
                             }
 
-                            var type = parts[0].Trim().ToLower();
+                            var type = parts[0+offset].Trim().ToLower();
                             if (!Helper.Rankings.ContainsKey(type))
                             {
                                 Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", \"adrenaline\".");
                                 continue;
                             }
 
-                            var rank = int.Parse(ranks[Helper.Rankings[type]]);
+                            var rank = int.Parse(offset == 0 ? ranks[Helper.Rankings[type]] : stats[Helper.Rankings[type]]);
 
-                            if (rank == -1 || rank >= max) continue;
+                            if (rank == -1 || (offset == 0 && rank >= max) || offset == 1 && (!reverse && rank < max || reverse && rank >= max)) continue;
                         }
                         else if (!req.Split(',').All(discordRole => roles.Contains(discordRole)))
                         {
@@ -216,6 +218,8 @@ namespace SCPStats
                             continue;
                         }
 
+                        Log.Info("Passed, setting role!");
+
                         var group = ServerStatic.PermissionsHandler._groups[role];
 
                         player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
@@ -226,8 +230,7 @@ namespace SCPStats
                     }
                 }
 
-                if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") &&
-                    !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
+                if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
                 {
                     if (!ServerStatic.PermissionsHandler._groups.ContainsKey(SCPStats.Singleton.Config.BoosterRole))
                     {

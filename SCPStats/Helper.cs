@@ -50,7 +50,17 @@ namespace SCPStats
             {"scp-18s", 6},
             {"scp-18", 6},
             {"adrenaline", 7},
-            {"adrenalines", 7}
+            {"adrenalines", 7},
+            {"escape", 8},
+            {"escapes", 8},
+            {"leaderboard", 9},
+            {"leaderboards", 9},
+            {"xp", 9},
+            {"xps", 9},
+            {"fastestescape", 10},
+            {"fastescape", 10},
+            {"quickestescape", 10},
+            {"quickescape", 10}
         };
         
         internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
