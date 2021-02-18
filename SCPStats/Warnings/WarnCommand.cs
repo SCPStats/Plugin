@@ -50,7 +50,7 @@ namespace SCPStats.Warnings
                 player = Player.Get(id);
             }
 
-            if (player?.RawUserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1")
+            if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1")
             {
                 response = "The specified player was not found! Use the owarn command to warn offline players.";
                 return true;
