@@ -220,7 +220,7 @@ namespace SCPStats
 
                         var group = ServerStatic.PermissionsHandler._groups[role];
 
-                        player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                        player.ReferenceHub.serverRoles.SetGroup(group, false);
                         ServerStatic.PermissionsHandler._members[player.UserId] = role;
 
                         Rainbow(player);
@@ -238,7 +238,7 @@ namespace SCPStats
 
                     var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.BoosterRole];
 
-                    player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                    player.ReferenceHub.serverRoles.SetGroup(group, false);
                     ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.BoosterRole;
 
                     Rainbow(player);
@@ -253,7 +253,7 @@ namespace SCPStats
 
                     var group = ServerStatic.PermissionsHandler._groups[SCPStats.Singleton.Config.DiscordMemberRole];
 
-                    player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
+                    player.ReferenceHub.serverRoles.SetGroup(group, false);
                     ServerStatic.PermissionsHandler._members[player.UserId] = SCPStats.Singleton.Config.DiscordMemberRole;
 
                     Rainbow(player);
