@@ -218,8 +218,6 @@ namespace SCPStats
                             continue;
                         }
 
-                        Log.Info("Passed, setting role!");
-
                         var group = ServerStatic.PermissionsHandler._groups[role];
 
                         player.ReferenceHub.serverRoles.SetGroup(group, false, false, group.Cover);
