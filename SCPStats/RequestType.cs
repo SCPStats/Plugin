@@ -16,6 +16,8 @@
         Kill = 13,
         AddWarning = 15,
         GetWarnings = 16,
-        DeleteWarnings = 17
+        DeleteWarnings = 17,
+        Win = 18,
+        Lose = 19
     }
 }

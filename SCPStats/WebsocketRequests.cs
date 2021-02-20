@@ -205,7 +205,7 @@ namespace SCPStats
 
                             var rank = int.Parse(offset == 0 ? ranks[Helper.Rankings[type]] : stats[Helper.Rankings[type]]);
 
-                            if (rank == -1 || (offset == 0 && rank >= max) || offset == 1 && (!reverse && rank < max || reverse && rank >= max)) continue;
+                            if (rank == -1 || offset == 0 && rank >= max || offset == 1 && (!reverse && rank < max || reverse && rank >= max)) continue;
                         }
                         else if (!req.Split(',').All(discordRole => roles.Contains(discordRole)))
                         {

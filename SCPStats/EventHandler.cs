@@ -145,12 +145,26 @@ namespace SCPStats
             
             StatHandler.SendRequest(RequestType.RoundEnd, ((int) ev.LeadingTeam).ToString());
             
+            foreach (var player in Player.List)
+            {
+                if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(player)) continue;
+
+                if (player.IsAlive)
+                {
+                    StatHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+Helper.HandleId(player)+"\",\"role\":\""+((int) player.Role).ToString()+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+                }
+                else
+                {
+                    StatHandler.SendRequest(RequestType.Lose, "{\"playerid\":\""+Helper.HandleId(player)+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+                }
+            }
+            
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
             
             SpawnsDone.Clear();
         }
-        
+
         internal static void OnRoundRestart()
         {
             Restarting = true;
