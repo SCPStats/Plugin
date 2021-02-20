@@ -156,9 +156,9 @@ namespace SCPStats
         {
             foreach (var player in Player.List)
             {
-                if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(player)) continue;
+                if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(player, true, false)) continue;
 
-                if (player.IsAlive)
+                if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
                 {
                     StatHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+Helper.HandleId(player)+"\",\"role\":\""+((int) player.Role).ToString()+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
                 }
