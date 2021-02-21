@@ -51,6 +51,8 @@ namespace SCPStats
 
             requests = Timing.RunCoroutine(WebsocketRequests.DequeueRequests());
 
+            EventHandler.OnRAReload();
+
             base.OnEnabled();
         }
 
