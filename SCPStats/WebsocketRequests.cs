@@ -120,10 +120,18 @@ namespace SCPStats
             foreach (var player in Player.List)
             {
                 if (player == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN" || !Helper.HandleId(player.UserId).Equals(data[0])) continue;
-
+                
+                if((SCPStats.Singleton?.Config.SyncBans ?? false) && HandleBans(player, flags)) return;
                 HandleHats(player, flags);
                 HandleRolesync(player, flags);
             }
+        }
+
+        private static bool HandleBans(Player player, string[] flags)
+        {
+            if (flags[7] == "0") return false;
+            ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
+            return true;
         }
 
         private static void HandleHats(Player player, string[] flags)
