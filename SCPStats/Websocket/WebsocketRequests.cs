@@ -245,7 +245,7 @@ namespace SCPStats.Websocket
 
         private static bool PlayerHasGroup(Player p, string key)
         {
-            return key == "none" || key == "fill this" || ServerStatic.PermissionsHandler._groups.TryGetValue(key, out var group) && group == p.Group;
+            return key != "none" && key != "fill this" && ServerStatic.PermissionsHandler._groups.TryGetValue(key, out var group) && group == p.Group;
         }
 
         private static void Rainbow(Player p)
