@@ -118,11 +118,13 @@ namespace SCPStats.Websocket
 
             foreach (var player in Player.List)
             {
-                if (player == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN" || !Helper.HandleId(player.UserId).Equals(data[0])) continue;
+                if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN" || !Helper.HandleId(player.UserId).Equals(data[0])) continue;
                 
                 if((SCPStats.Singleton?.Config.SyncBans ?? false) && HandleBans(player, flags)) return;
                 HandleHats(player, flags);
                 HandleRolesync(player, flags);
+
+                return;
             }
         }
 
