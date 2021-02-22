@@ -1,9 +1,8 @@
 ﻿using System.Threading;
-using MEC;
 
-namespace SCPStats
+namespace SCPStats.Websocket
 {
-    internal static class StatHandler
+    internal static class WebsocketHandler
     {
         private static Thread wss = null;
 

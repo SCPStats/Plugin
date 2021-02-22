@@ -4,6 +4,7 @@ using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
 using MEC;
+using SCPStats.Websocket;
 
 namespace SCPStats
 {

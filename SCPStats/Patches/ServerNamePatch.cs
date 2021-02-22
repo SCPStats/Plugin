@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace SCPStats
+namespace SCPStats.Patches
 {
     [HarmonyPatch(typeof(ServerConsole), nameof(ServerConsole.ReloadServerName))]
     internal static class ServerNamePatch

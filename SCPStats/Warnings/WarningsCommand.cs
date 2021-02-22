@@ -6,7 +6,7 @@ using Exiled.Permissions.Extensions;
 using MEC;
 using RemoteAdmin;
 
-namespace SCPStats.Warnings
+namespace SCPStats.Websocket.Warnings
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class WarningsCommand : ICommand
@@ -57,7 +57,7 @@ namespace SCPStats.Warnings
             foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl)) WebsocketRequests.MessageIDs.Remove(keys.Key);
             WebsocketRequests.MessageIDs[msgId] = pl;
             
-            StatHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
+            WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
 
             response = "Requesting warnings...";
             return true;

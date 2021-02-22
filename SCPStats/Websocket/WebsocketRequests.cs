@@ -5,9 +5,8 @@ using Exiled.API.Features;
 using Exiled.Loader;
 using MEC;
 using SCPStats.Hats;
-using SCPStats.Warnings;
 
-namespace SCPStats
+namespace SCPStats.Websocket
 {
     internal static class WebsocketRequests
     {

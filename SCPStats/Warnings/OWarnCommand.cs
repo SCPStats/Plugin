@@ -5,7 +5,7 @@ using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using RemoteAdmin;
 
-namespace SCPStats.Warnings
+namespace SCPStats.Websocket.Warnings
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class OWarnCommand : ICommand
@@ -65,7 +65,7 @@ namespace SCPStats.Warnings
                 return true;
             }
             
-            StatHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+userId+"\",\"message\":\""+message.Replace("\"", "\\\"")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+userId+"\",\"message\":\""+message.Replace("\"", "\\\"")+"\"}");
 
             response = "Added warning.";
             return true;
