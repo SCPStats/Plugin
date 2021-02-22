@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System.Linq;
+using HarmonyLib;
 
 namespace SCPStats.Patches
 {
@@ -7,7 +8,7 @@ namespace SCPStats.Patches
     {
         public static bool Prefix(BanDetails ban, BanHandler.BanType banType)
         {
-            if (banType == BanHandler.BanType.UserId) UnbanPatch.LastId = ban.Id;
+            if (banType == BanHandler.BanType.UserId && BanHandler.GetBans(BanHandler.BanType.UserId).Any(b => b.Id == ban.Id)) UnbanPatch.LastId = ban.Id;
             return true;
         }
     }
