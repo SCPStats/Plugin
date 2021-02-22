@@ -18,6 +18,7 @@
         GetWarnings = 16,
         DeleteWarnings = 17,
         Win = 18,
-        Lose = 19
+        Lose = 19,
+        InvalidateBan = 20
     }
 }
