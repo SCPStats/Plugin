@@ -4,6 +4,7 @@ using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
 using MEC;
+using SCPStats.Patches;
 using SCPStats.Websocket;
 
 namespace SCPStats
@@ -111,6 +112,8 @@ namespace SCPStats
 
             EventHandler.Reset();
             Hats.Hats.Reset();
+
+            UnbanPatch.LastId = null;
 
             Singleton = null;
 
