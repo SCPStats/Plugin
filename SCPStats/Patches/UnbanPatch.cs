@@ -19,7 +19,7 @@ namespace SCPStats.Patches
                 return true;
             }
 
-            WebsocketHandler.SendRequest(RequestType.InvalidateBan, "{\"playerId\":\"" + Helper.HandleId(id.Substring(0, id.LastIndexOf('@'))) + "\"}");
+            WebsocketHandler.SendRequest(RequestType.InvalidateBan, Helper.HandleId(id.Substring(0, id.LastIndexOf('@'))));
             return true;
         }
     }
