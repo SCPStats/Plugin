@@ -1,16 +1,16 @@
 # SCPStats
-SCPStats is a stat tracking plugin for SCP: Secret Laboratory that allows players to track their stats across multiple servers, as well as providing server hosts with detailed server analytics.
+SCPStats is a stat tracking plugin for SCP: Secret Laboratory that allows players to track their stats across multiple servers and also includes some additional internet-connected features like rolesync and bansync. See below for a full list of features that SCPStats has to offer!
+
+## Features
+SCPStats includes the following features:
+* Detailed global and per-server stat tracking.
+* Leaderboards and rankings accessible through the website or the SCPStats bot.
+* Rolesync, allowing you to give roles to players based on their discord roles or place in the leaderboards.
+* Bansync, which allows you to sync bans across your servers (for example, a player banned on server #1 will also be banned on #2).
+* Hats, which monetize SCPStats but can also be given as a permission node (``scpstats.hat``).
 
 ## Getting Started
-Currently, SCPStats is WIP but is able to record player and server stats. This beta version can be installed to provide your players with stats when SCPStats fully releases. To use SCPStats, you first need to register your server with the website.
-
-## Registering your Server
-The SCPStats website is very WIP and does not have much effort put into actual the design of the site. SCPStat's full release will include a redesigned website.
-
-To register your server, first login to SCPStats through https://scpstats.com/login . Then, register your server through https://scpstats.com/account/servers/add/ (you can register as many servers as you want). Once your server is registered, you will be redirected to a page where you can view all of your registered servers, along with their Server ID and Secret. You will need the Server ID and Secret to configure the SCPStats plugin.
-
-## Configuration
-Once you have your Server ID and Secret, configuration is simple. Simply put your Server ID and Secret under the relevent configuration options in your server's config. That's it. SCPStats will begin recording stats.
+SCPStats includes a detailed setup guide, which explains both the basic setup as well as rolesync. It is available at htps://scpstats.com/guides/server.
 
 ## Commands
 SCPStats has the following commands:
