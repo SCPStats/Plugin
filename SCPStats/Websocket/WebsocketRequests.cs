@@ -130,7 +130,7 @@ namespace SCPStats.Websocket
 
         private static bool HandleBans(Player player, string[] flags)
         {
-            if (flags[7] == "0") return false;
+            if (flags[7] == "0" || player.IsStaffBypassEnabled) return false;
             ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
             return true;
         }
