@@ -239,6 +239,7 @@
     <Compile Include="Hats\Hats.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Patches\BanPatch.cs" />
+    <Compile Include="Patches\NoclipPatch.cs" />
     <Compile Include="Patches\ServerNamePatch.cs" />
     <Compile Include="Patches\UnbanPatch.cs" />
     <Compile Include="RequestType.cs" />
