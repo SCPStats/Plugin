@@ -250,6 +250,7 @@
     <Compile Include="Warnings\WarnCommand.cs" />
     <Compile Include="Warnings\WarningsCommand.cs" />
     <Compile Include="Verification.cs" />
+    <Compile Include="Websocket\UserInfoData.cs" />
     <Compile Include="Websocket\WebsocketHandler.cs" />
     <Compile Include="Websocket\WebsocketRequests.cs" />
     <Compile Include="Websocket\WebsocketThread.cs" />

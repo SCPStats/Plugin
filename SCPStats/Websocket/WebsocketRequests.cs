@@ -111,35 +111,37 @@ namespace SCPStats.Websocket
 
         private static void HandleUserInfo(string info)
         {
-            var data = info.Split(' ');
-
-            var flags = data[1].Split(',');
+            var infoSplit = info.Split(' ');
+            
+            var flags = infoSplit[1].Split(',');
             if (flags.All(v => v == "0")) return;
+            
+            var data = new UserInfoData(flags);
 
             foreach (var player in Player.List)
             {
-                if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN" || !Helper.HandleId(player.UserId).Equals(data[0])) continue;
+                if (player?.UserId == null || !player.IsVerified || player.IsHost || player.IPAddress == "127.0.0.1" || player.IPAddress == "127.0.0.WAN" || !Helper.HandleId(player.UserId).Equals(infoSplit[0])) continue;
                 
-                if((SCPStats.Singleton?.Config.SyncBans ?? false) && HandleBans(player, flags)) return;
-                HandleHats(player, flags);
-                HandleRolesync(player, flags);
+                if((SCPStats.Singleton?.Config.SyncBans ?? false) && HandleBans(player, data)) return;
+                HandleHats(player, data);
+                HandleRolesync(player, data);
 
                 return;
             }
         }
 
-        private static bool HandleBans(Player player, string[] flags)
+        private static bool HandleBans(Player player, UserInfoData data)
         {
-            if (flags[7] == "0" || player.IsStaffBypassEnabled) return false;
+            if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
             ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
             return true;
         }
 
-        private static void HandleHats(Player player, string[] flags)
+        private static void HandleHats(Player player, UserInfoData data)
         {
-            if (flags[3] != "1") return;
+            if (!data.HasHat) return;
 
-            var item = (ItemType) Convert.ToInt32(flags[4]);
+            var item = (ItemType) Convert.ToInt32(data.HatID);
 
             if (HatCommand.AllowedHats.Contains(item)) HatCommand.HatPlayers[player.UserId] = item;
             else HatCommand.HatPlayers[player.UserId] = ItemType.SCP268;
@@ -150,7 +152,7 @@ namespace SCPStats.Websocket
             }
         }
 
-        private static void HandleRolesync(Player player, string[] flags)
+        private static void HandleRolesync(Player player, UserInfoData data)
         {
             if (SCPStats.Singleton == null || ServerStatic.PermissionsHandler == null || ServerStatic.PermissionsHandler._groups == null) return;
 
@@ -160,20 +162,13 @@ namespace SCPStats.Websocket
                 return split.Length >= 2 && split[1] != "IngameRoleName" && PlayerHasGroup(player, split[1]);
             })) return;
 
-            if (flags[2] != "0" && flags[5] != "0" && flags[6] != "0")
-            {
-                var roles = flags[2].Split('|');
-                var ranks = flags[5].Split('|');
-                var stats = flags[6].Split('|');
+            if (data.DiscordRoles.Length > 0 && data.Ranks.Length > 0 && data.Stats.Length > 0 && SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, data.DiscordRoles, data.Ranks, data.Stats))) return;
 
-                if (SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, roles, ranks, stats))) return;
-            }
-
-            if (flags[0] == "1" && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
+            if (data.IsBooster && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
             {
                 GiveRole(player, SCPStats.Singleton.Config.BoosterRole);
             }
-            else if (flags[1] == "1" && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
+            else if (data.IsDiscordMember && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
             {
                 GiveRole(player, SCPStats.Singleton.Config.DiscordMemberRole);
             }
