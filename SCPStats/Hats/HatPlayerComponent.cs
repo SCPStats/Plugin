@@ -20,7 +20,6 @@ namespace SCPStats.Hats
 
         private IEnumerator<float> MoveHat()
         {
-
             while (true)
             {
                 yield return Timing.WaitForSeconds(SCPStats.Singleton?.Config.HatUpdateTime ?? .4f);
@@ -38,7 +37,7 @@ namespace SCPStats.Hats
                         pickup.position = Vector3.one * 6000f;
                         pickup.transform.position = Vector3.one * 6000f;
                         pickup.UpdatePosition();
-                        
+
                         continue;
                     }
 
@@ -46,13 +45,13 @@ namespace SCPStats.Hats
 
                     var rotAngles = camera.rotation.eulerAngles;
                     if (player.Team == Team.SCP) rotAngles.x = 0;
-                    
+
                     var rotation = Quaternion.Euler(rotAngles);
-                    
+
                     var rot = rotation * item.rot;
                     var transform1 = pickup.transform;
                     var pos = (player.Role != RoleType.Scp079 ? rotation * item.pos : item.pos) + camera.position;
-                    
+
                     transform1.rotation = rot;
                     pickup.Networkrotation = rot;
 
@@ -65,32 +64,33 @@ namespace SCPStats.Hats
                         {
                             UpdatePickupPositionForPlayer(player1, pickup, pos);
                         }
-                        else if (player1.Role == RoleType.Scp93953 || player1.Role == RoleType.Scp93989)
-                        {
-                            if (!player.GameObject.GetComponent<Scp939_VisionController>().CanSee(player1.ReferenceHub.characterClassManager.Scp939))
-                            {
-                                UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
-                            }
-                            else
-                            {
-                                UpdatePickupPositionForPlayer(player1, pickup, pos);
-                            }
-                        }
-                        else if (player1.Role == RoleType.Scp096)
-                        {
-                            if (player1.CurrentScp != null && player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub))
-                            {
-                                UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
-                            }
-                            else
-                            {
-                                UpdatePickupPositionForPlayer(player1, pickup, pos);
-                            }
-                        }
                         else
-                        {
-                            UpdatePickupPositionForPlayer(player1, pickup, pos);
-                        }
+                            switch (player1.Role)
+                            {
+                                case RoleType.Scp93953:
+                                case RoleType.Scp93989:
+                                {
+                                    if (!player.GameObject.GetComponent<Scp939_VisionController>().CanSee(player1.ReferenceHub.characterClassManager.Scp939))
+                                    {
+                                        UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
+                                    }
+                                    else
+                                    {
+                                        UpdatePickupPositionForPlayer(player1, pickup, pos);
+                                    }
+
+                                    break;
+                                }
+                                case RoleType.Scp096 when player1.CurrentScp != null && player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
+                                    UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
+                                    break;
+                                case RoleType.Scp096:
+                                    UpdatePickupPositionForPlayer(player1, pickup, pos);
+                                    break;
+                                default:
+                                    UpdatePickupPositionForPlayer(player1, pickup, pos);
+                                    break;
+                            }
                     }
                 }
                 catch (Exception e)
@@ -99,12 +99,13 @@ namespace SCPStats.Hats
                 }
             }
         }
-        
+
         //https://gist.github.com/sanyae2439/dbb0b4b439ad4a2a0f6c42d68e2c82dc
-        
+
         private static void UpdatePickupPositionForPlayer(Player player, Pickup pickup, Vector3 position)
         {
-            Action<NetworkWriter> customSyncVarGenerator = (targetWriter) => {
+            Action<NetworkWriter> customSyncVarGenerator = (targetWriter) =>
+            {
                 targetWriter.WritePackedUInt64(8UL);
                 NetworkWriterExtensions.WriteVector3(targetWriter, position);
             };
@@ -112,25 +113,26 @@ namespace SCPStats.Hats
             NetworkWriter writer = NetworkWriterPool.GetWriter();
             NetworkWriter writer2 = NetworkWriterPool.GetWriter();
             MakeCustomSyncWriter(pickup.netIdentity, typeof(Pickup), null, customSyncVarGenerator, writer, writer2);
-            NetworkServer.SendToClientOfPlayer(player.ReferenceHub.networkIdentity, new UpdateVarsMessage() { netId = pickup.netId, payload = writer.ToArraySegment() });
+            NetworkServer.SendToClientOfPlayer(player.ReferenceHub.networkIdentity, new UpdateVarsMessage() {netId = pickup.netId, payload = writer.ToArraySegment()});
             NetworkWriterPool.Recycle(writer);
             NetworkWriterPool.Recycle(writer2);
         }
-        
+
         private static void MakeCustomSyncWriter(NetworkIdentity behaviorOwner, Type targetType, Action<NetworkWriter> customSyncObject, Action<NetworkWriter> customSyncVar, NetworkWriter owner, NetworkWriter observer)
         {
             ulong dirty = 0ul;
             ulong dirty_o = 0ul;
             NetworkBehaviour behaviour = null;
-            for(int i = 0; i < behaviorOwner.NetworkBehaviours.Length; i++)
+            for (int i = 0; i < behaviorOwner.NetworkBehaviours.Length; i++)
             {
                 behaviour = behaviorOwner.NetworkBehaviours[i];
-                if(behaviour.GetType() == targetType)
+                if (behaviour.GetType() == targetType)
                 {
                     dirty |= 1UL << i;
-                    if(behaviour.syncMode == SyncMode.Observers) dirty_o |= 1UL << i;
+                    if (behaviour.syncMode == SyncMode.Observers) dirty_o |= 1UL << i;
                 }
             }
+
             owner.WritePackedUInt64(dirty);
             observer.WritePackedUInt64(dirty & dirty_o);
 
@@ -138,7 +140,7 @@ namespace SCPStats.Hats
             owner.WriteInt32(0);
             int position2 = owner.Position;
 
-            if(customSyncObject != null)
+            if (customSyncObject != null)
                 customSyncObject.Invoke(owner);
             else
                 behaviour.SerializeObjectsDelta(owner);
@@ -150,7 +152,7 @@ namespace SCPStats.Hats
             owner.WriteInt32(position3 - position2);
             owner.Position = position3;
 
-            if(dirty_o != 0ul)
+            if (dirty_o != 0ul)
             {
                 ArraySegment<byte> arraySegment = owner.ToArraySegment();
                 observer.WriteBytes(arraySegment.Array, position, owner.Position - position);

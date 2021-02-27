@@ -245,8 +245,20 @@ namespace SCPStats
         {
             if (!ev.Pickup || !ev.Pickup.gameObject) return;
             
-            if (ev.Pickup.gameObject.TryGetComponent<HatItemComponent>(out _))
+            if (ev.Pickup.gameObject.TryGetComponent<HatItemComponent>(out var hat))
             {
+                if (ev.Player?.UserId != null && !ev.Player.IsHost && ev.Player.IsVerified && ev.Player.IPAddress != "127.0.0.WAN" && ev.Player.IPAddress != "127.0.0.1")
+                {
+                    if (hat.player != null && hat.player.gameObject == ev.Player?.GameObject)
+                    {
+                        HatCommand.RemoveHat(hat.player);
+                    }
+                    else if(SCPStats.Singleton?.Config.DisplayHatHint ?? true)
+                    {
+                        ev.Player.ShowHint("You can get a hat like this at https://patreon.com/SCPStats.", 2f);
+                    }
+                }
+                
                 ev.IsAllowed = false;
                 return;
             }

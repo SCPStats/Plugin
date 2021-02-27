@@ -164,7 +164,7 @@ namespace SCPStats.Hats
             }
         }
 
-        private static bool RemoveHat(HatPlayerComponent playerComponent)
+        internal static bool RemoveHat(HatPlayerComponent playerComponent)
         {
             if (playerComponent.item == null) return false;
             

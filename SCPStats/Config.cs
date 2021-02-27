@@ -36,6 +36,9 @@ namespace SCPStats
         [Description("This is the amount of time (in seconds) that hats positions and will be updated in. The lower the number, the smoother the hats will look, but it will also put more load on the server.")]
         public float HatUpdateTime { get; set; } = .4f;
 
+        [Description("SCPStats will send a message to players attempting to pick up hats informing them where they can go to get one themselves.")]
+        public bool DisplayHatHint { get; set; } = true;
+
         [Description("If you enable this option, bans will automatically be synced across every server linked together.")]
         public bool SyncBans { get; set; } = false;
     }
