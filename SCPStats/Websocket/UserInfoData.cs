@@ -17,11 +17,11 @@
 
             IsBooster = length > 0 && flags[0] == "1";
             IsDiscordMember = length > 1 && flags[1] == "1";
-            DiscordRoles = length > 2 ? flags[2].Split('|') : new string[]{};
+            DiscordRoles = length > 2 && flags[2] != "0" ? flags[2].Split('|') : new string[]{};
             HasHat = length > 3 && flags[3] == "1";
             HatID = length > 4 ? flags[4] : "-1";
-            Ranks = length > 5 ? flags[5].Split('|') : new string[]{};
-            Stats = length > 6 ? flags[6].Split('|') : new string[]{};
+            Ranks = length > 5 && flags[5] != "0" ? flags[5].Split('|') : new string[]{};
+            Stats = length > 6 && flags[6] != "0" ? flags[6].Split('|') : new string[]{};
             IsBanned = length > 7 && flags[7] == "1";
         }
     }
