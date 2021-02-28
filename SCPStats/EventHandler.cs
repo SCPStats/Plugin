@@ -360,5 +360,12 @@ namespace SCPStats
 
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"3\",\"playerId\":\""+Helper.HandleId(ev.Player)+"\",\"message\":\"Unspecified\"}");
         }
+        
+        internal static void OnIntercomMute(ChangingIntercomMuteStatusEventArgs ev)
+        {
+            if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !ev.IsAllowed || !ev.IsMuted) return;
+
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"4\",\"playerId\":\""+Helper.HandleId(ev.Player)+"\",\"message\":\"Unspecified\"}");
+        }
     }
 }

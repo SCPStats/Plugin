@@ -82,6 +82,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Banned += EventHandler.OnBan;
             Exiled.Events.Handlers.Player.Kicked += EventHandler.OnKick;
             Exiled.Events.Handlers.Player.ChangingMuteStatus += EventHandler.OnMute;
+            Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus += EventHandler.OnIntercomMute;
         }
 
         public override void OnDisabled()
@@ -109,6 +110,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;
             Exiled.Events.Handlers.Player.Kicked -= EventHandler.OnKick;
             Exiled.Events.Handlers.Player.ChangingMuteStatus -= EventHandler.OnMute;
+            Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus -= EventHandler.OnIntercomMute;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
