@@ -19,7 +19,8 @@ namespace SCPStats.Websocket
             {"0", "Warning"},
             {"1", "Ban"},
             {"2", "Kick"},
-            {"3", "Mute"}
+            {"3", "Mute"},
+            {"4", "Intercom Mute"}
         };
 
         internal static IEnumerator<float> DequeueRequests()
