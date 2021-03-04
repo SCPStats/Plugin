@@ -255,12 +255,15 @@ namespace SCPStats
             
             if (ev.IsEscaped)
             {
-                WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"role\": \""+((int) ev.Player.Role).ToString()+"\"}");
+                var cuffer = ev.Player.IsCuffed ? Player.Get(ev.Player.CufferId) : null;
+                var cufferRole = cuffer != null ? ((int) cuffer.Role).ToString() : null;
+                
+                WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cuffer+"\",\"cufferrole\":\""+cufferRole+"\"}");
             }
 
             if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
             
-            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"spawnrole\": \""+((int) ev.NewRole).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"spawnrole\":\""+((int) ev.NewRole).ToString()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
