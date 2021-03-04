@@ -362,7 +362,7 @@ namespace SCPStats
         
         internal static void OnKick(KickedEventArgs ev)
         {
-            if (ev.Reason.StartsWith("[SCPStats]") || ev.Reason.StartsWith("VPNs and proxies are forbidden") || ev.Reason.StartsWith("<size=70><color=red>You are banned.") || ev.Reason.StartsWith("Your account must be at least") || ev.Reason.StartsWith("You have been banned.") || ev.Reason.StartsWith("[Kicked by uAFK]") || ev.Reason.StartsWith("You were AFK") || ev.Reason.EndsWith("[Anty-AFK]") || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || JustJoined.Contains(ev.Target.UserId) || !ev.IsAllowed) return;
+            if (ev.Reason.StartsWith("[SCPStats]") || ev.Reason.StartsWith("VPNs and proxies are forbidden") || ev.Reason.StartsWith("<size=70><color=red>You are banned.") || ev.Reason.StartsWith("Your account must be at least") || ev.Reason.StartsWith("You have been banned.") || ev.Reason.StartsWith("[Kicked by uAFK]") || ev.Reason.StartsWith("You were AFK") || ev.Reason.EndsWith("[Anty-AFK]") || ev.Reason.EndsWith("[Anty AFK]") || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || JustJoined.Contains(ev.Target.UserId) || !ev.IsAllowed) return;
 
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target)+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\"", "\\\"")+"\"}");
         }
