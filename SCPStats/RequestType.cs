@@ -19,6 +19,7 @@
         DeleteWarnings = 17,
         Win = 18,
         Lose = 19,
-        InvalidateBan = 20
+        InvalidateBan = 20,
+        KillDeath = 21
     }
 }

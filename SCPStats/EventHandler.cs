@@ -211,20 +211,35 @@ namespace SCPStats
         {
             if (ev.Target?.UserId == null || ev.Target.IsGodModeEnabled || PausedPlayers.Contains(ev.Target.UserId) || ev.Target.IsHost || !ev.Target.IsVerified || PauseRound || !ev.IsAllowed || !Helper.IsPlayerValid(ev.Target, false) || !RoundSummary.RoundInProgress()) return;
 
+            string killerID = null;
+            string killerRole = null;
+
+            string targetID = null;
+            string targetRole = null;
+            
             if (!ev.Target.DoNotTrack && ev.Target.IPAddress != "127.0.0.WAN" && ev.Target.IPAddress != "127.0.0.1")
             {
-                WebsocketHandler.SendRequest(RequestType.Death, "{\"playerid\": \""+Helper.HandleId(ev.Target)+"\", \"killerrole\": \""+(ev.Killer == null ? ((int) ev.Target.Role).ToString() : ((int) ev.Killer.Role).ToString())+"\", \"playerrole\": \""+((int) ev.Target.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+                targetID = Helper.HandleId(ev.Target);
+                targetRole = ((int) ev.Target.Role).ToString();
             }
 
             if (ev.HitInformation.GetDamageType() == DamageTypes.Pocket && PocketPlayers.TryGetValue(Helper.HandleId(ev.Target), out var killer))
             {
-                WebsocketHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+killer+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) RoleType.Scp106).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
-                return;
+                killerID = killer;
+                killerRole = ((int) RoleType.Scp106).ToString();
             }
-            
-            if (ev.Killer?.UserId == null || ev.Killer.IsGodModeEnabled || PausedPlayers.Contains(ev.Killer.UserId) || ev.Killer.IsHost || !ev.Killer.IsVerified || ev.Killer.IPAddress == "127.0.0.WAN" || ev.Killer.IPAddress == "127.0.0.1" || ev.Killer.UserId == ev.Target.UserId || ev.Killer.DoNotTrack || !Helper.IsPlayerValid(ev.Killer, false)) return;
+            else if (ev.Killer?.UserId != null && !ev.Killer.IsGodModeEnabled && !PausedPlayers.Contains(ev.Killer.UserId) && !ev.Killer.IsHost && ev.Killer.IsVerified && ev.Killer.IPAddress != "127.0.0.WAN" && ev.Killer.IPAddress != "127.0.0.1" && ev.Killer.UserId != ev.Target.UserId && !ev.Killer.DoNotTrack && Helper.IsPlayerValid(ev.Killer, false))
+            {
+                killerID = Helper.HandleId(ev.Killer.UserId);
+                killerRole = ((int) ev.Killer.Role).ToString();
+            }
 
-            WebsocketHandler.SendRequest(RequestType.Kill, "{\"playerid\": \""+Helper.HandleId(ev.Killer)+"\", \"targetrole\": \""+((int) ev.Target.Role).ToString()+"\", \"playerrole\": \""+((int) ev.Killer.Role).ToString()+"\", \"damagetype\": \""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+            if (killerID == null && targetID == null) return;
+            
+            killerRole = killerID == null ? null : killerRole;
+            targetRole = targetID == null ? null : targetRole;
+            
+            WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\": \""+killerID+"\",\"killerRole\":\""+killerRole+"\",\"targetID\":\""+targetID+"\",\"targetRole\":\""+targetRole+"\",\"damageType\":\""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
