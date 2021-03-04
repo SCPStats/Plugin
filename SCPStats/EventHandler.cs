@@ -21,6 +21,7 @@ namespace SCPStats
         private static bool firstJoin = true;
 
         private static Dictionary<string, string> PocketPlayers = new Dictionary<string, string>();
+        private static List<string> JustJoined = new List<string>();
 
         internal static bool RanServer = false;
 
@@ -40,6 +41,8 @@ namespace SCPStats
             
             SpawnsDone.Clear();
             PausedPlayers.Clear();
+            PocketPlayers.Clear();
+            JustJoined.Clear();
 
             PauseRound = false;
         }
@@ -154,6 +157,8 @@ namespace SCPStats
             coroutines.Clear();
             
             SpawnsDone.Clear();
+            PocketPlayers.Clear();
+            JustJoined.Clear();
         }
 
         internal static IEnumerator<float> SendWinsLose(EndingRoundEventArgs ev)
@@ -187,6 +192,8 @@ namespace SCPStats
             coroutines.Clear();
             
             SpawnsDone.Clear();
+            PocketPlayers.Clear();
+            JustJoined.Clear();
         }
 
         internal static void Waiting()
@@ -290,6 +297,12 @@ namespace SCPStats
                 WebsocketHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
             });
             
+            JustJoined.Add(ev.Player.UserId);
+            Timing.CallDelayed(10f, () =>
+            {
+                JustJoined.Remove(ev.Player.UserId);
+            });
+            
             if (!Round.IsStarted && Players.Contains(ev.Player.UserId) || ev.Player.DoNotTrack) return;
 
             WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\"}");
@@ -349,7 +362,7 @@ namespace SCPStats
         
         internal static void OnKick(KickedEventArgs ev)
         {
-            if (ev.Reason.StartsWith("[SCPStats]") || ev.Reason.StartsWith("Your account must be at least") || ev.Reason.StartsWith("You have been banned.") || ev.Reason.StartsWith("[Kicked by uAFK]") || ev.Reason.StartsWith("You were AFK") || ev.Reason.EndsWith("[Anty-AFK]") || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || !ev.IsAllowed) return;
+            if (ev.Reason.StartsWith("[SCPStats]") || ev.Reason.StartsWith("VPNs and proxies are forbidden") || ev.Reason.StartsWith("<size=70><color=red>You are banned.") || ev.Reason.StartsWith("Your account must be at least") || ev.Reason.StartsWith("You have been banned.") || ev.Reason.StartsWith("[Kicked by uAFK]") || ev.Reason.StartsWith("You were AFK") || ev.Reason.EndsWith("[Anty-AFK]") || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || JustJoined.Contains(ev.Target.UserId) || !ev.IsAllowed) return;
 
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target)+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\"", "\\\"")+"\"}");
         }
