@@ -256,9 +256,11 @@ namespace SCPStats
             if (ev.IsEscaped)
             {
                 var cuffer = ev.Player.IsCuffed ? Player.Get(ev.Player.CufferId) : null;
-                var cufferRole = cuffer != null ? ((int) cuffer.Role).ToString() : null;
                 
-                WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cuffer+"\",\"cufferrole\":\""+cufferRole+"\"}");
+                var cufferRole = cuffer != null ? ((int) cuffer.Role).ToString() : null;
+                var cufferID = cuffer != null ? Helper.HandleId(cuffer) : null;
+
+                WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
             }
 
             if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;

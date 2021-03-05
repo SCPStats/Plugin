@@ -81,12 +81,12 @@ namespace SCPStats
         
         internal static string HandleId(string id)
         {
-            return id.Split('@')[0];
+            return id?.Split('@')[0];
         }
 
         internal static string HandleId(Player player)
         {
-            return HandleId(player.UserId);
+            return HandleId(player?.UserId);
         }
     }
 }
