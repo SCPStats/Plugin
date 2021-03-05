@@ -18,9 +18,9 @@ namespace SCPStats
 
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/getid"))
             {
-                var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
+                var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.ServerID + "\"}";
                 
-                requestMessage.Headers.Add("Signature", Helper.HmacSha256Digest(SCPStats.Singleton.Config.Secret, str));
+                requestMessage.Headers.Add("Signature", Helper.HmacSha256Digest(SCPStats.Secret, str));
                 requestMessage.Content = new StringContent(str, Encoding.UTF8, "application/json");
                 try
                 {
@@ -56,9 +56,9 @@ namespace SCPStats
             
             using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://scpstats.com/verify"))
             {
-                var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.Singleton.Config.ServerId + "\"}";
+                var str = "{\"ip\": \"" + ServerConsole.Ip + "\",\"port\": \"" + ServerConsole.Port + "\",\"id\": \"" + SCPStats.ServerID + "\"}";
                 
-                requestMessage.Headers.Add("Signature", Helper.HmacSha256Digest(SCPStats.Singleton.Config.Secret, str));
+                requestMessage.Headers.Add("Signature", Helper.HmacSha256Digest(SCPStats.Secret, str));
                 requestMessage.Content = new StringContent(str, Encoding.UTF8, "application/json");
                 try
                 {

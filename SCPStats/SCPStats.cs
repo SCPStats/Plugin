@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
@@ -20,18 +22,25 @@ namespace SCPStats
 
         internal static SCPStats Singleton;
 
+        internal static string ServerID = "fill this";
+        internal static string Secret = "fill this";
+
         internal string ID = "";
 
         private static Harmony harmony;
 
         private CoroutineHandle update;
         private CoroutineHandle requests;
+        
+        private static Regex AlphaNums = new Regex("[^A-Za-z0-9]");
 
         public override void OnEnabled()
         {
             Singleton = this;
+            
+            LoadConfigs();
 
-            if (Config.Secret == "fill this" || Config.ServerId == "fill this")
+            if (Secret == "fill this" || ServerID == "fill this")
             {
                 Log.Warn("Config for SCPStats has not been filled out correctly. Disabling!");
                 this.OnUnregisteringCommands();
@@ -78,12 +87,58 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.MedicalItemDequipped += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
+            Exiled.Events.Handlers.Server.ReloadedConfigs += LoadConfigs;
             Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.Banned += EventHandler.OnBan;
             Exiled.Events.Handlers.Player.Kicked += EventHandler.OnKick;
             Exiled.Events.Handlers.Player.ChangingMuteStatus += EventHandler.OnMute;
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus += EventHandler.OnIntercomMute;
+        }
+
+        private static void LoadConfigs()
+        {
+            if (Singleton == null) return;
+            if (!Singleton.Config.SeparateConfig)
+            {
+                ServerID = Singleton.Config.ServerId;
+                Secret = Singleton.Config.Secret;
+
+                return;
+            }
+
+            if (Paths.Config == null) return;
+
+            var path = Path.Combine(Paths.Config, "SCPStats");
+            Directory.CreateDirectory(path);
+
+            var serverIdPath = Path.Combine(path, ServerConsole.Port + "-ServerID.txt");
+            var secretPath = Path.Combine(path, ServerConsole.Port + "-Secret.txt");
+
+            var flag = false;
+            
+            if (!File.Exists(serverIdPath))
+            {
+                var stream = File.CreateText(serverIdPath);
+                stream.Write("fill this");
+                stream.Dispose();
+                
+                flag = true;
+            }
+            
+            if (!File.Exists(secretPath))
+            {
+                var stream = File.CreateText(secretPath);
+                stream.Write("fill this");
+                stream.Dispose();
+                
+                flag = true;
+            }
+
+            if (flag) return;
+
+            ServerID = AlphaNums.Replace(File.ReadAllText(serverIdPath), "");
+            Secret = AlphaNums.Replace(File.ReadAllText(secretPath), "");
         }
 
         public override void OnDisabled()
@@ -106,6 +161,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.MedicalItemDequipped -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
+            Exiled.Events.Handlers.Server.ReloadedConfigs -= LoadConfigs;
             Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;
@@ -118,6 +174,8 @@ namespace SCPStats
 
             UnbanPatch.LastId = null;
 
+            ServerID = null;
+            Secret = null;
             Singleton = null;
 
             base.OnDisabled();

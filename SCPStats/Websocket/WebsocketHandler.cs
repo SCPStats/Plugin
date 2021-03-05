@@ -34,7 +34,7 @@ namespace SCPStats.Websocket
             }
             
             var str = ((int) type).ToString().PadLeft(2, '0')+data;
-            var message = "p" + SCPStats.Singleton.Config.ServerId + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Singleton.Config.Secret, str);
+            var message = "p" + SCPStats.ServerID + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Secret, str);
 
             WebsocketThread.Queue.Enqueue(message);
             WebsocketThread.Signal.Set();

@@ -14,6 +14,9 @@ namespace SCPStats
         [Description("The Secret for your server. This should be treated like a password. You must register your server at https://scpstats.com to obtain this.")]
         public string Secret { get; set; } = "fill this";
 
+        [Description("Enabling this will create a separate config file (located next to the plugin config in the SCPStats directory) for SCPStats' Server ID and Secret. This can help you keep them secure, as well as make updating servers much easier. If you host multiple servers, it is highly recommended that you use this option.")]
+        public bool SeparateConfig { get; set; } = false;
+
         [Description("Turning this off will disable the auto updater, which will automatically update the plugin.")]
         public bool AutoUpdates { get; set; } = true;
 
