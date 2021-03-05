@@ -107,13 +107,13 @@ namespace SCPStats
                 return;
             }
 
-            if (Paths.Config == null) return;
+            if (Paths.Configs == null) return;
 
-            var path = Path.Combine(Paths.Config, "SCPStats");
+            var path = Path.Combine(Paths.Configs, "SCPStats");
             Directory.CreateDirectory(path);
 
-            var serverIdPath = Path.Combine(path, ServerConsole.Port + "-ServerID.txt");
-            var secretPath = Path.Combine(path, ServerConsole.Port + "-Secret.txt");
+            var serverIdPath = Path.Combine(path, Server.Port + "-ServerID.txt");
+            var secretPath = Path.Combine(path, Server.Port + "-Secret.txt");
 
             var flag = false;
             
