@@ -10,6 +10,57 @@ namespace SCPStats
 {
     internal static class Helper
     {
+        internal static Dictionary<string, string> RoundSummaryMetrics = new Dictionary<string, string>()
+        {
+            {"kills", "Kills"},
+            {"kill", "Kills"},
+            {"playerkills", "PlayerKills"},
+            {"playerkill", "PlayerKills"},
+            {"scpkills", "ScpKills"},
+            {"scpkill", "ScpKills"},
+            {"deaths", "Deaths"},
+            {"death", "Deaths"},
+            {"dies", "Deaths"},
+            {"die", "Deaths"},
+            {"sodas", "Sodas"},
+            {"soda", "Sodas"},
+            {"cokes", "Sodas"},
+            {"coke", "Sodas"},
+            {"colas", "Sodas"},
+            {"cola", "Sodas"},
+            {"scp207s", "Sodas"},
+            {"scp207", "Sodas"},
+            {"scp-207s", "Sodas"},
+            {"scp-207", "Sodas"},
+            {"medkits", "Medkits"},
+            {"medkit", "Medkits"},
+            {"health", "Medkits"},
+            {"healthpack", "Medkits"},
+            {"healthpacks", "Medkits"},
+            {"balls", "Balls"},
+            {"ball", "Balls"},
+            {"scp018s", "Balls"},
+            {"scp018", "Balls"},
+            {"scp18s", "Balls"},
+            {"scp18", "Balls"},
+            {"scp-018s", "Balls"},
+            {"scp-018", "Balls"},
+            {"scp-18s", "Balls"},
+            {"scp-18", "Balls"},
+            {"adrenaline", "Adrenaline"},
+            {"adrenalines", "Adrenaline"},
+            {"escape", "Escapes"},
+            {"escapes", "Escapes"},
+            {"leaderboard", "Xp"},
+            {"leaderboards", "Xp"},
+            {"xp", "Xp"},
+            {"xps", "Xp"},
+            {"fastestescape", "FastestEscape"},
+            {"fastescape", "FastestEscape"},
+            {"quickestescape", "FastestEscape"},
+            {"quickescape", "FastestEscape"}
+        };
+        
         internal static Dictionary<string, int> Rankings = new Dictionary<string, int>()
         {
             {"kills", 0},

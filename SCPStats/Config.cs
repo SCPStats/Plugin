@@ -44,5 +44,17 @@ namespace SCPStats
 
         [Description("If you enable this option, bans will automatically be synced across every server linked together.")]
         public bool SyncBans { get; set; } = false;
+
+        [Description("If set, this will display a broadcast on round end containing information about the game (such as who had the most kills and how many they had). In this, you can use variables that follow the format {type_metric_pos} or {num_type_metric_pos} (num means that it will display the value of the metric instad of the player), and can include a message if no one got any stats in the specified metric with {type_metric_pos;default message}. Type can be \"score\" or \"order\". Score sorts by their score, while order sorts by who did it first. Pos is the position in the leaderboard. For example, \"{score_kills_1;No one} got {num_score_kills_1;any} kills.\" will show the person who got the most kills and how many they got.")]
+        public string RoundSummaryBroadcast { get; set; } = "none";
+
+        [Description("How long the round summary broadcast should last.")]
+        public ushort RoundSummaryBroadcastDuration { get; set; } = 3;
+
+        [Description("This field is exactly the same as RoundSummaryBroadcast, but sends a message to player's console instead of as a broadcast.")]
+        public string RoundSummaryConsoleMessage { get; set; } = "none";
+
+        [Description("What color the round summary console message is.")]
+        public string RoundSummaryConsoleMessageColor { get; set; } = "yellow";
     }
 }

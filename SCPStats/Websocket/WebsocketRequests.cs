@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Exiled.API.Features;
 using Exiled.Loader;
 using MEC;
+using SCPStats.Data;
 using SCPStats.Hats;
+using Broadcast = Exiled.API.Features.Broadcast;
 
 namespace SCPStats.Websocket
 {
@@ -42,6 +45,10 @@ namespace SCPStats.Websocket
                     else if (info.StartsWith("wd"))
                     {
                         HandleDeleteWarning(info.Substring(2));
+                    }
+                    else if (info.StartsWith("rs"))
+                    {
+                        HandleRoundSummary(info.Substring(2));
                     }
                 }
             }
@@ -208,7 +215,7 @@ namespace SCPStats.Websocket
                 var type = parts[0 + offset].Trim().ToLower();
                 if (!Helper.Rankings.ContainsKey(type))
                 {
-                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", \"adrenaline\".");
+                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"xp\", \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", and \"adrenaline\".");
                     return false;
                 }
 
@@ -266,6 +273,127 @@ namespace SCPStats.Websocket
             }
 
             p.GameObject.AddComponent(component);
+        }
+        
+        private static Regex RoundSummaryVariable = new Regex("({.+})");
+
+        private static void HandleRoundSummary(string info)
+        {
+            if (SCPStats.Singleton == null) return;
+            
+            var stats = new RoundStatsData(info);
+
+            var broadcast = "";
+            var consoleMessage = "";
+            
+            if (SCPStats.Singleton.Config.RoundSummaryBroadcast != "none")
+            {
+                broadcast = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryBroadcast, match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2)));
+            }
+            
+            if (SCPStats.Singleton.Config.RoundSummaryConsoleMessage != "none")
+            {
+                consoleMessage = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryConsoleMessage, match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2)));
+            }
+            
+            foreach (var player in Player.List)
+            {
+                if(broadcast != "") player.Broadcast(SCPStats.Singleton.Config.RoundSummaryBroadcastDuration, broadcast);
+                if(consoleMessage != "") player.SendConsoleMessage(consoleMessage, SCPStats.Singleton.Config.RoundSummaryConsoleMessageColor);
+            }
+        }
+
+        private static List<string> BlacklistedOrderMetrics = new List<string>()
+        {
+            "FastestEscape",
+            "Xp"
+        };
+        
+        private static string HandleRoundSummaryVariable(RoundStatsData roundStats, string text)
+        {
+            var parts = text.Split(';').ToList();
+            if (parts.Count < 1) return "";
+
+            var query = parts[0].Trim().ToLower();
+            
+            parts.RemoveAt(0);
+            var defaultVal = string.Join(";", parts);
+
+            var queryParts = query.Split('_').ToList();
+            if (queryParts.Count < 3)
+            {
+                Log.Error("Error parsing variable \"{"+text+"}\" for the round end message! Expected \"{type_metric_pos}\".");
+                return "";
+            }
+
+            var posStr = queryParts[queryParts.Count - 1].Trim();
+            var metricStr = queryParts[queryParts.Count - 2].Trim().ToLower();
+            var type = queryParts[queryParts.Count - 3].Trim().ToLower();
+            
+            queryParts.RemoveRange(queryParts.Count - 3, 3);
+
+            if (!Helper.RoundSummaryMetrics.TryGetValue(metricStr, out var metric))
+            {
+                Log.Error("Error parsing variable \"{"+text+"}\" for the round end message! Got unknown metric \""+metricStr+"\". Valid metrics are: \"xp\", \"kills\", \"playerkills\", \"scpkills\", \"deaths\", \"sodas\", \"medkits\", \"balls\", and \"adrenaline\".");
+                return "";
+            }
+
+            if (type != "score" && type != "order")
+            {
+                Log.Error("Error parsing variable \"{"+text+"}\" for the round end message! Got unknown type \""+type+"\". Valid types are: \"score\" and \"order\".");
+                return "";
+            }
+
+            if (type == "order" && BlacklistedOrderMetrics.Contains(metric))
+            {
+                Log.Error("Error parsing variable \"{"+text+"}\" for the round end message! The metric you have chosen (\""+metric+"\") is invalid for the order type.");
+                return "";
+            }
+
+            if (!int.TryParse(posStr, out var pos))
+            {
+                Log.Error("Error parsing variable \"{"+text+"}\" for the round end message! Pos should be an int, got \""+posStr+"\" instead.");
+                return "";
+            }
+
+            var isNum = false;
+            
+            foreach (var queryPart in queryParts)
+            {
+                switch (queryPart)
+                {
+                    case "num":
+                        isNum = true;
+                        break;
+                    default:
+                        Log.Error("Error parsing variable \"{"+text+"}\" for the round end message! Got unknown flag \""+queryPart+"\". Valid flags are: \"num\".");
+                        return "";
+                }
+            }
+
+            return GetRoundSummaryVariable(roundStats, defaultVal, metric, type, pos, isNum);
+        }
+
+        private static string GetRoundSummaryVariable(RoundStatsData roundStats, string defaultVal, string metric, string type, int pos, bool isNum)
+        {
+            var list = (string[]) typeof(RoundStatsData).GetProperty(metric+(type == "score" ? "ByScore" : "ByOrder"))?.GetValue(roundStats);
+            if (list == null) return "";
+
+            if (list.Length < pos + 1)
+            {
+                return defaultVal;
+            }
+
+            var player = list[pos];
+            var playerObj = Player.Get(list[pos]);
+
+            if (player == null || playerObj == null)
+            {
+                return defaultVal;
+            }
+
+            if (!isNum) return playerObj.DisplayNickname;
+            return roundStats.PlayerStats.TryGetValue(player, out var stats) ? ((int) (typeof(Stats).GetProperty(metric)?.GetValue(stats) ?? 0)).ToString() : "0";
         }
     }
 }

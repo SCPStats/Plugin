@@ -1,4 +1,4 @@
-﻿namespace SCPStats
+﻿namespace SCPStats.Data
 {
     public struct UserInfoData
     {
