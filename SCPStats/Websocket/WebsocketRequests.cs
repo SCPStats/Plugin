@@ -275,12 +275,12 @@ namespace SCPStats.Websocket
             p.GameObject.AddComponent(component);
         }
         
-        private static Regex RoundSummaryVariable = new Regex("({.+})");
+        private static Regex RoundSummaryVariable = new Regex("({.*?})");
 
         private static void HandleRoundSummary(string info)
         {
             if (SCPStats.Singleton == null) return;
-            
+
             var stats = new RoundStatsData(info);
 
             var broadcast = "";
@@ -379,21 +379,21 @@ namespace SCPStats.Websocket
             var list = (string[]) typeof(RoundStatsData).GetProperty(metric+(type == "score" ? "ByScore" : "ByOrder"))?.GetValue(roundStats);
             if (list == null) return "";
 
-            if (list.Length < pos + 1)
+            if (list.Length < pos)
             {
                 return defaultVal;
             }
 
-            var player = list[pos];
-            var playerObj = Player.Get(list[pos]);
+            var player = list[pos-1];
+            var playerObj = Player.List.FirstOrDefault(pl => Helper.HandleId(pl) == player);
 
             if (player == null || playerObj == null)
             {
                 return defaultVal;
             }
-
-            if (!isNum) return playerObj.DisplayNickname;
-            return roundStats.PlayerStats.TryGetValue(player, out var stats) ? ((int) (typeof(Stats).GetProperty(metric)?.GetValue(stats) ?? 0)).ToString() : "0";
+            
+            if (!isNum) return playerObj.Nickname;
+            return roundStats.PlayerStats.TryGetValue(player, out var stats) ? ((int) (typeof(Stats).GetField(metric)?.GetValue(stats) ?? 0)).ToString() : "0";
         }
     }
 }
