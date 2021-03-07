@@ -228,13 +228,13 @@ namespace SCPStats.Commands
                 killerID = killer;
                 killerRole = ((int) RoleType.Scp106).ToString();
             }
-            else if (ev.Killer?.UserId != null && !ev.Killer.IsGodModeEnabled && !PausedPlayers.Contains(ev.Killer.UserId) && !ev.Killer.IsHost && ev.Killer.IsVerified && ev.Killer.IPAddress != "127.0.0.WAN" && ev.Killer.IPAddress != "127.0.0.1" && ev.Killer.UserId != ev.Target.UserId && !ev.Killer.DoNotTrack && Helper.IsPlayerValid(ev.Killer, false))
+            else if (ev.Killer?.UserId != null && !ev.Killer.IsHost && ev.Killer.IsVerified && ev.Killer.IPAddress != "127.0.0.WAN" && ev.Killer.IPAddress != "127.0.0.1" && ev.Killer.UserId != ev.Target.UserId && !ev.Killer.DoNotTrack && Helper.IsPlayerValid(ev.Killer, false))
             {
                 killerID = Helper.HandleId(ev.Killer.UserId);
                 killerRole = ((int) ev.Killer.Role).ToString();
             }
 
-            if (killerID == null && targetID == null) return;
+            if (killerID == null && targetID == null || ev.Killer != null && !ev.Killer.IsHost && killerID == null) return;
             
             killerRole = killerID == null ? null : killerRole;
             targetRole = targetID == null ? null : targetRole;
