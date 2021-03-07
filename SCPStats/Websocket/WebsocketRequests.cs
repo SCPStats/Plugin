@@ -286,12 +286,12 @@ namespace SCPStats.Commands.Websocket
             var broadcast = "";
             var consoleMessage = "";
             
-            if (SCPStats.Singleton.Config.RoundSummaryBroadcast != "none")
+            if (SCPStats.Singleton.Config.RoundSummaryBroadcastEnabled)
             {
                 broadcast = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryBroadcast, match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2)));
             }
             
-            if (SCPStats.Singleton.Config.RoundSummaryConsoleMessage != "none")
+            if (SCPStats.Singleton.Config.RoundSummaryConsoleMessageEnabled)
             {
                 consoleMessage = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryConsoleMessage, match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2)));
             }
