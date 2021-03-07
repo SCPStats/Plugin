@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Loader;
 
-namespace SCPStats
+namespace SCPStats.Commands
 {
     internal static class AutoUpdater
     {

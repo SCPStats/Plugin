@@ -6,10 +6,10 @@ using Exiled.API.Enums;
 using Exiled.API.Features;
 using HarmonyLib;
 using MEC;
-using SCPStats.Patches;
-using SCPStats.Websocket;
+using SCPStats.Commands.Patches;
+using SCPStats.Commands.Websocket;
 
-namespace SCPStats
+namespace SCPStats.Commands
 {
     public class SCPStats : Plugin<Config>
     {

@@ -1,4 +1,4 @@
-﻿namespace SCPStats.Data
+﻿namespace SCPStats.Commands.Websocket.Data
 {
     public struct UserInfoData
     {

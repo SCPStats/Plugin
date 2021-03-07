@@ -1,8 +1,8 @@
 ﻿using System;
 using HarmonyLib;
-using SCPStats.Websocket;
+using SCPStats.Commands.Websocket;
 
-namespace SCPStats.Patches
+namespace SCPStats.Commands.Patches
 {
     [HarmonyPatch(typeof(BanHandler), nameof(BanHandler.RemoveBan))]
     public class UnbanPatch

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Exiled.API.Features;
 using WebSocketSharp;
 
-namespace SCPStats
+namespace SCPStats.Commands
 {
     internal class WebsocketThread
     {

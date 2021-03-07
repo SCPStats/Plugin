@@ -1,7 +1,7 @@
 ﻿using Exiled.API.Features;
 using HarmonyLib;
 
-namespace SCPStats.Patches
+namespace SCPStats.Commands.Patches
 {
     [HarmonyPatch(typeof(CharacterClassManager), nameof(CharacterClassManager.NetworkNoclipEnabled), MethodType.Setter)]
     public class NoclipPatch

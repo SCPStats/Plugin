@@ -4,8 +4,9 @@ using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using RemoteAdmin;
+using SCPStats.Commands.Websocket;
 
-namespace SCPStats.Websocket.Warnings
+namespace SCPStats.Commands.Warnings
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class WarnCommand : ICommand

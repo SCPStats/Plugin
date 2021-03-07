@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace SCPStats.Websocket
+namespace SCPStats.Commands.Websocket
 {
     internal static class WebsocketHandler
     {

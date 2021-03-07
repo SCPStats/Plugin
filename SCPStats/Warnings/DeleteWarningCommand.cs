@@ -5,8 +5,9 @@ using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using MEC;
 using RemoteAdmin;
+using SCPStats.Commands.Websocket;
 
-namespace SCPStats.Websocket.Warnings
+namespace SCPStats.Commands.Warnings
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class DeleteWarningCommand : ICommand

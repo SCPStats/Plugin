@@ -3,7 +3,7 @@ using CommandSystem;
 using Exiled.Permissions.Extensions;
 using RemoteAdmin;
 
-namespace SCPStats
+namespace SCPStats.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class PauseStatsCommand : ICommand

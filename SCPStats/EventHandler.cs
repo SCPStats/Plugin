@@ -5,11 +5,11 @@ using Exiled.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
 using MEC;
-using SCPStats.Hats;
-using SCPStats.Websocket;
+using SCPStats.Commands.Hats;
+using SCPStats.Commands.Websocket;
 using Object = UnityEngine.Object;
 
-namespace SCPStats
+namespace SCPStats.Commands
 {
 #pragma warning disable 4014
     internal class EventHandler
