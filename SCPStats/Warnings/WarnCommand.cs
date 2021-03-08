@@ -17,6 +17,8 @@ namespace SCPStats.Commands.Warnings
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            var issuerID = "";
+            
             if (sender is PlayerCommandSender commandSender)
             {
                 var p = Player.Get(commandSender.ReferenceHub);
@@ -25,6 +27,8 @@ namespace SCPStats.Commands.Warnings
                     response = "You do not have permission to run this command!";
                     return true;
                 }
+
+                issuerID = Helper.HandleId(p);
             }
             
             if (arguments.Array == null || arguments.Array.Length < 2)
@@ -57,7 +61,7 @@ namespace SCPStats.Commands.Warnings
                 return true;
             }
             
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\"", "\\\"")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\"", "\\\"")+"\",\"issuer\":\""+issuerID+"\"}");
 
             response = "Added warning.";
             return true;
