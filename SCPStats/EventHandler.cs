@@ -368,12 +368,20 @@ namespace SCPStats.Commands
 
         internal static void OnEnterPocketDimension(EnteringPocketDimensionEventArgs ev)
         {
-            if (!ev.IsAllowed || ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || PausedPlayers.Contains(ev.Player.UserId) || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Player) || ev.Scp106?.UserId == null || ev.Scp106.IsGodModeEnabled || PausedPlayers.Contains(ev.Scp106.UserId) || ev.Scp106.IsHost || !ev.Scp106.IsVerified || ev.Scp106.IPAddress == "127.0.0.WAN" || ev.Scp106.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId) return;
+            var flag = false;
+            string playerID = null;
+            string scp106ID = null;
 
-            var playerID = Helper.HandleId(ev.Player);
-            var scp106ID = Helper.HandleId(ev.Scp106);
-            
+            if (!ev.IsAllowed || ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || PausedPlayers.Contains(ev.Player.UserId) || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Player)) flag = true;
+            else playerID = Helper.HandleId(ev.Player);
+
+            if (ev.Scp106?.UserId == null || ev.Scp106.IsGodModeEnabled || PausedPlayers.Contains(ev.Scp106.UserId) || ev.Scp106.IsHost || !ev.Scp106.IsVerified || ev.Scp106.IPAddress == "127.0.0.WAN" || ev.Scp106.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Scp106) || ev.Player.UserId == ev.Scp106.UserId) flag = true;
+            else scp106ID = Helper.HandleId(ev.Scp106);
+
+            if (scp106ID == null && playerID == null) return;
             WebsocketHandler.SendRequest(RequestType.PocketEnter, "{\"playerid\":\""+playerID+"\",\"playerrole\":\""+((int) ev.Player.Role).ToString()+"\",\"scp106\":\""+scp106ID+"\"}");
+
+            if (flag) return;
             PocketPlayers[playerID] = scp106ID;
         }
 
