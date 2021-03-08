@@ -20,6 +20,9 @@
         Win = 18,
         Lose = 19,
         InvalidateBan = 20,
-        KillDeath = 21
+        KillDeath = 21,
+        Revive = 22,
+        PocketEnter = 23,
+        PocketExit = 24
     }
 }

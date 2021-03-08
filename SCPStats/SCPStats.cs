@@ -90,10 +90,12 @@ namespace SCPStats.Commands
             Exiled.Events.Handlers.Server.ReloadedConfigs += LoadConfigs;
             Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
+            Exiled.Events.Handlers.Player.EscapingPocketDimension += EventHandler.OnEscapingPocketDimension;
             Exiled.Events.Handlers.Player.Banned += EventHandler.OnBan;
             Exiled.Events.Handlers.Player.Kicked += EventHandler.OnKick;
             Exiled.Events.Handlers.Player.ChangingMuteStatus += EventHandler.OnMute;
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus += EventHandler.OnIntercomMute;
+            Exiled.Events.Handlers.Scp049.FinishingRecall += EventHandler.OnRecalling;
         }
 
         private static void LoadConfigs()
@@ -164,10 +166,12 @@ namespace SCPStats.Commands
             Exiled.Events.Handlers.Server.ReloadedConfigs -= LoadConfigs;
             Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
+            Exiled.Events.Handlers.Player.EscapingPocketDimension -= EventHandler.OnEscapingPocketDimension;
             Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;
             Exiled.Events.Handlers.Player.Kicked -= EventHandler.OnKick;
             Exiled.Events.Handlers.Player.ChangingMuteStatus -= EventHandler.OnMute;
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus -= EventHandler.OnIntercomMute;
+            Exiled.Events.Handlers.Scp049.FinishingRecall -= EventHandler.OnRecalling;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
