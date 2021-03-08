@@ -373,7 +373,7 @@ namespace SCPStats.Commands
             var playerID = Helper.HandleId(ev.Player);
             var scp106ID = Helper.HandleId(ev.Scp106);
             
-            WebsocketHandler.SendRequest(RequestType.PocketEnter, "{\"playerid\":\""+playerID+"\",\"scp106\":\""+scp106ID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.PocketEnter, "{\"playerid\":\""+playerID+"\",\"playerrole\":\""+((int) ev.Player.Role).ToString()+"\",\"scp106\":\""+scp106ID+"\"}");
             PocketPlayers[playerID] = scp106ID;
         }
 
@@ -385,7 +385,7 @@ namespace SCPStats.Commands
             var scp106ID = "";
             PocketPlayers.TryGetValue(playerID, out scp106ID);
             
-            WebsocketHandler.SendRequest(RequestType.PocketExit, "{\"playerid\":\""+playerID+"\",\"scp106\":\""+scp106ID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.PocketExit, "{\"playerid\":\""+playerID+"\",\"playerrole\":\""+((int) ev.Player.Role).ToString()+"\",\"scp106\":\""+scp106ID+"\"}");
         }
 
         internal static void OnBan(BannedEventArgs ev)
@@ -420,7 +420,7 @@ namespace SCPStats.Commands
         {
             if (!ev.IsAllowed || ev.Target?.UserId == null || ev.Target.IsGodModeEnabled || PausedPlayers.Contains(ev.Target.UserId) || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Target) || ev.Scp049?.UserId == null || ev.Scp049.IsGodModeEnabled || PausedPlayers.Contains(ev.Scp049.UserId) || ev.Scp049.IsHost || !ev.Scp049.IsVerified || ev.Scp049.IPAddress == "127.0.0.WAN" || ev.Scp049.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Scp049) || ev.Target.UserId == ev.Scp049.UserId) return;
 
-            WebsocketHandler.SendRequest(RequestType.Revive, "{\"playerid\":\""+Helper.HandleId(ev.Target)+"\",\"scp106\":\""+Helper.HandleId(ev.Scp049)+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Revive, "{\"playerid\":\""+Helper.HandleId(ev.Target)+"\",\"playerrole\":\""+((int) ev.Target.Role).ToString()+"\",\"scp049\":\""+Helper.HandleId(ev.Scp049)+"\"}");
         }
     }
 }
