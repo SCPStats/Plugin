@@ -55,7 +55,7 @@ namespace SCPStats.Commands.Warnings
             }
 
             var msgId = WebsocketRequests.Random.Next(1000, 9999).ToString();
-            foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl)) WebsocketRequests.MessageIDs.Remove(keys.Key);
+            foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl).ToList()) WebsocketRequests.MessageIDs.Remove(keys.Key);
             WebsocketRequests.MessageIDs[msgId] = pl;
             
             WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
