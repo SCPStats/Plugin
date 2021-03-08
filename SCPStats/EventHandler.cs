@@ -212,10 +212,10 @@ namespace SCPStats.Commands
             if (ev.Target?.UserId == null || ev.Target.IsGodModeEnabled || PausedPlayers.Contains(ev.Target.UserId) || ev.Target.IsHost || !ev.Target.IsVerified || PauseRound || !ev.IsAllowed || !Helper.IsPlayerValid(ev.Target, false) || !RoundSummary.RoundInProgress()) return;
 
             string killerID = null;
-            string killerRole = null;
+            var killerRole = ev.Killer?.Role != null ? ((int) ev.Killer.Role).ToString() : null;
 
             string targetID = null;
-            string targetRole = null;
+            var targetRole = ((int) ev.Target.Role).ToString();
             
             if (!ev.Target.DoNotTrack && ev.Target.IPAddress != "127.0.0.WAN" && ev.Target.IPAddress != "127.0.0.1")
             {
@@ -235,16 +235,13 @@ namespace SCPStats.Commands
             }
 
             if (killerID == null && targetID == null || ev.Killer != null && !ev.Killer.IsHost && killerID == null) return;
-            
-            killerRole = killerID == null ? null : killerRole;
-            targetRole = targetID == null ? null : targetRole;
-            
+
             WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\": \""+killerID+"\",\"killerRole\":\""+killerRole+"\",\"targetID\":\""+targetID+"\",\"targetRole\":\""+targetRole+"\",\"damageType\":\""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (ev.Player?.UserId == null || PausedPlayers.Contains(ev.Player.UserId) || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1") return;
+            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || PausedPlayers.Contains(ev.Player.UserId) || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1") return;
             
             if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
             {
@@ -256,9 +253,11 @@ namespace SCPStats.Commands
             if (ev.IsEscaped)
             {
                 var cuffer = ev.Player.IsCuffed ? Player.Get(ev.Player.CufferId) : null;
-                
+
                 var cufferRole = cuffer != null ? ((int) cuffer.Role).ToString() : null;
                 var cufferID = cuffer != null ? Helper.HandleId(cuffer) : null;
+                
+                if (cuffer?.UserId == null || cuffer.IsGodModeEnabled || PausedPlayers.Contains(cuffer.UserId) || cuffer.IsHost || !cuffer.IsVerified || cuffer.IPAddress == "127.0.0.WAN" || cuffer.IPAddress == "127.0.0.1") cufferID = null;
 
                 WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
             }
