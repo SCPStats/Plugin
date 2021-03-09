@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Exiled.API.Enums;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
 using MEC;
 using Mirror;
@@ -62,7 +63,7 @@ namespace SCPStats.Hats
                     {
                         if (player1.Team == player.Team || player1 == player)
                         {
-                            UpdatePickupPositionForPlayer(player1, pickup, pos);
+                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
                         }
                         else
                             switch (player1.Role)
@@ -72,23 +73,23 @@ namespace SCPStats.Hats
                                 {
                                     if (!player.GameObject.GetComponent<Scp939_VisionController>().CanSee(player1.ReferenceHub.characterClassManager.Scp939))
                                     {
-                                        UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", Vector3.one * 6000f);
                                     }
                                     else
                                     {
-                                        UpdatePickupPositionForPlayer(player1, pickup, pos);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
                                     }
 
                                     break;
                                 }
                                 case RoleType.Scp096 when player1.CurrentScp != null && player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
-                                    UpdatePickupPositionForPlayer(player1, pickup, Vector3.one * 6000f);
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", Vector3.one * 6000f);
                                     break;
                                 case RoleType.Scp096:
-                                    UpdatePickupPositionForPlayer(player1, pickup, pos);
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
                                     break;
                                 default:
-                                    UpdatePickupPositionForPlayer(player1, pickup, pos);
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
                                     break;
                             }
                     }
@@ -97,65 +98,6 @@ namespace SCPStats.Hats
                 {
                     Log.Error(e);
                 }
-            }
-        }
-
-        //https://gist.github.com/sanyae2439/dbb0b4b439ad4a2a0f6c42d68e2c82dc
-
-        private static void UpdatePickupPositionForPlayer(Player player, Pickup pickup, Vector3 position)
-        {
-            Action<NetworkWriter> customSyncVarGenerator = (targetWriter) =>
-            {
-                targetWriter.WritePackedUInt64(8UL);
-                NetworkWriterExtensions.WriteVector3(targetWriter, position);
-            };
-
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-            NetworkWriter writer2 = NetworkWriterPool.GetWriter();
-            MakeCustomSyncWriter(pickup.netIdentity, typeof(Pickup), null, customSyncVarGenerator, writer, writer2);
-            NetworkServer.SendToClientOfPlayer(player.ReferenceHub.networkIdentity, new UpdateVarsMessage() {netId = pickup.netId, payload = writer.ToArraySegment()});
-            NetworkWriterPool.Recycle(writer);
-            NetworkWriterPool.Recycle(writer2);
-        }
-
-        private static void MakeCustomSyncWriter(NetworkIdentity behaviorOwner, Type targetType, Action<NetworkWriter> customSyncObject, Action<NetworkWriter> customSyncVar, NetworkWriter owner, NetworkWriter observer)
-        {
-            ulong dirty = 0ul;
-            ulong dirty_o = 0ul;
-            NetworkBehaviour behaviour = null;
-            for (int i = 0; i < behaviorOwner.NetworkBehaviours.Length; i++)
-            {
-                behaviour = behaviorOwner.NetworkBehaviours[i];
-                if (behaviour.GetType() == targetType)
-                {
-                    dirty |= 1UL << i;
-                    if (behaviour.syncMode == SyncMode.Observers) dirty_o |= 1UL << i;
-                }
-            }
-
-            owner.WritePackedUInt64(dirty);
-            observer.WritePackedUInt64(dirty & dirty_o);
-
-            int position = owner.Position;
-            owner.WriteInt32(0);
-            int position2 = owner.Position;
-
-            if (customSyncObject != null)
-                customSyncObject.Invoke(owner);
-            else
-                behaviour.SerializeObjectsDelta(owner);
-
-            customSyncVar?.Invoke(owner);
-
-            int position3 = owner.Position;
-            owner.Position = position;
-            owner.WriteInt32(position3 - position2);
-            owner.Position = position3;
-
-            if (dirty_o != 0ul)
-            {
-                ArraySegment<byte> arraySegment = owner.ToArraySegment();
-                observer.WriteBytes(arraySegment.Array, position, owner.Position - position);
             }
         }
     }
