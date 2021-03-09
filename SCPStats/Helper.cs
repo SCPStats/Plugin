@@ -145,7 +145,7 @@ namespace SCPStats
 
         internal static void SetupReflection()
         {
-            IsGhost = Loader.Plugins.FirstOrDefault(plugin => plugin.Name == "GhostSpectator")?.Assembly?.GetType("API")?.GetMethod("IsGhost");
+            IsGhost = Loader.Plugins.FirstOrDefault(plugin => plugin.Name == "GhostSpectator")?.Assembly?.GetType("GhostSpectator.API")?.GetMethod("IsGhost");
         }
 
         internal static void ClearReflection()
