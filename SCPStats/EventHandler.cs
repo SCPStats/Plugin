@@ -257,7 +257,12 @@ namespace SCPStats
 
                 var playerID = ev.Player.DoNotTrack ? null : Helper.HandleId(ev.Player);
 
-                if(cufferID != playerID) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
+                if (playerID == cufferID)
+                {
+                    cufferID = null;
+                    cufferRole = null;
+                }
+                if(playerID == null && cufferID == null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
             }
 
             if (ev.Player.DoNotTrack || ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
