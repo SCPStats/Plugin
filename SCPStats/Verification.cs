@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 
-namespace SCPStats.Commands
+namespace SCPStats
 {
     internal static class Verification
     {

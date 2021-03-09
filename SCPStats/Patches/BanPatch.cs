@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using HarmonyLib;
 
-namespace SCPStats.Commands.Patches
+namespace SCPStats.Patches
 {
     [HarmonyPatch(typeof(BanHandler), nameof(BanHandler.IssueBan))]
     public class BanPatch

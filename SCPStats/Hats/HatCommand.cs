@@ -6,7 +6,7 @@ using Exiled.Permissions.Extensions;
 using RemoteAdmin;
 using Object = UnityEngine.Object;
 
-namespace SCPStats.Commands.Hats
+namespace SCPStats.Hats
 {
     [CommandHandler(typeof(ClientCommandHandler))]
     public class HatCommand: ICommand

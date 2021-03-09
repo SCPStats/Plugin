@@ -2,7 +2,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace SCPStats.Commands.Hats
+namespace SCPStats.Hats
 {
     internal static class Hats
     {

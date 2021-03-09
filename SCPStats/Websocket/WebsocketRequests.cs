@@ -5,11 +5,10 @@ using System.Text.RegularExpressions;
 using Exiled.API.Features;
 using Exiled.Loader;
 using MEC;
-using SCPStats.Commands.Hats;
-using SCPStats.Commands.Websocket.Data;
-using Broadcast = Exiled.API.Features.Broadcast;
+using SCPStats.Hats;
+using SCPStats.Websocket.Data;
 
-namespace SCPStats.Commands.Websocket
+namespace SCPStats.Websocket
 {
     internal static class WebsocketRequests
     {

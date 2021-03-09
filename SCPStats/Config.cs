@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using Exiled.API.Interfaces;
 
-namespace SCPStats.Commands
+namespace SCPStats
 {
     public class Config : IConfig
     {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Exiled.API.Features;
 using WebSocketSharp;
 
-namespace SCPStats.Commands
+namespace SCPStats.Websocket
 {
     internal class WebsocketThread
     {
@@ -185,7 +185,6 @@ namespace SCPStats.Commands
             ws.OnError -= OnError;
             
             if (Exited) return;
-            Log.Info("Restarting websocket client");
             CreateConnection(10000);
         }
         

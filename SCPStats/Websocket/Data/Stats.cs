@@ -1,4 +1,4 @@
-﻿namespace SCPStats.Commands.Websocket.Data
+﻿namespace SCPStats.Websocket.Data
 {
     public class Stats
     {

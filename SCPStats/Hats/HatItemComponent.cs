@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace SCPStats.Commands.Hats
+namespace SCPStats.Hats
 {
     internal class HatItemComponent : MonoBehaviour
     {

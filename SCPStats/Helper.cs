@@ -6,7 +6,7 @@ using System.Text;
 using Exiled.API.Features;
 using Exiled.Loader;
 
-namespace SCPStats.Commands
+namespace SCPStats
 {
     internal static class Helper
     {

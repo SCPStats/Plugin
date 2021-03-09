@@ -7,7 +7,7 @@ using Mirror;
 using UnityEngine;
 using Scp096 = PlayableScps.Scp096;
 
-namespace SCPStats.Commands.Hats
+namespace SCPStats.Hats
 {
     public class HatPlayerComponent : MonoBehaviour
     {

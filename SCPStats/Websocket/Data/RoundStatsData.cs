@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace SCPStats.Commands.Websocket.Data
+namespace SCPStats.Websocket.Data
 {
     public class RoundStatsData
     {

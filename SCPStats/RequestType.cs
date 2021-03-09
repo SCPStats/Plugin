@@ -1,4 +1,4 @@
-﻿namespace SCPStats.Commands
+﻿namespace SCPStats
 {
     internal enum RequestType
     {

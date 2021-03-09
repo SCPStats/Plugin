@@ -3,11 +3,10 @@ using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using MEC;
 using RemoteAdmin;
-using SCPStats.Commands.Websocket;
+using SCPStats.Websocket;
 
-namespace SCPStats.Commands.Warnings
+namespace SCPStats.Warnings
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class DeleteWarningCommand : ICommand
