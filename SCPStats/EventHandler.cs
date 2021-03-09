@@ -230,15 +230,13 @@ namespace SCPStats
                 killerRole = ((int) ev.Killer.Role).ToString();
             }
 
-            if (killerID == null && targetID == null || ev.Killer != null && !ev.Killer.IsHost && killerID == null) return;
+            if (killerID == null && targetID == null) return;
 
             WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\": \""+killerID+"\",\"killerRole\":\""+killerRole+"\",\"targetID\":\""+targetID+"\",\"targetRole\":\""+targetRole+"\",\"damageType\":\""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            var flag = false;
-
             if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1") return;
             
             if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
@@ -247,8 +245,7 @@ namespace SCPStats
             }
 
             if (PauseRound || Round.ElapsedTime.Seconds < 5 || !RoundSummary.RoundInProgress()) return;
-            if (!Helper.IsPlayerValid(ev.Player, true, false)) flag = true;
-            
+
             if (ev.IsEscaped && !ev.Player.NoClipEnabled && !ev.Player.IsGodModeEnabled)
             {
                 var cuffer = ev.Player.IsCuffed ? Player.Get(ev.Player.CufferId) : null;
@@ -258,12 +255,12 @@ namespace SCPStats
                 
                 if (cuffer?.UserId == null || cuffer.IsGodModeEnabled || cuffer.NoClipEnabled || !Helper.IsPlayerValid(cuffer) || cuffer.IsHost || !cuffer.IsVerified || cuffer.IPAddress == "127.0.0.WAN" || cuffer.IPAddress == "127.0.0.1") cufferID = null;
 
-                var playerID = flag ? null : Helper.HandleId(ev.Player);
+                var playerID = ev.Player.DoNotTrack ? null : Helper.HandleId(ev.Player);
 
-                if(cufferID != null && playerID != null && cufferID != playerID) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
+                if(cufferID != playerID) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
             }
 
-            if (flag || ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
+            if (ev.Player.DoNotTrack || ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
             
             WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"spawnrole\":\""+((int) ev.NewRole).ToString()+"\"}");
         }
@@ -380,7 +377,9 @@ namespace SCPStats
             if (ev.Scp106?.UserId == null || ev.Scp106.IsGodModeEnabled || ev.Scp106.NoClipEnabled || ev.Scp106.IsHost || !ev.Scp106.IsVerified || ev.Scp106.IPAddress == "127.0.0.WAN" || ev.Scp106.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Scp106)) flag = true;
             else scp106ID = Helper.HandleId(ev.Scp106);
 
-            if ((scp106ID == null && playerID == null) || (scp106ID == playerID)) return;
+            if (scp106ID == playerID) scp106ID = null;
+            if (scp106ID == null && playerID == null) return;
+
             WebsocketHandler.SendRequest(RequestType.PocketEnter, "{\"playerid\":\""+playerID+"\",\"playerrole\":\""+((int) ev.Player.Role).ToString()+"\",\"scp106\":\""+scp106ID+"\"}");
 
             if (flag) return;
@@ -392,7 +391,7 @@ namespace SCPStats
             if (!ev.IsAllowed || ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.NoClipEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Player)) return;
 
             var playerID = Helper.HandleId(ev.Player);
-            var scp106ID = "";
+            string scp106ID;
             PocketPlayers.TryGetValue(playerID, out scp106ID);
             
             WebsocketHandler.SendRequest(RequestType.PocketExit, "{\"playerid\":\""+playerID+"\",\"playerrole\":\""+((int) ev.Player.Role).ToString()+"\",\"scp106\":\""+scp106ID+"\"}");
@@ -437,7 +436,7 @@ namespace SCPStats
 
             if (ev.Scp049?.UserId != null && !ev.Scp049.IsGodModeEnabled && !ev.Scp049.NoClipEnabled && !ev.Scp049.IsHost && ev.Scp049.IsVerified && ev.Scp049.IPAddress != "127.0.0.WAN" && ev.Scp049.IPAddress != "127.0.0.1" && Helper.IsPlayerValid(ev.Scp049)) scp049ID = Helper.HandleId(ev.Scp049);
 
-            if ((scp049ID == null && playerID == null) || (scp049ID == playerID)) return;
+            if (scp049ID == playerID) return;
             WebsocketHandler.SendRequest(RequestType.Revive, "{\"playerid\":\""+playerID+"\",\"scp049\":\""+scp049ID+"\"}");
         }
     }

@@ -121,9 +121,7 @@ namespace SCPStats
         {
             var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
-            if (dnt && p.DoNotTrack) return false;
-            if (role && (p.Role == RoleType.None || p.Role == RoleType.Spectator)) return false;
-            return !(p.Role == RoleType.Tutorial && !playerIsSh);
+            return (!dnt || !p.DoNotTrack) && ((!role || (p.Role != RoleType.None && p.Role != RoleType.Spectator)) && !(p.Role == RoleType.Tutorial && !playerIsSh));
         }
         
         internal static string HmacSha256Digest(string secret, string message)
