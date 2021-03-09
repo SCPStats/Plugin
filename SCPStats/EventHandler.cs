@@ -262,7 +262,7 @@ namespace SCPStats
                     cufferID = null;
                     cufferRole = null;
                 }
-                if(playerID == null && cufferID == null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
+                if(playerID != null && cufferID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
             }
 
             if (ev.Player.DoNotTrack || ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
