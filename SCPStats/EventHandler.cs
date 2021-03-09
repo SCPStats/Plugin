@@ -30,8 +30,6 @@ namespace SCPStats
 
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
-        
-        internal static List<string> NoclippedPlayers = new List<string>();
 
         internal static void Reset()
         {
@@ -41,7 +39,6 @@ namespace SCPStats
             WebsocketHandler.Stop();
             
             SpawnsDone.Clear();
-            NoclippedPlayers.Clear();
             PocketPlayers.Clear();
             JustJoined.Clear();
 
@@ -168,7 +165,7 @@ namespace SCPStats
             {
                 if (player?.UserId == null || player.IsHost || !player.IsVerified || player.IPAddress == "127.0.0.WAN" || player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(player, true, false)) continue;
 
-                if (player.Role != RoleType.None && player.Role != RoleType.Spectator && !player.IsGodModeEnabled)
+                if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
                 {
                     WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+Helper.HandleId(player)+"\",\"role\":\""+((int) player.Role).ToString()+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
                 }
@@ -204,13 +201,11 @@ namespace SCPStats
             Restarting = false;
             DidRoundEnd = false;
             PauseRound = false;
-            
-            NoclippedPlayers.Clear();
         }
         
         internal static void OnKill(DyingEventArgs ev)
         {
-            if (ev.Target?.UserId == null || ev.Target.IsGodModeEnabled || ev.Target.IsHost || !ev.Target.IsVerified || PauseRound || !ev.IsAllowed || !Helper.IsPlayerValid(ev.Target, false) || !RoundSummary.RoundInProgress()) return;
+            if (ev.Target?.UserId == null || ev.Target.IsGodModeEnabled || ev.Target.NoClipEnabled || (ev.Killer?.IsGodModeEnabled ?? false) || (ev.Killer?.NoClipEnabled ?? false) || ev.Target.IsHost || !ev.Target.IsVerified || PauseRound || !ev.IsAllowed || !Helper.IsPlayerValid(ev.Target, false) || !RoundSummary.RoundInProgress()) return;
 
             string killerID = null;
             var killerRole = ev.Killer?.Role != null ? ((int) ev.Killer.Role).ToString() : null;
@@ -244,7 +239,7 @@ namespace SCPStats
         {
             var flag = false;
 
-            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1") return;
+            if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1") return;
             
             if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
             {
@@ -254,7 +249,7 @@ namespace SCPStats
             if (PauseRound || Round.ElapsedTime.Seconds < 5 || !RoundSummary.RoundInProgress()) return;
             if (!Helper.IsPlayerValid(ev.Player, true, false)) flag = true;
             
-            if (ev.IsEscaped && !NoclippedPlayers.Contains(ev.Player.UserId))
+            if (ev.IsEscaped && !ev.Player.NoClipEnabled && !ev.Player.IsGodModeEnabled)
             {
                 var cuffer = ev.Player.IsCuffed ? Player.Get(ev.Player.CufferId) : null;
 
@@ -295,14 +290,14 @@ namespace SCPStats
                 return;
             }
             
-            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed || CustomItem.TryGet(ev.Pickup, out _)) return;
+            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.NoClipEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed || CustomItem.TryGet(ev.Pickup, out _)) return;
 
             WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Pickup.itemId).ToString()+"\"}");
         }
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
-            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed || CustomItem.TryGet(ev.Item, out _)) return;
+            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.NoClipEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed || CustomItem.TryGet(ev.Item, out _)) return;
 
             WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Item.id).ToString()+"\"}");
         }
@@ -354,14 +349,14 @@ namespace SCPStats
 
         internal static void OnUse(DequippedMedicalItemEventArgs ev)
         {
-            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || CustomItem.TryGet(ev.Player.CurrentItem, out _)) return;
+            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.NoClipEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || CustomItem.TryGet(ev.Player.CurrentItem, out _)) return;
 
             WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.Item).ToString()+"\"}");
         }
 
         internal static void OnThrow(ThrowingGrenadeEventArgs ev)
         {
-            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed || CustomItem.TryGet(ev.Player.CurrentItem, out _)) return;
+            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.NoClipEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || PauseRound || !Helper.IsPlayerValid(ev.Player) || !RoundSummary.RoundInProgress() || !ev.IsAllowed || CustomItem.TryGet(ev.Player.CurrentItem, out _)) return;
 
             WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+Helper.HandleId(ev.Player)+"\", \"itemid\": \""+((int) ev.GrenadeManager.availableGrenades[(int) ev.Type].inventoryID).ToString()+"\"}");
         }
@@ -379,10 +374,10 @@ namespace SCPStats
             string playerID = null;
             string scp106ID = null;
 
-            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Player)) flag = true;
+            if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.NoClipEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Player)) flag = true;
             else playerID = Helper.HandleId(ev.Player);
 
-            if (ev.Scp106?.UserId == null || ev.Scp106.IsGodModeEnabled || ev.Scp106.IsHost || !ev.Scp106.IsVerified || ev.Scp106.IPAddress == "127.0.0.WAN" || ev.Scp106.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Scp106)) flag = true;
+            if (ev.Scp106?.UserId == null || ev.Scp106.IsGodModeEnabled || ev.Scp106.NoClipEnabled || ev.Scp106.IsHost || !ev.Scp106.IsVerified || ev.Scp106.IPAddress == "127.0.0.WAN" || ev.Scp106.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Scp106)) flag = true;
             else scp106ID = Helper.HandleId(ev.Scp106);
 
             if ((scp106ID == null && playerID == null) || (scp106ID == playerID)) return;
@@ -394,7 +389,7 @@ namespace SCPStats
 
         internal static void OnEscapingPocketDimension(EscapingPocketDimensionEventArgs ev)
         {
-            if (!ev.IsAllowed || ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Player)) return;
+            if (!ev.IsAllowed || ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || ev.Player.NoClipEnabled || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1" || !Helper.IsPlayerValid(ev.Player)) return;
 
             var playerID = Helper.HandleId(ev.Player);
             var scp106ID = "";
@@ -438,9 +433,9 @@ namespace SCPStats
             string playerID = null;
             string scp049ID = null;
 
-            if (ev.Target?.UserId != null && !ev.Target.IsGodModeEnabled && !ev.Target.IsHost && ev.Target.IsVerified && ev.Target.IPAddress != "127.0.0.WAN" && ev.Target.IPAddress != "127.0.0.1" && Helper.IsPlayerValid(ev.Target, true, false)) playerID = Helper.HandleId(ev.Target);
+            if (ev.Target?.UserId != null && !ev.Target.IsGodModeEnabled && !ev.Target.NoClipEnabled && !ev.Target.IsHost && ev.Target.IsVerified && ev.Target.IPAddress != "127.0.0.WAN" && ev.Target.IPAddress != "127.0.0.1" && Helper.IsPlayerValid(ev.Target, true, false)) playerID = Helper.HandleId(ev.Target);
 
-            if (ev.Scp049?.UserId != null && !ev.Scp049.IsGodModeEnabled && !ev.Scp049.IsHost && ev.Scp049.IsVerified && ev.Scp049.IPAddress != "127.0.0.WAN" && ev.Scp049.IPAddress != "127.0.0.1" && Helper.IsPlayerValid(ev.Scp049)) scp049ID = Helper.HandleId(ev.Scp049);
+            if (ev.Scp049?.UserId != null && !ev.Scp049.IsGodModeEnabled && !ev.Scp049.NoClipEnabled && !ev.Scp049.IsHost && ev.Scp049.IsVerified && ev.Scp049.IPAddress != "127.0.0.WAN" && ev.Scp049.IPAddress != "127.0.0.1" && Helper.IsPlayerValid(ev.Scp049)) scp049ID = Helper.HandleId(ev.Scp049);
 
             if ((scp049ID == null && playerID == null) || (scp049ID == playerID)) return;
             WebsocketHandler.SendRequest(RequestType.Revive, "{\"playerid\":\""+playerID+"\",\"scp049\":\""+scp049ID+"\"}");
