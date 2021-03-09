@@ -241,6 +241,8 @@ namespace SCPStats.Commands
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
+            var flag = false;
+
             if (ev.Player?.UserId == null || ev.Player.IsGodModeEnabled || PausedPlayers.Contains(ev.Player.UserId) || ev.Player.IsHost || !ev.Player.IsVerified || ev.Player.IPAddress == "127.0.0.WAN" || ev.Player.IPAddress == "127.0.0.1") return;
             
             if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
@@ -248,7 +250,8 @@ namespace SCPStats.Commands
                 Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
             }
 
-            if (PauseRound || Round.ElapsedTime.Seconds < 5 || !RoundSummary.RoundInProgress() || !Helper.IsPlayerValid(ev.Player, true, false)) return;
+            if (PauseRound || Round.ElapsedTime.Seconds < 5 || !RoundSummary.RoundInProgress()) return;
+            if (!Helper.IsPlayerValid(ev.Player, true, false)) flag = true;
             
             if (ev.IsEscaped)
             {
@@ -259,10 +262,12 @@ namespace SCPStats.Commands
                 
                 if (cuffer?.UserId == null || cuffer.IsGodModeEnabled || PausedPlayers.Contains(cuffer.UserId) || !Helper.IsPlayerValid(cuffer) || cuffer.IsHost || !cuffer.IsVerified || cuffer.IPAddress == "127.0.0.WAN" || cuffer.IPAddress == "127.0.0.1") cufferID = null;
 
-                WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
+                var playerID = flag ? null : Helper.HandleId(ev.Player);
+
+                if(cufferID != null && playerID != null && cufferID != playerID) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cufferID+"\",\"cufferrole\":\""+cufferRole+"\"}");
             }
 
-            if (ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
+            if (flag || ev.NewRole == RoleType.None || ev.NewRole == RoleType.Spectator) return;
             
             WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+Helper.HandleId(ev.Player)+"\",\"spawnrole\":\""+((int) ev.NewRole).ToString()+"\"}");
         }
