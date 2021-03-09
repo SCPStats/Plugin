@@ -11,7 +11,7 @@ namespace SCPStats.Patches
             if (!value) return true;
             
             var player = Player.Get(__instance.gameObject);
-            if(player?.UserId != null && !EventHandler.PausedPlayers.Contains(player.UserId) && !Helper.IsPlayerGhost(player)) EventHandler.PausedPlayers.Add(player.UserId);
+            if(player?.UserId != null && !EventHandler.NoclippedPlayers.Contains(player.UserId) && !Helper.IsPlayerGhost(player)) EventHandler.NoclippedPlayers.Add(player.UserId);
 
             return true;
         }
