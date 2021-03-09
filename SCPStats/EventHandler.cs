@@ -256,7 +256,7 @@ namespace SCPStats
                 var cufferRole = cuffer != null ? ((int) cuffer.Role).ToString() : null;
                 var cufferID = cuffer != null ? Helper.HandleId(cuffer) : null;
                 
-                if (cuffer?.UserId == null || cuffer.IsGodModeEnabled || !Helper.IsPlayerValid(cuffer) || cuffer.IsHost || !cuffer.IsVerified || cuffer.IPAddress == "127.0.0.WAN" || cuffer.IPAddress == "127.0.0.1") cufferID = null;
+                if (cuffer?.UserId == null || cuffer.IsGodModeEnabled || cuffer.NoClipEnabled || !Helper.IsPlayerValid(cuffer) || cuffer.IsHost || !cuffer.IsVerified || cuffer.IPAddress == "127.0.0.WAN" || cuffer.IPAddress == "127.0.0.1") cufferID = null;
 
                 var playerID = flag ? null : Helper.HandleId(ev.Player);
 
