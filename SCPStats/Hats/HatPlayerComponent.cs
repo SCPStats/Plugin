@@ -27,10 +27,13 @@ namespace SCPStats.Hats
                 try
                 {
                     if (item == null || item.gameObject == null) continue;
+                    
+                    var player = Player.Get(gameObject);
+
+                    if (Helper.IsPlayerGhost(player)) continue;
 
                     var pickup = item.gameObject.GetComponent<Pickup>();
-
-                    var player = Player.Get(gameObject);
+                    
                     if (player.TryGetEffect(EffectType.Scp268, out var effect) && effect.Enabled)
                     {
                         pickup.Networkposition = Vector3.one * 6000f;

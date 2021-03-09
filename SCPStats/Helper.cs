@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Exiled.API.Features;
@@ -113,6 +114,8 @@ namespace SCPStats
             {"quickestescape", 10},
             {"quickescape", 10}
         };
+
+        private static MethodInfo IsGhost = null;
         
         internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
         {
@@ -138,6 +141,23 @@ namespace SCPStats
         internal static string HandleId(Player player)
         {
             return HandleId(player?.UserId);
+        }
+
+        internal static void SetupReflection()
+        {
+            IsGhost = Loader.Plugins.FirstOrDefault(plugin => plugin.Name == "GhostSpectator")?.Assembly?.GetType("API")?.GetMethod("IsGhost");
+        }
+
+        internal static void ClearReflection()
+        {
+            IsGhost = null;
+        }
+
+        internal static bool IsPlayerGhost(Player p)
+        {
+            if (IsGhost == null) return false;
+
+            return (bool) (IsGhost.Invoke(null, new object[] {p}) ?? false);
         }
     }
 }

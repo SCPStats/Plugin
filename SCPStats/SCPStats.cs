@@ -74,6 +74,8 @@ namespace SCPStats
 
             if (Singleton == null) yield break;
             
+            Helper.SetupReflection();
+            
             Exiled.Events.Handlers.Server.RoundStarted += EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.EndingRound += EventHandler.OnRoundEnding;
             Exiled.Events.Handlers.Server.RestartingRound += EventHandler.OnRoundRestart;
@@ -175,6 +177,7 @@ namespace SCPStats
 
             EventHandler.Reset();
             Hats.Hats.Reset();
+            Helper.ClearReflection();
 
             UnbanPatch.LastId = null;
 
