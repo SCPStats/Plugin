@@ -62,5 +62,8 @@ namespace SCPStats
 
         [Description("What color the round summary console message is.")]
         public string RoundSummaryConsoleMessageColor { get; set; } = "yellow";
+
+        [Description("This can help solve problems, but will spam your console.")]
+        public bool Debug { get; set; } = false;
     }
 }

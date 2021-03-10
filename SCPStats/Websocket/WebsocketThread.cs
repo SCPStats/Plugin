@@ -64,9 +64,9 @@ namespace SCPStats.Websocket
                             CreateConnection(1000);
                             continue;
                         }
-#if DEBUG
-                        Log.Info(">" + message);
-#endif
+
+                        Log.Debug(">" + message, SCPStats.Singleton?.Config?.Debug ?? false);
+
                         ws?.Send(message);
                     }
                     catch (Exception e)
@@ -185,6 +185,7 @@ namespace SCPStats.Websocket
             ws.OnError -= OnError;
             
             if (Exited) return;
+            Log.Debug("Restarting Websocket Client", SCPStats.Singleton?.Config?.Debug ?? false);
             CreateConnection(10000);
         }
         
@@ -200,10 +201,7 @@ namespace SCPStats.Websocket
             try
             {
                 if (!e.IsText || !ws.IsAlive) return;
-#if DEBUG
-                Log.Info("<" + e.Data);
-#endif
-                
+
                 switch (e.Data)
                 {
                     case "i":
@@ -228,6 +226,8 @@ namespace SCPStats.Websocket
 
                 if (e.Data == null) return;
 
+                Log.Debug("<"+e.Data, SCPStats.Singleton?.Config?.Debug ?? false);
+                
                 WebsocketRequests.Enqueue(e.Data);
             }
             catch (Exception ex)
