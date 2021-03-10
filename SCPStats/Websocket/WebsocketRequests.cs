@@ -30,24 +30,31 @@ namespace SCPStats.Websocket
             while (true)
             {
                 yield return Timing.WaitForSeconds(.5f);
-
+                
                 while (WebsocketThread.WebsocketRequests.TryDequeue(out var info))
                 {
-                    if (info.StartsWith("u"))
+                    try
                     {
-                        HandleUserInfo(info.Substring(1));
+                        if (info.StartsWith("u"))
+                        {
+                            HandleUserInfo(info.Substring(1));
+                        }
+                        else if (info.StartsWith("wg"))
+                        {
+                            HandleWarnings(info.Substring(2));
+                        }
+                        else if (info.StartsWith("wd"))
+                        {
+                            HandleDeleteWarning(info.Substring(2));
+                        }
+                        else if (info.StartsWith("rs"))
+                        {
+                            HandleRoundSummary(info.Substring(2));
+                        }
                     }
-                    else if (info.StartsWith("wg"))
+                    catch (Exception e)
                     {
-                        HandleWarnings(info.Substring(2));
-                    }
-                    else if (info.StartsWith("wd"))
-                    {
-                        HandleDeleteWarning(info.Substring(2));
-                    }
-                    else if (info.StartsWith("rs"))
-                    {
-                        HandleRoundSummary(info.Substring(2));
+                        Log.Error(e);
                     }
                 }
             }
