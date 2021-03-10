@@ -406,14 +406,14 @@ namespace SCPStats
         {
             if (string.IsNullOrEmpty(ev.Details.Id) || ev.Type != BanHandler.BanType.UserId) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id)+"\",\"message\":\""+("Reason: \""+ev.Details.Reason+"\", Issuer: \""+ev.Details.Issuer+"\"").Replace("\"", "\\\"")+"\",\"length\":"+((int) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) ? Helper.HandleId(ev.Issuer.UserId) : "")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id)+"\",\"message\":\""+("Reason: \""+ev.Details.Reason+"\", Issuer: \""+ev.Details.Issuer+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((int) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"issuer\":\""+((!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) && ev.Details.Id != ev.Issuer?.UserId) ? Helper.HandleId(ev.Issuer.UserId) : "")+"\"}");
         }
         
         internal static void OnKick(KickedEventArgs ev)
         {
             if (ev.Reason.StartsWith("[SCPStats]") || ev.Reason.StartsWith("VPNs and proxies are forbidden") || ev.Reason.StartsWith("<size=70><color=red>You are banned.") || ev.Reason.StartsWith("Your account must be at least") || ev.Reason.StartsWith("You have been banned.") || ev.Reason.StartsWith("[Kicked by uAFK]") || ev.Reason.StartsWith("You were AFK") || ev.Reason.EndsWith("[Anty-AFK]") || ev.Reason.EndsWith("[Anty AFK]") || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || ev.Target.IPAddress == "127.0.0.WAN" || ev.Target.IPAddress == "127.0.0.1" || JustJoined.Contains(ev.Target.UserId) || !ev.IsAllowed) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target)+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\"", "\\\"")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target)+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");
         }
         
         internal static void OnMute(ChangingMuteStatusEventArgs ev)

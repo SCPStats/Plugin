@@ -61,7 +61,7 @@ namespace SCPStats.Warnings
                 return true;
             }
             
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\"", "\\\"")+"\",\"issuer\":\""+issuerID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+issuerID+"\"}");
 
             response = "Added warning.";
             return true;
