@@ -51,7 +51,7 @@ namespace SCPStats.Hats
 
                     var rot = rotation * item.rot;
                     var transform1 = pickup.transform;
-                    var pos = (player.Role != RoleType.Scp079 ? rotation * item.pos : item.pos) + camera.position;
+                    var pos = (player.Role != RoleType.Scp079 ? rotation * (item.pos+item.itemOffset) : (item.pos+item.itemOffset)) + camera.position;
 
                     transform1.rotation = rot;
                     pickup.Networkrotation = rot;

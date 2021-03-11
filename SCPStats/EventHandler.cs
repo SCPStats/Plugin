@@ -276,7 +276,7 @@ namespace SCPStats
                     }
                     else if(SCPStats.Singleton?.Config.DisplayHatHint ?? true)
                     {
-                        ev.Player.ShowHint("You can get a hat like this at https://patreon.com/SCPStats.", 2f);
+                        ev.Player.ShowHint("You can get a hat like this at patreon.com/SCPStats.", 2f);
                     }
                 }
                 

@@ -44,6 +44,7 @@ namespace SCPStats.Hats
             if (item == ItemType.None) return;
 
             var pos = GetHatPosForRole(p.Role);
+            var itemOffset = Vector3.zero;
             var rot = Quaternion.Euler(0, 0, 0);
             
             var gameObject = UnityEngine.Object.Instantiate<GameObject>(Server.Host.Inventory.pickupPrefab);
@@ -53,17 +54,17 @@ namespace SCPStats.Hats
                 case ItemType.KeycardScientist:
                     gameObject.transform.localScale += new Vector3(1.5f, 20f, 1.5f);
                     rot = Quaternion.Euler(0, 90, 0);
+                    itemOffset = new Vector3(0, .1f, 0);
                     break;
                 
                 case ItemType.KeycardNTFCommander:
                     gameObject.transform.localScale += new Vector3(1.5f, 200f, 1.5f);
                     rot = Quaternion.Euler(0, 90, 0);
+                    itemOffset = new Vector3(0, .9f, 0);
                     break;
                 
                 case ItemType.SCP268:
                     gameObject.transform.localScale += new Vector3(-.1f, -.1f, -.1f);
-                    var position = gameObject.transform.position;
-                    gameObject.transform.position = new Vector3(position.x, position.y, position.z);
                     rot = Quaternion.Euler(-90, 0, 90);
                     break;
                 
@@ -73,6 +74,34 @@ namespace SCPStats.Hats
                     gameObject.transform.position = new Vector3(position2.x, position2.y, position2.z);
                     rot = Quaternion.Euler(-90, 0, 90);
                     item = ItemType.SCP268;
+                    break;
+                
+                case ItemType.Ammo762:
+                    gameObject.transform.localScale += new Vector3(-.1f, 10f, -.1f);
+                    rot = Quaternion.Euler(-90, 0, 90);
+                    item = ItemType.SCP268;
+                    break;
+                
+                case ItemType.Ammo9mm:
+                    gameObject.transform.localScale += new Vector3(-.1f, -.1f, 5f);
+                    rot = Quaternion.Euler(-90, 0, -90);
+                    itemOffset = new Vector3(0, -.15f, .1f);
+                    item = ItemType.SCP268;
+                    break;
+                
+                case ItemType.Adrenaline:
+                case ItemType.Medkit:
+                case ItemType.Coin:
+                case ItemType.SCP018:
+                    itemOffset = new Vector3(0, .1f, 0);
+                    break;
+                
+                case ItemType.SCP500:
+                    itemOffset = new Vector3(0, .075f, 0);
+                    break;
+                
+                case ItemType.SCP207:
+                    itemOffset = new Vector3(0, .225f, 0);
                     break;
             }
 
@@ -91,6 +120,7 @@ namespace SCPStats.Hats
             playerComponent.item = pickup.gameObject.AddComponent<HatItemComponent>();
             playerComponent.item.player = playerComponent;
             playerComponent.item.pos = pos;
+            playerComponent.item.itemOffset = itemOffset;
             playerComponent.item.rot = rot;
         }
 
@@ -105,9 +135,9 @@ namespace SCPStats.Hats
                 case RoleType.Scp096:
                     return new Vector3(.15f, .45f, .225f);
                 case RoleType.Scp93953:
-                    return new Vector3(0, -.4f, 1.3f);
+                    return new Vector3(0, -.5f, 1.125f);
                 case RoleType.Scp93989:
-                    return new Vector3(0, -.3f, 1.3f);
+                    return new Vector3(0, -.3f, 1.1f);
                 case RoleType.Scp049:
                     return new Vector3(0, .125f, -.05f);
                 case RoleType.None:

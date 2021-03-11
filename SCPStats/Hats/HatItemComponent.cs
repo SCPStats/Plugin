@@ -6,6 +6,7 @@ namespace SCPStats.Hats
     {
         internal HatPlayerComponent player;
         internal Vector3 pos;
+        internal Vector3 itemOffset;
         internal Quaternion rot;
     }
 }
