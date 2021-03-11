@@ -16,25 +16,6 @@ namespace SCPStats.Hats
         public string Description { get; } = "Change your hat ingame. This only applies to the current round.";
         
         internal static Dictionary<string, ItemType> HatPlayers = new Dictionary<string, ItemType>();
-        internal static List<ItemType> AllowedHats = new List<ItemType>()
-        {
-            ItemType.SCP268,
-            ItemType.SCP500,
-            ItemType.Coin,
-            ItemType.SCP018,
-            ItemType.Medkit,
-            ItemType.Adrenaline,
-            ItemType.None,
-            ItemType.WeaponManagerTablet,
-            ItemType.SCP207,
-            ItemType.GunE11SR,
-            ItemType.KeycardScientist,
-            ItemType.MicroHID,
-            ItemType.GrenadeFrag,
-            ItemType.GrenadeFlash,
-            ItemType.KeycardNTFCommander,
-            ItemType.Ammo556
-        };
 
         private static Dictionary<string, ItemType> items = new Dictionary<string, ItemType>()
         {

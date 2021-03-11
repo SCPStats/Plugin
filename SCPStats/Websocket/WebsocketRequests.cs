@@ -157,7 +157,7 @@ namespace SCPStats.Websocket
 
             var item = (ItemType) Convert.ToInt32(data.HatID);
 
-            if (HatCommand.AllowedHats.Contains(item)) HatCommand.HatPlayers[player.UserId] = item;
+            if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = item;
             else HatCommand.HatPlayers[player.UserId] = ItemType.SCP268;
 
             if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
