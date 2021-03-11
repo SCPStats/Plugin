@@ -65,8 +65,6 @@ namespace SCPStats.Websocket
                             continue;
                         }
 
-                        Log.Debug(">" + message, SCPStats.Singleton?.Config?.Debug ?? false);
-
                         ws?.Send(message);
                     }
                     catch (Exception e)
