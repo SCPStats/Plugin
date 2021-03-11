@@ -76,7 +76,7 @@ namespace SCPStats
         {
             yield return Timing.WaitForSeconds(1.5f);
 
-            var ids = (from player in Player.List where player?.UserId != null && Helper.GetPlayerInfo(player).IsAllowed select Helper.HandleId(player)).ToList();
+            var ids = (from player in Player.List where player?.UserId != null && Helper.GetPlayerInfo(player, false, false).IsAllowed select Helper.HandleId(player)).ToList();
             
             foreach (var id in ids)
             {
@@ -124,7 +124,7 @@ namespace SCPStats
             
             foreach (var player in Player.List)
             {
-                var playerInfo = Helper.GetPlayerInfo(player, false);
+                var playerInfo = Helper.GetPlayerInfo(player, false, false);
                 if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
 
                 WebsocketHandler.SendRequest(RequestType.UserData, playerInfo.PlayerID);
@@ -166,7 +166,7 @@ namespace SCPStats
             
             foreach (var player in Player.List)
             {
-                var playerInfo = Helper.GetPlayerInfo(player, false);
+                var playerInfo = Helper.GetPlayerInfo(player, false, false);
                 if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
 
                 if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
@@ -300,7 +300,7 @@ namespace SCPStats
 
         internal static void OnJoin(VerifiedEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Player);
+            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
             if (ev.Player?.UserId == null || !playerInfo.IsAllowed) return;
             
             if (firstJoin)
@@ -329,7 +329,7 @@ namespace SCPStats
 
         internal static void OnLeave(DestroyingEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Player);
+            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
             if (!playerInfo.IsAllowed || ev.Player?.UserId == null) return;
             
             if (ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
