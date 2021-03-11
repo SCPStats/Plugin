@@ -283,14 +283,14 @@ namespace SCPStats
             }
 
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
-            if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
+            if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
             WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\": \""+playerInfo.PlayerID+"\", \"itemid\": \""+((int) ev.Pickup.itemId).ToString()+"\"}");
         }
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
-            if (!ev.IsAllowed || CustomItem.TryGet(ev.Item, out _)) return;
+            if (!ev.IsAllowed || CustomItem.TryGet(ev.Item, out _) || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
@@ -320,7 +320,7 @@ namespace SCPStats
                 JustJoined.Remove(ev.Player.UserId);
             });
             
-            if (!Helper.IsRoundRunning() || playerInfo.PlayerID == null) return;
+            if (!Round.IsStarted && Players.Contains(ev.Player.UserId) || playerInfo.PlayerID == null) return;
 
             WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\": \""+playerInfo.PlayerID+"\"}");
             
@@ -348,14 +348,14 @@ namespace SCPStats
         internal static void OnUse(DequippedMedicalItemEventArgs ev)
         {
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
-            if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
+            if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
             WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+playerInfo.PlayerID+"\", \"itemid\": \""+((int) ev.Item).ToString()+"\"}");
         }
 
         internal static void OnThrow(ThrowingGrenadeEventArgs ev)
         {
-            if (!ev.IsAllowed) return;
+            if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
@@ -372,7 +372,7 @@ namespace SCPStats
 
         internal static void OnEnterPocketDimension(EnteringPocketDimensionEventArgs ev)
         {
-            if (!ev.IsAllowed) return;
+            if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             var scp106Info = Helper.GetPlayerInfo(ev.Scp106);
@@ -388,7 +388,7 @@ namespace SCPStats
 
         internal static void OnEscapingPocketDimension(EscapingPocketDimensionEventArgs ev)
         {
-            if (!ev.IsAllowed) return;
+            if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
@@ -431,7 +431,7 @@ namespace SCPStats
 
         internal static void OnRecalling(FinishingRecallEventArgs ev)
         {
-            if (!ev.IsAllowed) return;
+            if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Target);
             var scp049Info = Helper.GetPlayerInfo(ev.Scp049, false, false);
