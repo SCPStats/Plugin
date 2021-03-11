@@ -61,7 +61,7 @@ namespace SCPStats.Hats
 
                     foreach (var player1 in Player.List)
                     {
-                        if (player1 == null || player1.IsHost || !player1.IsVerified || Helper.IsPlayerNPC(player1)) continue;
+                        if (player1?.UserId == null || player1.IsHost || !player1.IsVerified || Helper.IsPlayerNPC(player1)) continue;
                         
                         if (player1.Team == player.Team || player1 == player)
                         {
