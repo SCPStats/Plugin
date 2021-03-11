@@ -68,7 +68,7 @@ namespace SCPStats.Hats
                     break;
                 
                 case ItemType.Ammo556:
-                    gameObject.transform.localScale += new Vector3(-.1f, -.1f, -.1f);
+                    gameObject.transform.localScale += new Vector3(-.03f, -.03f, -.03f);
                     var position2 = gameObject.transform.position;
                     gameObject.transform.position = new Vector3(position2.x, position2.y, position2.z);
                     rot = Quaternion.Euler(-90, 0, 90);
