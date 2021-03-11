@@ -166,6 +166,8 @@ namespace SCPStats
         {
             if (PauseRound) yield break;
             
+            var winLose = new Dictionary<string, Tuple<bool, RoleType>>();
+            
             foreach (var player in Player.List)
             {
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
@@ -173,13 +175,26 @@ namespace SCPStats
 
                 if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
                 {
-                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+playerInfo.PlayerRole.RoleToString()+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+                    winLose[playerInfo.PlayerID] = new Tuple<bool, RoleType>(true, playerInfo.PlayerRole);
                 }
                 else
                 {
-                    WebsocketHandler.SendRequest(RequestType.Lose, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+                    winLose[playerInfo.PlayerID] = new Tuple<bool, RoleType>(false, playerInfo.PlayerRole);
                 }
+            }
 
+            foreach (var keys in winLose)
+            {
+                if (keys.Value.Item1)
+                {
+                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item2.RoleToString()+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+
+                }
+                else
+                {
+                    WebsocketHandler.SendRequest(RequestType.Lose, "{\"playerid\":\""+keys.Key+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+                }
+                
                 yield return Timing.WaitForSeconds(.05f);
             }
         }
