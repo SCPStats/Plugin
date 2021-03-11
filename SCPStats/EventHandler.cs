@@ -167,6 +167,7 @@ namespace SCPStats
             if (PauseRound) yield break;
             
             var winLose = new Dictionary<string, Tuple<bool, RoleType>>();
+            var winningTeam = ev.LeadingTeam;
             
             foreach (var player in Player.List)
             {
@@ -187,12 +188,12 @@ namespace SCPStats
             {
                 if (keys.Value.Item1)
                 {
-                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item2.RoleToString()+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item2.RoleToString()+"\",\"team\":\""+((int) winningTeam).ToString()+"\"}");
 
                 }
                 else
                 {
-                    WebsocketHandler.SendRequest(RequestType.Lose, "{\"playerid\":\""+keys.Key+"\",\"team\":\""+((int) ev.LeadingTeam).ToString()+"\"}");
+                    WebsocketHandler.SendRequest(RequestType.Lose, "{\"playerid\":\""+keys.Key+"\",\"team\":\""+((int) winningTeam).ToString()+"\"}");
                 }
                 
                 yield return Timing.WaitForSeconds(.05f);
