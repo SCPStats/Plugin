@@ -134,7 +134,7 @@ namespace SCPStats.Websocket
 
             foreach (var player in Player.List)
             {
-                if (player?.UserId == null || !Helper.GetPlayerInfo(player).IsAllowed || !Helper.HandleId(player.UserId).Equals(infoSplit[0])) continue;
+                if (player?.UserId == null || !Helper.HandleId(player.UserId).Equals(infoSplit[0]) || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
                 
                 if((SCPStats.Singleton?.Config.SyncBans ?? false) && HandleBans(player, data)) return;
                 HandleHats(player, data);

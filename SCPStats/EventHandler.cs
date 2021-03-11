@@ -124,10 +124,12 @@ namespace SCPStats
             
             foreach (var player in Player.List)
             {
+                if (player?.UserId == null) continue;
+
+                WebsocketHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
+
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
                 if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
-
-                WebsocketHandler.SendRequest(RequestType.UserData, playerInfo.PlayerID);
 
                 yield return Timing.WaitForSeconds(.05f);
 
@@ -311,7 +313,7 @@ namespace SCPStats
 
             Timing.CallDelayed(.2f, () =>
             {
-                WebsocketHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player.UserId));
+                WebsocketHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
             });
             
             JustJoined.Add(ev.Player.UserId);
@@ -320,7 +322,7 @@ namespace SCPStats
                 JustJoined.Remove(ev.Player.UserId);
             });
             
-            if (!Round.IsStarted && Players.Contains(ev.Player.UserId) || playerInfo.PlayerID == null) return;
+            if ((!Round.IsStarted && Players.Contains(ev.Player.UserId)) || playerInfo.PlayerID == null) return;
 
             WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\": \""+playerInfo.PlayerID+"\"}");
             
@@ -402,7 +404,7 @@ namespace SCPStats
         {
             if (string.IsNullOrEmpty(ev.Details.Id) || ev.Type != BanHandler.BanType.UserId) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id)+"\",\"message\":\""+("Reason: \""+ev.Details.Reason+"\", Issuer: \""+ev.Details.Issuer+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((int) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"issuer\":\""+((!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) && ev.Details.Id != ev.Issuer?.UserId) ? Helper.HandleId(ev.Issuer.UserId) : "")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id)+"\",\"message\":\""+("Reason: \""+ev.Details.Reason+"\", Issuer: \""+ev.Details.Issuer+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((int) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"issuer\":\""+((!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) && ev.Details.Id != ev.Issuer?.UserId) ? Helper.HandleId(ev.Issuer) : "")+"\"}");
         }
         
         internal static void OnKick(KickedEventArgs ev)
