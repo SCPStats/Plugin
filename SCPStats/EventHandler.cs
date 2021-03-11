@@ -343,7 +343,6 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\": \""+playerInfo.PlayerID+"\"}");
 
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
-            if (HatCommand.HatPlayers.ContainsKey(ev.Player.UserId)) HatCommand.HatPlayers.Remove(ev.Player.UserId);
         }
 
         internal static void OnUse(DequippedMedicalItemEventArgs ev)
