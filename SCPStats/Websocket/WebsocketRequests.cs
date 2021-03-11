@@ -127,26 +127,41 @@ namespace SCPStats.Websocket
         {
             var infoSplit = info.Split(' ');
             
+            Log.Debug("Received user info for " + infoSplit[0], SCPStats.Singleton?.Config?.Debug ?? false);
+            
             var flags = infoSplit[1].Split(',');
             if (flags.All(v => v == "0")) return;
             
             var data = new UserInfoData(flags);
+            
+            Log.Debug("Is discord member: " + data.IsDiscordMember, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Is discord booster: " + data.IsBooster, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Discord roles: " + string.Join(", ", data.DiscordRoles), SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Is banned: " + data.IsBanned, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Has hat perms: " + data.HasHat, SCPStats.Singleton?.Config?.Debug ?? false);
 
             foreach (var player in Player.List)
             {
                 if (player?.UserId == null || !Helper.HandleId(player.UserId).Equals(infoSplit[0]) || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
                 
+                Log.Debug("Found player. Attempting ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
+                
                 if((SCPStats.Singleton?.Config.SyncBans ?? false) && HandleBans(player, data)) return;
+                Log.Debug("Player not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
                 HandleHats(player, data);
+                Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
                 HandleRolesync(player, data);
 
                 return;
             }
+            
+            Log.Debug("No suitable online players found", SCPStats.Singleton?.Config?.Debug ?? false);
         }
 
         private static bool HandleBans(Player player, UserInfoData data)
         {
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
+            Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
             ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
             return true;
         }
@@ -155,6 +170,8 @@ namespace SCPStats.Websocket
         {
             if (!data.HasHat) return;
 
+            Log.Debug("User has hat. Giving permissions!", SCPStats.Singleton?.Config?.Debug ?? false);
+            
             var item = (ItemType) Convert.ToInt32(data.HatID);
 
             if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = item;
@@ -168,22 +185,32 @@ namespace SCPStats.Websocket
 
         private static void HandleRolesync(Player player, UserInfoData data)
         {
-            if (SCPStats.Singleton == null || ServerStatic.PermissionsHandler == null || ServerStatic.PermissionsHandler._groups == null) return;
+            Log.Debug("Started rolesync", SCPStats.Singleton?.Config?.Debug ?? false);
+            
+            if (SCPStats.Singleton == null || SCPStats.Singleton.Config == null || ServerStatic.PermissionsHandler == null || ServerStatic.PermissionsHandler._groups == null) return;
 
+            Log.Debug("Checking if player already has a role.", SCPStats.Singleton?.Config?.Debug ?? false);
+            
             if (player.Group != null && !PlayerHasGroup(player, SCPStats.Singleton.Config.BoosterRole) && !PlayerHasGroup(player, SCPStats.Singleton.Config.DiscordMemberRole) && !SCPStats.Singleton.Config.RoleSync.Any(role =>
             {
                 var split = role.Split(':');
                 return split.Length >= 2 && split[1] != "IngameRoleName" && PlayerHasGroup(player, split[1]);
             })) return;
 
+            Log.Debug("Player does not have a role. Attempting discord rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
+            
             if (data.DiscordRoles.Length > 0 && data.Ranks.Length > 0 && data.Stats.Length > 0 && SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, data.DiscordRoles, data.Ranks, data.Stats))) return;
 
+            Log.Debug("Attempting booster/discord member rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
+            
             if (data.IsBooster && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
             {
+                Log.Debug("Giving booster role.", SCPStats.Singleton?.Config?.Debug ?? false);
                 GiveRole(player, SCPStats.Singleton.Config.BoosterRole);
             }
             else if (data.IsDiscordMember && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
             {
+                Log.Debug("Giving discord member role.", SCPStats.Singleton?.Config?.Debug ?? false);
                 GiveRole(player, SCPStats.Singleton.Config.DiscordMemberRole);
             }
         }
