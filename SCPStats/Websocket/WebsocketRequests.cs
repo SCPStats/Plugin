@@ -199,7 +199,7 @@ namespace SCPStats.Websocket
 
             Log.Debug("Player does not have a role. Attempting discord rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
             
-            if (data.DiscordRoles.Length > 0 && data.Ranks.Length > 0 && data.Stats.Length > 0 && SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, data.DiscordRoles, data.Ranks, data.Stats))) return;
+            if ((data.DiscordRoles.Length > 0 || data.Ranks.Length > 0 || data.Stats.Length > 0) && SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, data.DiscordRoles, data.Ranks, data.Stats))) return;
 
             Log.Debug("Attempting booster/discord member rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
             
@@ -252,7 +252,7 @@ namespace SCPStats.Websocket
                     return false;
                 }
 
-                var rank = int.Parse(offset == 0 ? ranks[Helper.Rankings[type]] : stats[Helper.Rankings[type]]);
+                var rank = int.Parse(offset == 0 ? (ranks.Length > Helper.Rankings[type] ? ranks[Helper.Rankings[type]] : "-1") : (stats.Length > Helper.Rankings[type] ? stats[Helper.Rankings[type]] : "-1"));
 
                 if (rank == -1 || offset == 0 && rank >= max || offset == 1 && (!reverse && rank < max || reverse && rank >= max)) return false;
             }
@@ -267,6 +267,8 @@ namespace SCPStats.Websocket
 
         private static void GiveRole(Player player, string key)
         {
+            Log.Info("Giving " + player.UserId + " the role " + key);
+            
             if (!ServerStatic.PermissionsHandler._groups.ContainsKey(key))
             {
                 Log.Error("Group " + key + " does not exist. There is an issue in your rolesync config!");
@@ -279,6 +281,8 @@ namespace SCPStats.Websocket
             ServerStatic.PermissionsHandler._members[player.UserId] = key;
 
             Rainbow(player);
+
+            Log.Info("Successfully gave role!");
         }
 
         private static bool PlayerHasGroup(Player p, string key)
