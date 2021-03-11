@@ -116,13 +116,30 @@ namespace SCPStats
         };
 
         private static MethodInfo IsGhost = null;
+        private static MethodInfo GetSH = null;
+        private static MethodInfo IsNpc = null;
         
-        internal static bool IsPlayerValid(Player p, bool dnt = true, bool role = true)
+        private static bool IsPlayerTutorial(Player p)
         {
-            var playerIsSh = ((List<Player>) Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers")?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
+            var playerIsSh = ((List<Player>) GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
-            return (!dnt || !p.DoNotTrack) && ((!role || (p.Role != RoleType.None && p.Role != RoleType.Spectator)) && !(p.Role == RoleType.Tutorial && !playerIsSh));
+            return p.Role == RoleType.Tutorial && !playerIsSh;
         }
+
+        internal static PlayerInfo GetPlayerInfo(Player p, bool tutorial = true, bool spectator = true)
+        {
+            return p != null && (p.NoClipEnabled || p.IsGodModeEnabled || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
+                ? new PlayerInfo(null, RoleType.None, false)
+                : p?.UserId == null || p.IsHost || !p.IsVerified || (spectator && (p.Role == RoleType.None || p.Role == RoleType.Spectator))
+                    ? new PlayerInfo(null, RoleType.None, true)
+                    : p.DoNotTrack 
+                        ? new PlayerInfo(null, p.Role, true) 
+                        : new PlayerInfo(Helper.HandleId(p.UserId), p.Role, true);
+        }
+
+        internal static bool IsRoundRunning() => !EventHandler.PauseRound && RoundSummary.RoundInProgress();
+
+        internal static string RoleToString(this RoleType role) => ((int) role).ToString();
         
         internal static string HmacSha256Digest(string secret, string message)
         {
@@ -144,11 +161,15 @@ namespace SCPStats
         internal static void SetupReflection()
         {
             IsGhost = Loader.Plugins.FirstOrDefault(plugin => plugin.Name == "GhostSpectator")?.Assembly?.GetType("GhostSpectator.API")?.GetMethod("IsGhost");
+            GetSH = Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly?.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers");
+            IsNpc = Loader.Plugins.FirstOrDefault(pl => pl.Name == "CustomNPCs")?.Assembly?.GetType("NPCS.Extensions")?.GetMethod("IsNPC");
         }
 
         internal static void ClearReflection()
         {
             IsGhost = null;
+            GetSH = null;
+            IsNpc = null;
         }
 
         internal static bool IsPlayerGhost(Player p)
@@ -156,6 +177,11 @@ namespace SCPStats
             if (IsGhost == null) return false;
 
             return (bool) (IsGhost.Invoke(null, new object[] {p}) ?? false);
+        }
+
+        internal static bool IsPlayerNPC(Player p)
+        {
+            return (bool) (IsNpc?.Invoke(null, new object[] {p}) ?? false) || p.Id == 9999 || p.IPAddress != "127.0.0.WAN";
         }
     }
 }

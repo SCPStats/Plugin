@@ -226,6 +226,7 @@
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\ServerNamePatch.cs" />
     <Compile Include="Patches\UnbanPatch.cs" />
+    <Compile Include="PlayerInfo.cs" />
     <Compile Include="RequestType.cs" />
     <Compile Include="SCPStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
