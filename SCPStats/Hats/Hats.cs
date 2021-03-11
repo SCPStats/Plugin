@@ -85,6 +85,9 @@ namespace SCPStats.Hats
             rigidbody.useGravity = false;
             rigidbody.isKinematic = true;
 
+            var collider = pickup.gameObject.GetComponent<Collider>();
+            collider.enabled = false;
+
             playerComponent.item = pickup.gameObject.AddComponent<HatItemComponent>();
             playerComponent.item.player = playerComponent;
             playerComponent.item.pos = pos;
