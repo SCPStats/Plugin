@@ -61,7 +61,7 @@ namespace SCPStats
                 var player = Players[i];
                 if (Player.List.Any(p => p != null && !p.IsHost && p.UserId == player)) continue;
                 
-                WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\": \"" + Helper.HandleId(player) + "\"}");
+                WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\"" + Helper.HandleId(player) + "\"}");
 
                 Players.Remove(player);
             }
@@ -245,7 +245,7 @@ namespace SCPStats
                 killerInfo.PlayerRole = targetInfo.PlayerRole;
             }
 
-            WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\": \""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.RoleToString()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.RoleToString()+"\",\"damageType\":\""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\":\""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.RoleToString()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.RoleToString()+"\",\"damageType\":\""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
@@ -303,7 +303,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
-            WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\": \""+playerInfo.PlayerID+"\", \"itemid\": \""+((int) ev.Pickup.itemId).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+((int) ev.Pickup.itemId).ToString()+"\"}");
         }
 
         internal static void OnDrop(DroppingItemEventArgs ev)
@@ -313,7 +313,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\": \""+playerInfo.PlayerID+"\", \"itemid\": \""+((int) ev.Item.id).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+((int) ev.Item.id).ToString()+"\"}");
         }
 
         internal static void OnJoin(VerifiedEventArgs ev)
@@ -340,7 +340,7 @@ namespace SCPStats
             
             if ((!Round.IsStarted && Players.Contains(ev.Player.UserId)) || playerInfo.PlayerID == null) return;
 
-            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\": \""+playerInfo.PlayerID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+playerInfo.PlayerID+"\"}");
             
             Players.Add(ev.Player.UserId);
         }
@@ -358,7 +358,7 @@ namespace SCPStats
             
             if (Restarting || playerInfo.PlayerID == null) return;
 
-            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\": \""+playerInfo.PlayerID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+playerInfo.PlayerID+"\"}");
 
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
         }
@@ -368,7 +368,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+playerInfo.PlayerID+"\", \"itemid\": \""+((int) ev.Item).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+((int) ev.Item).ToString()+"\"}");
         }
 
         internal static void OnThrow(ThrowingGrenadeEventArgs ev)
@@ -378,7 +378,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\": \""+playerInfo.PlayerID+"\", \"itemid\": \""+((int) ev.GrenadeManager.availableGrenades[(int) ev.Type].inventoryID).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+((int) ev.GrenadeManager.availableGrenades[(int) ev.Type].inventoryID).ToString()+"\"}");
         }
 
         internal static void OnUpgrade(UpgradingItemsEventArgs ev)
