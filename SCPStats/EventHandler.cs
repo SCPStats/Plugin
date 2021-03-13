@@ -440,26 +440,23 @@ namespace SCPStats
         
         internal static void OnKick(KickedEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Target);
-            if (!ev.IsAllowed || !playerInfo.IsAllowed || playerInfo.PlayerID == null || ev.Target?.UserId == null || JustJoined.Contains(ev.Target.UserId) || IgnoredMessages.Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
+            if (!ev.IsAllowed || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target) || JustJoined.Contains(ev.Target.UserId) || IgnoredMessages.Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+playerInfo.PlayerID+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");
         }
         
         internal static void OnMute(ChangingMuteStatusEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Player);
-            if (!ev.IsAllowed || !ev.IsMuted || !playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
+            if (!ev.IsAllowed || !ev.IsMuted || ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
             
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"3\",\"playerId\":\""+playerInfo.PlayerID+"\",\"message\":\"Unspecified\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"3\",\"playerId\":\""+Helper.HandleId(ev.Player.UserId)+"\",\"message\":\"Unspecified\"}");
         }
         
         internal static void OnIntercomMute(ChangingIntercomMuteStatusEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Player);
-            if (!ev.IsAllowed || !ev.IsMuted || !playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
+            if (!ev.IsAllowed || !ev.IsMuted || ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
             
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"4\",\"playerId\":\""+playerInfo.PlayerID+"\",\"message\":\"Unspecified\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"4\",\"playerId\":\""+Helper.HandleId(ev.Player.UserId)+"\",\"message\":\"Unspecified\"}");
         }
 
         internal static void OnRecalling(FinishingRecallEventArgs ev)
