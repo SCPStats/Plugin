@@ -69,10 +69,8 @@ namespace SCPStats.Websocket
 
             if (!string.IsNullOrEmpty(info))
             {
-                result = warnings.Select(warning => warning.Split('|')).Where(warningSplit => warningSplit.Length >= 4).Aggregate(result, (current, warningSplit) => current + warningSplit[0] + (warningSplit[3] != SCPStats.ServerID ? "*" : "") + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "") + "\n");
+                result = warnings.Select(warning => warning.Split('|')).Where(warningSplit => warningSplit.Length >= 4).Aggregate(result, (current, warningSplit) => current + warningSplit[0] + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "") + "\n");
             }
-
-            result += "\n*=Warning was not made in this server.";
 
             if (MessageIDs.TryGetValue(msgId, out var player))
             {
