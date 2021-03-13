@@ -1,85 +1,105 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Exiled.API.Features;
 
 namespace SCPStats.Websocket.Data
 {
     public class RoundStatsData
     {
-        public Dictionary<string, Stats> PlayerStats { get; set; }
+        public Dictionary<Player, Stats> PlayerStats { get; set; }
         
-        public string[] KillsByScore { get; }
-        public string[] PlayerKillsByScore { get; }
-        public string[] ScpKillsByScore { get; }
-        public string[] KillsByOrder { get; }
-        public string[] PlayerKillsByOrder { get; }
-        public string[] ScpKillsByOrder { get; }
+        public Player[] KillsByScore { get; }
+        public Player[] PlayerKillsByScore { get; }
+        public Player[] ScpKillsByScore { get; }
+        public Player[] KillsByOrder { get; }
+        public Player[] PlayerKillsByOrder { get; }
+        public Player[] ScpKillsByOrder { get; }
         
-        public string[] DeathsByScore { get; }
-        public string[] DeathsByOrder { get; }
+        public Player[] DeathsByScore { get; }
+        public Player[] DeathsByOrder { get; }
         
-        public string[] EscapesByScore { get; }
-        public string[] EscapesByOrder { get; }
-        public string[] FastestEscapeByScore { get; }
+        public Player[] EscapesByScore { get; }
+        public Player[] EscapesByOrder { get; }
+        public Player[] FastestEscapeByScore { get; }
         
-        public string[] SodasByScore { get; }
-        public string[] SodasByOrder { get; }
-        public string[] MedkitsByScore { get; }
-        public string[] MedkitsByOrder { get; }
-        public string[] BallsByScore { get; }
-        public string[] BallsByOrder { get; }
-        public string[] AdrenalineByScore { get; }
-        public string[] AdrenalineByOrder { get; }
+        public Player[] SodasByScore { get; }
+        public Player[] SodasByOrder { get; }
+        public Player[] MedkitsByScore { get; }
+        public Player[] MedkitsByOrder { get; }
+        public Player[] BallsByScore { get; }
+        public Player[] BallsByOrder { get; }
+        public Player[] AdrenalineByScore { get; }
+        public Player[] AdrenalineByOrder { get; }
         
-        public string[] XpByScore { get; }
+        public Player[] XpByScore { get; }
 
         public RoundStatsData(string data)
         {
             var parts = data.Split(',');
 
-            PlayerStats = new Dictionary<string, Stats>();
-            
-            KillsByScore = CreateScoreArray(parts[0], "Kills");
-            PlayerKillsByScore = CreateScoreArray(parts[1], "PlayerKills");
-            ScpKillsByScore = CreateScoreArray(parts[2], "ScpKills");
-            KillsByOrder = parts[3].Split('|');
-            PlayerKillsByOrder = parts[4].Split('|');
-            ScpKillsByOrder = parts[5].Split('|');
-            
-            DeathsByScore = CreateScoreArray(parts[6], "Deaths");
-            DeathsByOrder = parts[7].Split('|');
-            
-            EscapesByScore = CreateScoreArray(parts[8], "Escapes");
-            FastestEscapeByScore = CreateScoreArray(parts[9], "FastestEscape");
-            EscapesByOrder = parts[10].Split('|');
+            PlayerStats = new Dictionary<Player, Stats>();
 
-            SodasByScore = CreateScoreArray(parts[11], "Sodas");
-            MedkitsByScore = CreateScoreArray(parts[12], "Medkits");
-            BallsByScore = CreateScoreArray(parts[13], "Balls");
-            AdrenalineByScore = CreateScoreArray(parts[14], "Adrenaline");
-            SodasByOrder = parts[15].Split('|');
-            MedkitsByOrder = parts[16].Split('|');
-            BallsByOrder = parts[17].Split('|');
-            AdrenalineByOrder = parts[18].Split('|');
+            var players = Player.List.ToDictionary(Helper.HandleId, pl => pl);
             
-            XpByScore = CreateScoreArray(parts[19], "Xp");
+            KillsByScore = CreateScoreArray(parts[0], "Kills", players);
+            PlayerKillsByScore = CreateScoreArray(parts[1], "PlayerKills", players);
+            ScpKillsByScore = CreateScoreArray(parts[2], "ScpKills", players);
+            KillsByOrder = IDsToPlayers(parts[3].Split('|'), players);
+            PlayerKillsByOrder = IDsToPlayers(parts[4].Split('|'), players);
+            ScpKillsByOrder = IDsToPlayers(parts[5].Split('|'), players);
+            
+            DeathsByScore = CreateScoreArray(parts[6], "Deaths", players);
+            DeathsByOrder = IDsToPlayers(parts[7].Split('|'), players);
+            
+            EscapesByScore = CreateScoreArray(parts[8], "Escapes", players);
+            FastestEscapeByScore = CreateScoreArray(parts[9], "FastestEscape", players);
+            EscapesByOrder = IDsToPlayers(parts[10].Split('|'), players);
+
+            SodasByScore = CreateScoreArray(parts[11], "Sodas", players);
+            MedkitsByScore = CreateScoreArray(parts[12], "Medkits", players);
+            BallsByScore = CreateScoreArray(parts[13], "Balls", players);
+            AdrenalineByScore = CreateScoreArray(parts[14], "Adrenaline", players);
+            SodasByOrder = IDsToPlayers(parts[15].Split('|'), players);
+            MedkitsByOrder = IDsToPlayers(parts[16].Split('|'), players);
+            BallsByOrder = IDsToPlayers(parts[17].Split('|'), players);
+            AdrenalineByOrder = IDsToPlayers(parts[18].Split('|'), players);
+            
+            XpByScore = CreateScoreArray(parts[19], "Xp", players);
         }
 
-        private string[] CreateScoreArray(string data, string propName)
+        private Player[] CreateScoreArray(string data, string propName, Dictionary<string, Player> playersDict)
         {
-            return string.IsNullOrEmpty(data) ? new string[] {} : data.Split('|').Select(scoreData => ParseScore(scoreData, propName)).ToArray();
+            return string.IsNullOrEmpty(data) ? new Player[] {} : data.Split('|').Select(scoreData => ParseScore(scoreData, propName, playersDict)).Where(x => x != null).ToArray();
         }
 
-        private string ParseScore(string data, string propName)
+        private Player[] IDsToPlayers(IEnumerable<string> ids, Dictionary<string, Player> playersDict)
+        {
+            var players = new List<Player>();
+
+            foreach (var id in ids)
+            {
+                if (playersDict.TryGetValue(id, out var player))
+                {
+                    players.Add(player);
+                }
+            }
+
+            return players.ToArray();
+        }
+
+        private Player ParseScore(string data, string propName, Dictionary<string, Player> playersDict)
         {
             var parts = data.Split(';');
 
             var user = parts[0];
+            if(!playersDict.TryGetValue(user, out var player)) return null;
+            
             var score = int.Parse(parts[1]);
             
-            if(!PlayerStats.ContainsKey(user)) PlayerStats[user] = new Stats();
-            typeof(Stats).GetField(propName)?.SetValue(PlayerStats[user], score);
+            if(!PlayerStats.ContainsKey(player)) PlayerStats[player] = new Stats();
+            typeof(Stats).GetField(propName)?.SetValue(PlayerStats[player], score);
 
-            return user;
+            return player;
         }
     }
 }

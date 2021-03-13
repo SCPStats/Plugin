@@ -411,7 +411,7 @@ namespace SCPStats.Websocket
 
         private static string GetRoundSummaryVariable(RoundStatsData roundStats, string defaultVal, string metric, string type, int pos, bool isNum)
         {
-            var list = (string[]) typeof(RoundStatsData).GetProperty(metric+(type == "score" ? "ByScore" : "ByOrder"))?.GetValue(roundStats);
+            var list = (Player[]) typeof(RoundStatsData).GetProperty(metric+(type == "score" ? "ByScore" : "ByOrder"))?.GetValue(roundStats);
             if (list == null) return "";
 
             if (list.Length < pos)
@@ -420,15 +420,14 @@ namespace SCPStats.Websocket
             }
 
             var player = list[pos-1];
-            var playerObj = Player.List.FirstOrDefault(pl => Helper.HandleId(pl) == player);
 
-            if (player == null || playerObj == null)
+            if (player == null)
             {
                 return defaultVal;
             }
             
-            if (!isNum) return playerObj.Nickname;
-            return roundStats.PlayerStats.TryGetValue(player, out var stats) ? ((int) (typeof(Stats).GetField(metric)?.GetValue(stats) ?? 0)).ToString() : "0";
+            if (!isNum) return player.Nickname;
+            return roundStats.PlayerStats.TryGetValue(player, out var stats) ? ((int) (typeof(Stats).GetField(metric)?.GetValue(stats) ?? 0)).ToString() : defaultVal;
         }
     }
 }
