@@ -163,6 +163,11 @@ namespace SCPStats
             IsGhost = Loader.Plugins.FirstOrDefault(plugin => plugin.Name == "GhostSpectator")?.Assembly?.GetType("GhostSpectator.API")?.GetMethod("IsGhost");
             GetSH = Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly?.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers");
             IsNpc = Loader.Plugins.FirstOrDefault(pl => pl.Name == "CustomNPCs")?.Assembly?.GetType("NPCS.Extensions")?.GetMethod("IsNPC");
+
+            var vpnShield = Loader.Plugins.FirstOrDefault(pl => pl.Name == "VPNShield EXILED Edition");
+            var vpnShieldMessage = (string) vpnShield?.Assembly?.GetType("VPNShield.Config")?.GetProperty("VpnKickMessage")?.GetValue(vpnShield);
+            
+            if(vpnShieldMessage != null) EventHandler.IgnoredMessagesFromIntegration.Add(vpnShieldMessage);
         }
 
         internal static void ClearReflection()
@@ -170,6 +175,8 @@ namespace SCPStats
             IsGhost = null;
             GetSH = null;
             IsNpc = null;
+            
+            EventHandler.IgnoredMessagesFromIntegration.Clear();
         }
 
         internal static bool IsPlayerGhost(Player p)

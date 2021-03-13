@@ -423,10 +423,25 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id)+"\",\"message\":\""+("Reason: \""+ev.Details.Reason+"\", Issuer: \""+ev.Details.Issuer+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((int) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"issuer\":\""+((!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) && ev.Details.Id != ev.Issuer?.UserId) ? Helper.HandleId(ev.Issuer) : "")+"\"}");
         }
         
+        private static List<string> IgnoredMessages = new List<string>()
+        {
+            "[SCPStats]",
+            "VPNs and proxies are forbidden",
+            "<size=70><color=red>You are banned.",
+            "Your account must be at least",
+            "You have been banned.",
+            "[Kicked by uAFK]",
+            "You were AFK",
+            "[Anty-AFK]",
+            "[Anty AFK]"
+        };
+        
+        internal static List<string> IgnoredMessagesFromIntegration = new List<string>();
+        
         internal static void OnKick(KickedEventArgs ev)
         {
             var playerInfo = Helper.GetPlayerInfo(ev.Target);
-            if (!ev.IsAllowed || !playerInfo.IsAllowed || playerInfo.PlayerID == null || ev.Target?.UserId == null || JustJoined.Contains(ev.Target.UserId) || ev.Reason.StartsWith("[SCPStats]") || ev.Reason.StartsWith("VPNs and proxies are forbidden") || ev.Reason.StartsWith("<size=70><color=red>You are banned.") || ev.Reason.StartsWith("Your account must be at least") || ev.Reason.StartsWith("You have been banned.") || ev.Reason.StartsWith("[Kicked by uAFK]") || ev.Reason.StartsWith("You were AFK") || ev.Reason.EndsWith("[Anty-AFK]") || ev.Reason.EndsWith("[Anty AFK]")) return;
+            if (!ev.IsAllowed || !playerInfo.IsAllowed || playerInfo.PlayerID == null || ev.Target?.UserId == null || JustJoined.Contains(ev.Target.UserId) || IgnoredMessages.Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
 
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+playerInfo.PlayerID+"\",\"message\":\""+("Reason: \""+ev.Reason+"\"").Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");
         }
