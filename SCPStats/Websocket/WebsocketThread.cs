@@ -113,7 +113,7 @@ namespace SCPStats.Websocket
                     return;
                 }
 
-                ws = new WebSocket("wss://scpstats.com/connect") {Log = {Level = LogLevel.Fatal}};
+                ws = new WebSocket("wss://ws.scpstats.com") {Log = {Level = LogLevel.Fatal}};
 
                 ws.OnOpen += OnOpen;
                 ws.OnMessage += OnMessage;
