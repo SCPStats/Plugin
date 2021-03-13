@@ -40,7 +40,7 @@ namespace SCPStats
         private static T GetConfigKey<T>(string pluginName, string configTypeName, string keyName)
         {
             var plugin = Loader.Plugins.FirstOrDefault(pl => pl.Name == pluginName);
-            return (T) plugin?.Assembly?.GetType(configTypeName)?.GetProperty(keyName)?.GetValue(plugin);
+            return (T) plugin?.Assembly?.GetType(configTypeName)?.GetProperty(keyName)?.GetValue(plugin.Config);
         }
     }
 }
