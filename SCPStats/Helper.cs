@@ -115,13 +115,9 @@ namespace SCPStats
             {"quickescape", 10}
         };
 
-        private static MethodInfo IsGhost = null;
-        private static MethodInfo GetSH = null;
-        private static MethodInfo IsNpc = null;
-        
         private static bool IsPlayerTutorial(Player p)
         {
-            var playerIsSh = ((List<Player>) GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
+            var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
             return p.Role == RoleType.Tutorial && !playerIsSh;
         }
@@ -158,37 +154,14 @@ namespace SCPStats
             return HandleId(player?.UserId);
         }
 
-        internal static void SetupReflection()
-        {
-            IsGhost = Loader.Plugins.FirstOrDefault(plugin => plugin.Name == "GhostSpectator")?.Assembly?.GetType("GhostSpectator.API")?.GetMethod("IsGhost");
-            GetSH = Loader.Plugins.FirstOrDefault(pl => pl.Name == "SerpentsHand")?.Assembly?.GetType("SerpentsHand.API.SerpentsHand")?.GetMethod("GetSHPlayers");
-            IsNpc = Loader.Plugins.FirstOrDefault(pl => pl.Name == "CustomNPCs")?.Assembly?.GetType("NPCS.Extensions")?.GetMethod("IsNPC");
-
-            var vpnShield = Loader.Plugins.FirstOrDefault(pl => pl.Name == "VPNShield EXILED Edition");
-            var vpnShieldMessage = (string) vpnShield?.Assembly?.GetType("VPNShield.Config")?.GetProperty("VpnKickMessage")?.GetValue(vpnShield);
-            
-            if(vpnShieldMessage != null) EventHandler.IgnoredMessagesFromIntegration.Add(vpnShieldMessage);
-        }
-
-        internal static void ClearReflection()
-        {
-            IsGhost = null;
-            GetSH = null;
-            IsNpc = null;
-            
-            EventHandler.IgnoredMessagesFromIntegration.Clear();
-        }
-
         internal static bool IsPlayerGhost(Player p)
         {
-            if (IsGhost == null) return false;
-
-            return (bool) (IsGhost.Invoke(null, new object[] {p}) ?? false);
+            return (bool) (Integrations.IsGhost?.Invoke(null, new object[] {p}) ?? false);
         }
 
         internal static bool IsPlayerNPC(Player p)
         {
-            return (bool) (IsNpc?.Invoke(null, new object[] {p}) ?? false) || p.Id == 9999 || p.IPAddress == "127.0.0.WAN";
+            return (bool) (Integrations.IsNpc?.Invoke(null, new object[] {p}) ?? false) || p.Id == 9999 || p.IPAddress == "127.0.0.WAN";
         }
     }
 }
