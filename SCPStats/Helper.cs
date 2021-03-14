@@ -165,7 +165,7 @@ namespace SCPStats
         }
         
         internal static void SendWarningMessage(Player p, string reason){
-            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none") p.Broadcast(5, SCPStats.Singleton.Config.WarningMessage+reason);
+            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none") p.Broadcast(5, SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason));
         }
     }
 }
