@@ -18,6 +18,7 @@ namespace SCPStats.Warnings
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             var issuerID = "";
+            var issuerName = "";
             
             if (sender is PlayerCommandSender commandSender)
             {
@@ -29,6 +30,7 @@ namespace SCPStats.Warnings
                 }
 
                 issuerID = Helper.HandleId(p);
+                issuerName = p.Nickname;
             }
             
             if (arguments.Array == null || arguments.Array.Length < 2)
@@ -61,7 +63,7 @@ namespace SCPStats.Warnings
                 return true;
             }
             
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+issuerID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+player.Nickname+"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName+"\"}");
 
             response = "Added warning.";
             return true;
