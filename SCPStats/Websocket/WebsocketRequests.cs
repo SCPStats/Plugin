@@ -144,9 +144,13 @@ namespace SCPStats.Websocket
                 
                 Log.Debug("Found player. Attempting ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
                 
-                if((SCPStats.Singleton?.Config.SyncBans ?? false) && HandleBans(player, data)) return;
+                if((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, data)) return;
                 Log.Debug("Player not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
+                
+                if(data.WarnMessage != null) Helper.SendWarningMessage(player, data.WarnMessage);
+                    
                 HandleHats(player, data);
+                
                 Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
                 HandleRolesync(player, data);
 

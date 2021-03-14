@@ -163,5 +163,9 @@ namespace SCPStats
         {
             return (bool) (Integrations.IsNpc?.Invoke(null, new object[] {p}) ?? false) || p.Id == 9999 || p.IPAddress == "127.0.0.WAN";
         }
+        
+        internal static void SendWarningMessage(Player p, string reason){
+            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none") p.Broadcast(5, SCPStats.Singleton.Config.WarningMessage+reason);
+        }
     }
 }

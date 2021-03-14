@@ -63,6 +63,9 @@ namespace SCPStats
         [Description("What color the round summary console message is.")]
         public string RoundSummaryConsoleMessageColor { get; set; } = "yellow";
 
+        [Description("Send a message to people when they are warned. Set to \"none\" to disable.")]
+        public string WarningMessage { get; set; } = "You have been warned. Reason: ";
+
         [Description("This can help solve problems, but will spam your console.")]
         public bool Debug { get; set; } = false;
     }
