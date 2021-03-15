@@ -39,7 +39,7 @@ namespace SCPStats.Warnings
                 return true;
             }
 
-            var message = "Unspecified";
+            var message = "";
 
             if (arguments.Array.Length > 2)
             {
