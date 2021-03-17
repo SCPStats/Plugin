@@ -166,7 +166,7 @@ namespace SCPStats
         {
             if (PauseRound) yield break;
             
-            var winLose = new Dictionary<string, Tuple<bool, RoleType>>();
+            var winLose = new Dictionary<string, Tuple<bool, bool, RoleType>>();
             var winningTeam = ev.LeadingTeam;
             
             foreach (var player in Player.List)
@@ -174,22 +174,29 @@ namespace SCPStats
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
                 if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
 
-                if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
+                if (Helper.IsPlayerTutorial(player) || player.IsOverwatchEnabled)
                 {
-                    winLose[playerInfo.PlayerID] = new Tuple<bool, RoleType>(true, playerInfo.PlayerRole);
+                    winLose[playerInfo.PlayerID] = new Tuple<bool, bool, RoleType>(false, true, playerInfo.PlayerRole);
+                }
+                else if (playerInfo.PlayerRole != RoleType.None && playerInfo.PlayerRole != RoleType.Spectator)
+                {
+                    winLose[playerInfo.PlayerID] = new Tuple<bool, bool, RoleType>(true, false, playerInfo.PlayerRole);
                 }
                 else
                 {
-                    winLose[playerInfo.PlayerID] = new Tuple<bool, RoleType>(false, playerInfo.PlayerRole);
+                    winLose[playerInfo.PlayerID] = new Tuple<bool, bool, RoleType>(false, false, playerInfo.PlayerRole);
                 }
             }
 
             foreach (var keys in winLose)
             {
-                if (keys.Value.Item1)
+                if (keys.Value.Item2)
                 {
-                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item2.RoleToString()+"\",\"team\":\""+((int) winningTeam).ToString()+"\"}");
-
+                    WebsocketHandler.SendRequest(RequestType.RoundEndPlayer, keys.Key);
+                }
+                else if (keys.Value.Item1)
+                {
+                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item3.RoleToString()+"\",\"team\":\""+((int) winningTeam).ToString()+"\"}");
                 }
                 else
                 {

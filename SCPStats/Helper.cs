@@ -115,11 +115,11 @@ namespace SCPStats
             {"quickescape", 10}
         };
 
-        private static bool IsPlayerTutorial(Player p)
+        internal static bool IsPlayerTutorial(Player p)
         {
             var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
-            return p.Role == RoleType.Tutorial && !playerIsSh;
+            return p.Role == RoleType.Tutorial && !playerIsSh && !IsPlayerGhost(p);
         }
 
         internal static PlayerInfo GetPlayerInfo(Player p, bool tutorial = true, bool spectator = true)

@@ -23,6 +23,7 @@
         KillDeath = 21,
         Revive = 22,
         PocketEnter = 23,
-        PocketExit = 24
+        PocketExit = 24,
+        RoundEndPlayer = 25
     }
 }
