@@ -66,6 +66,9 @@ namespace SCPStats
         [Description("Send a message to people when they are warned. Set to \"none\" to disable. \"{reason}\" will be replaced with the warning reason.")]
         public string WarningMessage { get; set; } = "You have been warned. Reason: {reason}";
 
+        [Description("How long the above warning message should be.")]
+        public ushort WarningMessageDuration { get; set; } = 5;
+
         [Description("This can help solve problems, but will spam your console.")]
         public bool Debug { get; set; } = false;
     }
