@@ -272,7 +272,7 @@ namespace SCPStats.Websocket
 
         private static void GiveRole(Player player, string key)
         {
-            Log.Info("Giving " + player.UserId + " the role " + key);
+            Log.Debug("Giving " + player.UserId + " the role " + key, SCPStats.Singleton?.Config?.Debug ?? false);
             
             if (!ServerStatic.PermissionsHandler._groups.ContainsKey(key))
             {
@@ -287,7 +287,7 @@ namespace SCPStats.Websocket
 
             Rainbow(player);
 
-            Log.Info("Successfully gave role!");
+            Log.Debug("Successfully gave role!", SCPStats.Singleton?.Config?.Debug ?? false);
         }
 
         private static bool PlayerHasGroup(Player p, string key)
