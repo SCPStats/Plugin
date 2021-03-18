@@ -123,11 +123,14 @@ namespace SCPStats.Websocket
 
         private static void HandleUserInfo(string info)
         {
-            var infoSplit = info.Split(' ');
+            var infoSplit = info.Split(' ').ToList();
+            var playerId = infoSplit[0];
             
-            Log.Debug("Received user info for " + infoSplit[0], SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Received user info for " + playerId, SCPStats.Singleton?.Config?.Debug ?? false);
             
-            var flags = infoSplit[1].Split(',');
+            infoSplit.RemoveAt(0);
+
+            var flags = string.Join(" ", infoSplit).Split(',');
             if (flags.All(v => v == "0")) return;
             
             var data = new UserInfoData(flags);
@@ -140,7 +143,7 @@ namespace SCPStats.Websocket
 
             foreach (var player in Player.List)
             {
-                if (player?.UserId == null || !Helper.HandleId(player.UserId).Equals(infoSplit[0]) || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
+                if (player?.UserId == null || !Helper.HandleId(player.UserId).Equals(playerId) || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
                 
                 Log.Debug("Found player. Attempting ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
                 

@@ -1,4 +1,7 @@
-﻿namespace SCPStats.Websocket.Data
+﻿using System;
+using System.Text;
+
+namespace SCPStats.Websocket.Data
 {
     public struct UserInfoData
     {
@@ -24,7 +27,7 @@
             Ranks = length > 5 && flags[5] != "0" ? flags[5].Split('|') : new string[]{};
             Stats = length > 6 && flags[6] != "0" ? flags[6].Split('|') : new string[]{};
             IsBanned = length > 7 && flags[7] == "1";
-            WarnMessage = length > 8 && !string.IsNullOrEmpty(flags[8]) ? flags[8] : null;
+            WarnMessage = length > 8 && !string.IsNullOrEmpty(flags[8]) ? Encoding.UTF8.GetString(Convert.FromBase64String(flags[8])) : null;
         }
     }
 }

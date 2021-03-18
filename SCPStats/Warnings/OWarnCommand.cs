@@ -35,7 +35,7 @@ namespace SCPStats.Warnings
             
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = "Usage: warn <id> [reason]";
+                response = "Usage: owarn <id> [reason]";
                 return true;
             }
 
