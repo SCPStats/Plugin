@@ -178,7 +178,7 @@ namespace SCPStats
                 {
                     winLose[playerInfo.PlayerID] = new Tuple<bool, bool, RoleType>(false, true, playerInfo.PlayerRole);
                 }
-                else if (playerInfo.PlayerRole != RoleType.None && playerInfo.PlayerRole != RoleType.Spectator)
+                else if (playerInfo.PlayerRole != RoleType.None && playerInfo.PlayerRole != RoleType.Spectator && !Helper.IsPlayerGhost(player))
                 {
                     winLose[playerInfo.PlayerID] = new Tuple<bool, bool, RoleType>(true, false, playerInfo.PlayerRole);
                 }
