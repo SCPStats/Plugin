@@ -147,12 +147,31 @@ namespace SCPStats
         {
             if (!ev.IsAllowed || !ev.IsRoundEnded) return;
             
+            SendRoundEnd(((int) ev.LeadingTeam).ToString());
+        }
+        
+        internal static void OnRoundRestart()
+        {
+            SendRoundEnd("-1");
+        }
+
+        private static void SendRoundEnd(string leadingTeam)
+        {
+            if (DidRoundEnd) return;
+            
+            foreach (var player in Player.List)
+            {
+                if (player?.UserId == null || player.IsHost || Helper.IsPlayerNPC(player) || !player.IsVerified || Players.Contains(player.UserId)) continue;
+                
+                Players.Add(player.UserId);
+            }
+            
+            Restarting = true;
+            HatCommand.HatPlayers.Clear();
             DidRoundEnd = true;
 
-            HatCommand.HatPlayers.Clear();
-            
-            WebsocketHandler.SendRequest(RequestType.RoundEnd, ((int) ev.LeadingTeam).ToString());
-            Timing.RunCoroutine(SendWinsLose(ev));
+            WebsocketHandler.SendRequest(RequestType.RoundEnd, leadingTeam);
+            Timing.RunCoroutine(SendWinsLose(leadingTeam));
 
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
@@ -162,13 +181,12 @@ namespace SCPStats
             JustJoined.Clear();
         }
 
-        private static IEnumerator<float> SendWinsLose(EndingRoundEventArgs ev)
+        private static IEnumerator<float> SendWinsLose(string leadingTeam)
         {
             if (PauseRound) yield break;
             
             var winLose = new Dictionary<string, Tuple<bool, bool, RoleType>>();
-            var winningTeam = ev.LeadingTeam;
-            
+
             foreach (var player in Player.List)
             {
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
@@ -196,31 +214,15 @@ namespace SCPStats
                 }
                 else if (keys.Value.Item1)
                 {
-                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item3.RoleToString()+"\",\"team\":\""+((int) winningTeam).ToString()+"\"}");
+                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item3.RoleToString()+"\",\"team\":\""+leadingTeam+"\"}");
                 }
                 else
                 {
-                    WebsocketHandler.SendRequest(RequestType.Lose, "{\"playerid\":\""+keys.Key+"\",\"team\":\""+((int) winningTeam).ToString()+"\"}");
+                    WebsocketHandler.SendRequest(RequestType.Lose, "{\"playerid\":\""+keys.Key+"\",\"team\":\""+leadingTeam+"\"}");
                 }
                 
                 yield return Timing.WaitForSeconds(.05f);
             }
-        }
-
-        internal static void OnRoundRestart()
-        {
-            Restarting = true;
-            HatCommand.HatPlayers.Clear();
-            if (DidRoundEnd) return;
-
-            WebsocketHandler.SendRequest(RequestType.RoundEnd, "-1");
-            
-            Timing.KillCoroutines(coroutines.ToArray());
-            coroutines.Clear();
-            
-            SpawnsDone.Clear();
-            PocketPlayers.Clear();
-            JustJoined.Clear();
         }
 
         internal static void Waiting()
@@ -269,7 +271,7 @@ namespace SCPStats
 
             if (ev.IsEscaped)
             {
-                var cuffer = ev.Player.IsCuffed ? Helper.GetPlayerInfo(Player.Get(ev.Player.CufferId)) : new PlayerInfo(null, RoleType.None, true);
+                var cuffer = ev.Player?.IsCuffed ?? false ? Helper.GetPlayerInfo(Player.Get(ev.Player.CufferId)) : new PlayerInfo(null, RoleType.None, true);
 
                 if (!cuffer.IsAllowed || cuffer.PlayerID == playerInfo.PlayerID)
                 {
