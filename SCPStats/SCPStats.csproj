@@ -223,6 +223,7 @@
     <Compile Include="Hats\HatPlayerComponent.cs" />
     <Compile Include="Hats\Hats.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="IDs.cs" />
     <Compile Include="Integrations.cs" />
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\ServerNamePatch.cs" />

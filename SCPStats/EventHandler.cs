@@ -135,7 +135,7 @@ namespace SCPStats
 
                 if (!player.DoNotTrack && player.Role != RoleType.None && player.Role != RoleType.Spectator)
                 {
-                    WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\"" + playerInfo.PlayerID + "\",\"spawnrole\":\"" + playerInfo.PlayerRole.RoleToString() + "\"}");
+                    WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\"" + playerInfo.PlayerID + "\",\"spawnrole\":\"" + playerInfo.PlayerRole.ToID() + "\"}");
                 }
                 else continue;
                 
@@ -214,7 +214,7 @@ namespace SCPStats
                 }
                 else if (keys.Value.Item1)
                 {
-                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item3.RoleToString()+"\",\"team\":\""+leadingTeam+"\"}");
+                    WebsocketHandler.SendRequest(RequestType.Win, "{\"playerid\":\""+keys.Key+"\",\"role\":\""+keys.Value.Item3.ToID()+"\",\"team\":\""+leadingTeam+"\"}");
                 }
                 else
                 {
@@ -254,7 +254,7 @@ namespace SCPStats
                 killerInfo.PlayerRole = targetInfo.PlayerRole;
             }
 
-            WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\":\""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.RoleToString()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.RoleToString()+"\",\"damageType\":\""+DamageTypes.ToIndex(ev.HitInformation.GetDamageType()).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\":\""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.ToID()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.ToID()+"\",\"damageType\":\""+ev.HitInformation.GetDamageType().ToID()+"\"}");
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
@@ -279,12 +279,12 @@ namespace SCPStats
                     cuffer.PlayerRole = RoleType.None;
                 }
 
-                if(playerInfo.PlayerID != null || cuffer.PlayerID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+((int) ev.Player.Role).ToString()+"\",\"cufferid\":\""+cuffer.PlayerID+"\",\"cufferrole\":\""+cuffer.PlayerRole.RoleToString()+"\"}");
+                if(playerInfo.PlayerID != null || cuffer.PlayerID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+playerInfo.PlayerRole.ToID()+"\",\"cufferid\":\""+cuffer.PlayerID+"\",\"cufferrole\":\""+cuffer.PlayerRole.ToID()+"\"}");
             }
 
             if (playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+((int) ev.NewRole).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+ev.NewRole.ToID()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
@@ -305,7 +305,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
-            WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+((int) ev.Pickup.itemId).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Pickup.ItemId.ToID()+"\"}");
         }
 
         internal static void OnDrop(DroppingItemEventArgs ev)
@@ -315,7 +315,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+((int) ev.Item.id).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Item.id.ToID()+"\"}");
         }
 
         internal static void OnJoin(VerifiedEventArgs ev)
@@ -370,7 +370,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+((int) ev.Item).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Item.ToID()+"\"}");
         }
 
         internal static void OnThrow(ThrowingGrenadeEventArgs ev)
@@ -380,7 +380,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+((int) ev.GrenadeManager.availableGrenades[(int) ev.Type].inventoryID).ToString()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Type.ToID()+"\"}");
         }
 
         internal static void OnUpgrade(UpgradingItemsEventArgs ev)
@@ -400,7 +400,7 @@ namespace SCPStats
             if (playerInfo.PlayerID == scp106Info.PlayerID) scp106Info.PlayerID = null;
             if (playerInfo.PlayerID == null && scp106Info.PlayerID == null) return;
 
-            WebsocketHandler.SendRequest(RequestType.PocketEnter, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"playerrole\":\""+playerInfo.PlayerRole.RoleToString()+"\",\"scp106\":\""+scp106Info.PlayerID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.PocketEnter, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"playerrole\":\""+playerInfo.PlayerRole.ToID()+"\",\"scp106\":\""+scp106Info.PlayerID+"\"}");
 
             if (playerInfo.PlayerID == null || scp106Info.PlayerID == null) return;
             PocketPlayers[playerInfo.PlayerID] = scp106Info.PlayerID;
@@ -415,7 +415,7 @@ namespace SCPStats
             
             PocketPlayers.TryGetValue(playerInfo.PlayerID, out var scp106ID);
             
-            WebsocketHandler.SendRequest(RequestType.PocketExit, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"playerrole\":\""+playerInfo.PlayerRole.RoleToString()+"\",\"scp106\":\""+scp106ID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.PocketExit, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"playerrole\":\""+playerInfo.PlayerRole.ToID()+"\",\"scp106\":\""+scp106ID+"\"}");
         }
 
         internal static void OnBan(BannedEventArgs ev)

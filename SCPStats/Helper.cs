@@ -135,8 +135,6 @@ namespace SCPStats
 
         internal static bool IsRoundRunning() => !EventHandler.PauseRound && RoundSummary.RoundInProgress();
 
-        internal static string RoleToString(this RoleType role) => ((int) role).ToString();
-        
         internal static string HmacSha256Digest(string secret, string message)
         {
             var encoding = new UTF8Encoding();
