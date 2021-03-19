@@ -347,15 +347,15 @@ namespace SCPStats
 
         internal static void OnLeave(DestroyingEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
-            if (!playerInfo.IsAllowed || ev.Player?.UserId == null) return;
-            
-            if (ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
+            if (ev.Player != null && ev.Player.GameObject != null && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
                 Object.Destroy(playerComponent.item.gameObject);
                 playerComponent.item = null;
             }
             
+            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
+            if (!playerInfo.IsAllowed || ev.Player?.UserId == null) return;
+
             if (Restarting || playerInfo.PlayerID == null) return;
 
             WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+playerInfo.PlayerID+"\"}");
