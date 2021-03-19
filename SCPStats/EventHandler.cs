@@ -257,13 +257,13 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
-            if (!playerInfo.IsAllowed) return;
-            
-            if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
+            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
             {
                 Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
             }
+            
+            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
+            if (!playerInfo.IsAllowed) return;
 
             if (Round.ElapsedTime.Seconds < 5 || !Helper.IsRoundRunning()) return;
 
@@ -347,7 +347,7 @@ namespace SCPStats
 
         internal static void OnLeave(DestroyingEventArgs ev)
         {
-            if (ev.Player != null && ev.Player.GameObject != null && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
+            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
                 Object.Destroy(playerComponent.item.gameObject);
                 playerComponent.item = null;
