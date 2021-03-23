@@ -145,10 +145,10 @@ namespace SCPStats.Websocket
             {
                 if (player?.UserId == null || !Helper.HandleId(player.UserId).Equals(playerId) || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
                 
-                Log.Debug("Found player. Attempting ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
+                Log.Debug("Found player. Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
                 
-                if((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, data)) return;
-                Log.Debug("Player not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
+                if(HandleWhitelist(player, data) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, data))) return;
+                Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
                 
                 if(data.WarnMessage != null) Helper.SendWarningMessage(player, data.WarnMessage);
                     
@@ -161,6 +161,33 @@ namespace SCPStats.Websocket
             }
             
             Log.Debug("No suitable online players found", SCPStats.Singleton?.Config?.Debug ?? false);
+        }
+
+        private static bool HandleWhitelist(Player player, UserInfoData data)
+        {
+            if (player.IsStaffBypassEnabled /* In the future, to comply with VSR, this must be changed to Whitelist Bypass. Unfortunately, SL does not provide a way to access it outside of auth and preauth. */ || SCPStats.Singleton?.Config?.Whitelist == null || SCPStats.Singleton.Config.Whitelist.Count(req => req != "DiscordRoleID") < 1) return false;
+
+            var passed = false;
+            
+            foreach (var req in SCPStats.Singleton.Config.Whitelist)
+            {
+                if (!CheckRequirements(req, data, "whitelist", req))
+                {
+                    if (!SCPStats.Singleton.Config.WhitelistRequireAll) continue;
+                    
+                    passed = false;
+                    break;
+                }
+
+                passed = true;
+                break;
+            }
+
+            if (passed) return false;
+            
+            Log.Debug("Player is not whitelisted. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+            ServerConsole.Disconnect(player.GameObject, "[SCPStats] You are not whitelisted on this server!");
+            return true;
         }
 
         private static bool HandleBans(Player player, UserInfoData data)
@@ -204,7 +231,7 @@ namespace SCPStats.Websocket
 
             Log.Debug("Player does not have a role. Attempting discord rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
             
-            if ((data.DiscordRoles.Length > 0 || data.Ranks.Length > 0 || data.Stats.Length > 0) && SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, data.DiscordRoles, data.Ranks, data.Stats))) return;
+            if ((data.DiscordRoles.Length > 0 || data.Ranks.Length > 0 || data.Stats.Length > 0) && SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, data))) return;
 
             Log.Debug("Attempting booster/discord member rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
             
@@ -220,54 +247,78 @@ namespace SCPStats.Websocket
             }
         }
 
-        private static bool GiveRoleSync(Player player, string[] configParts, string[] roles, string[] ranks, string[] stats)
+        private static bool GiveRoleSync(Player player, string[] configParts, UserInfoData data)
         {
             var req = configParts[0];
             var role = configParts[1];
 
-            if (req == "DiscordRoleID" || role == "IngameRoleName") return false;
+            if (role == "IngameRoleName") return false;
+
+            if (!CheckRequirements(req, data, "rolesync", req + ":" + role)) return false;
+
+            GiveRole(player, role);
+            return true;
+        }
+        
+        private static bool CheckRequirements(string req, UserInfoData data, string configType, string fullEntry)
+        {
+            if (req == "DiscordRoleID") return false;
 
             if (req.Contains("_"))
             {
                 var parts = req.Split('_');
                 if (parts.Length < 2)
                 {
-                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". Expected \"metric_maxvalue\" but got \"" + req + "\" instead.");
+                    Log.Error("Error parsing "+configType+" config \"" + fullEntry + "\". Expected \"metric_maxvalue\" but got \"" + req + "\" instead.");
                     return false;
                 }
 
                 var offset = (parts[0] == "num" || parts[0] == "numi") ? 1 : 0;
                 var reverse = parts[0] == "numi";
 
-                if (parts.Length > 2 + offset && !parts[2 + offset].Split(',').All(discordRole => roles.Contains(discordRole)))
+                if (parts.Length > 2 + offset && !parts[2 + offset].Split(',').All(subReq => CheckSingle(subReq, data)))
                 {
                     return false;
                 }
 
                 if (!int.TryParse(parts[1 + offset], out var max))
                 {
-                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". There is an error in your max ranks. Expected an integer, but got \"" + parts[1 + offset] + "\"!");
+                    Log.Error("Error parsing "+configType+" config \"" + fullEntry + "\". There is an error in your max ranks. Expected an integer, but got \"" + parts[1 + offset] + "\"!");
                     return false;
                 }
 
                 var type = parts[0 + offset].Trim().ToLower();
                 if (!Helper.Rankings.ContainsKey(type))
                 {
-                    Log.Error("Error parsing rolesync config \"" + req + ":" + role + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"xp\", \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", and \"adrenaline\".");
+                    Log.Error("Error parsing "+configType+" config \"" + fullEntry + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"xp\", \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", and \"adrenaline\".");
                     return false;
                 }
 
-                var rank = int.Parse(offset == 0 ? (ranks.Length > Helper.Rankings[type] ? ranks[Helper.Rankings[type]] : "-1") : (stats.Length > Helper.Rankings[type] ? stats[Helper.Rankings[type]] : "-1"));
+                var rank = int.Parse(offset == 0 ? (data.Ranks.Length > Helper.Rankings[type] ? data.Ranks[Helper.Rankings[type]] : "-1") : (data.Stats.Length > Helper.Rankings[type] ? data.Stats[Helper.Rankings[type]] : "-1"));
 
                 if (rank == -1 || offset == 0 && rank >= max || offset == 1 && (!reverse && rank < max || reverse && rank >= max)) return false;
             }
-            else if (!req.Split(',').All(discordRole => roles.Contains(discordRole)))
+            else if (!req.Split(',').All(subReq => CheckSingle(subReq, data)))
             {
                 return false;
             }
 
-            GiveRole(player, role);
             return true;
+        }
+
+        private static bool CheckSingle(string req, UserInfoData data)
+        {
+            req = req.Trim().ToLower();
+            
+            switch (req)
+            {
+                case "discordmember":
+                    return data.IsDiscordMember;
+                case "booster":
+                    return data.IsBooster;
+                default:
+                    return data.DiscordRoles.Contains(req);
+            }
         }
 
         private static void GiveRole(Player player, string key)

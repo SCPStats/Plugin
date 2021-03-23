@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using Exiled.API.Interfaces;
+using Exiled.Events.EventArgs;
 
 namespace SCPStats
 {
@@ -32,6 +33,15 @@ namespace SCPStats
             "DiscordRoleID:IngameRoleName",
             "playtime_20:IngameRoleName"
         };
+        
+        [Description("The whitelist will only allow a player to join the server if they meet certain conditions. See the below options for how to change the whitelist's behavior. The whitelist is just a list of the same conditions used in rolesync (so only the left side, without the : ), with the addition of \"discordmember\" and \"booster\" being valid conditions.")]
+        public List<string> Whitelist { get; set; } = new List<string>()
+        {
+            "DiscordRoleID"
+        };
+
+        [Description("By default, the whitelist will allow a person in if they match any of the conditions. Setting this value to true will mean that a person will only be let in if every condition matches.")]
+        public bool WhitelistRequireAll { get; set; } = false;
 
         [Description("SCPStats includes hats to give perks to its donators. If you want to reward your own donators with hats, you can give them the scpstats.hats permission.")]
         public bool EnableHats { get; set; } = true;
