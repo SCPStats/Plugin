@@ -8,6 +8,7 @@ using Exiled.Loader;
 using MEC;
 using SCPStats.Hats;
 using SCPStats.Websocket;
+using SCPStats.Websocket.Data;
 using Object = UnityEngine.Object;
 
 namespace SCPStats
@@ -30,6 +31,8 @@ namespace SCPStats
 
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
+        
+        internal static Dictionary<string, Tuple<CentralAuthPreauthFlags, UserInfoData>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags, UserInfoData>>();
 
         internal static void Reset()
         {
@@ -84,6 +87,16 @@ namespace SCPStats
                 
                 yield return Timing.WaitForSeconds(.1f);
             }
+
+            yield return Timing.WaitForSeconds(5f);
+
+            foreach (var player in Player.List)
+            {
+                var playerInfo = Helper.GetPlayerInfo(player, false, false);
+                if (player.UserId == null || !playerInfo.IsAllowed) continue;
+
+                WebsocketRequests.RunUserInfo(player);
+            }
         }
 
         private static bool IsGamemodeRunning()
@@ -124,14 +137,8 @@ namespace SCPStats
             
             foreach (var player in Player.List)
             {
-                if (player?.UserId == null) continue;
-
-                WebsocketHandler.SendRequest(RequestType.UserData, Helper.HandleId(player));
-
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
-                if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
-
-                yield return Timing.WaitForSeconds(.05f);
+                if (player?.UserId == null || !playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
 
                 if (!player.DoNotTrack && player.Role != RoleType.None && player.Role != RoleType.Spectator)
                 {
@@ -232,6 +239,8 @@ namespace SCPStats
             Restarting = false;
             DidRoundEnd = false;
             PauseRound = false;
+            
+            UserInfo.Clear();
         }
         
         internal static void OnKill(DyingEventArgs ev)
@@ -329,11 +338,8 @@ namespace SCPStats
                 Verification.UpdateID();
             }
 
-            Timing.CallDelayed(.2f, () =>
-            {
-                WebsocketHandler.SendRequest(RequestType.UserData, Helper.HandleId(ev.Player));
-            });
-            
+            if (WebsocketRequests.RunUserInfo(ev.Player)) return;
+
             JustJoined.Add(ev.Player.UserId);
             Timing.CallDelayed(10f, () =>
             {
@@ -472,6 +478,17 @@ namespace SCPStats
             if (playerInfo.PlayerID == null && scp049Info.PlayerID == null) return;
 
             WebsocketHandler.SendRequest(RequestType.Revive, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"scp049\":\""+scp049Info.PlayerID+"\"}");
+        }
+
+        internal static void OnPreauth(PreAuthenticatingEventArgs ev)
+        {
+            if (!ev.IsAllowed || ev.UserId == null) return;
+
+            var id = Helper.HandleId(ev.UserId);
+
+            if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
+            UserInfo[id] = new Tuple<CentralAuthPreauthFlags, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
+            WebsocketHandler.SendRequest(RequestType.UserData, id);
         }
     }
 }

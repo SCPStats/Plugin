@@ -3,17 +3,17 @@ using System.Text;
 
 namespace SCPStats.Websocket.Data
 {
-    public struct UserInfoData
+    public class UserInfoData
     {
-        public bool IsBooster { get; private set; }
-        public bool IsDiscordMember { get; private set; }
-        public string[] DiscordRoles { get; private set; }
-        public string[] Ranks { get; private set; }
-        public string[] Stats { get; private set; }
-        public bool HasHat { get; private set; }
-        public string HatID { get; private set; }
-        public bool IsBanned { get; private set; }
-        public string WarnMessage { get; private set; }
+        public bool IsBooster { get; }
+        public bool IsDiscordMember { get; }
+        public string[] DiscordRoles { get; }
+        public string[] Ranks { get; }
+        public string[] Stats { get; }
+        public bool HasHat { get; }
+        public string HatID { get; }
+        public bool IsBanned { get; }
+        public string WarnMessage { get; }
 
         public UserInfoData(string[] flags)
         {

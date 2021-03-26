@@ -98,6 +98,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ChangingMuteStatus += EventHandler.OnMute;
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus += EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall += EventHandler.OnRecalling;
+            Exiled.Events.Handlers.Player.PreAuthenticating += EventHandler.OnPreauth;
         }
 
         private static void LoadConfigs()
@@ -174,6 +175,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ChangingMuteStatus -= EventHandler.OnMute;
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus -= EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall -= EventHandler.OnRecalling;
+            Exiled.Events.Handlers.Player.PreAuthenticating -= EventHandler.OnPreauth;
 
             EventHandler.Reset();
             Hats.Hats.Reset();

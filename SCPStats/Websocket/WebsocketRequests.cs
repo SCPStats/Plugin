@@ -141,31 +141,32 @@ namespace SCPStats.Websocket
             Log.Debug("Is banned: " + data.IsBanned, SCPStats.Singleton?.Config?.Debug ?? false);
             Log.Debug("Has hat perms: " + data.HasHat, SCPStats.Singleton?.Config?.Debug ?? false);
 
-            foreach (var player in Player.List)
-            {
-                if (player?.UserId == null || !Helper.HandleId(player.UserId).Equals(playerId) || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
-                
-                Log.Debug("Found player. Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
-                
-                if(HandleWhitelist(player, data) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, data))) return;
-                Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
-                
-                if(data.WarnMessage != null) Helper.SendWarningMessage(player, data.WarnMessage);
-                    
-                HandleHats(player, data);
-                
-                Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
-                HandleRolesync(player, data);
-
-                return;
-            }
-            
-            Log.Debug("No suitable online players found", SCPStats.Singleton?.Config?.Debug ?? false);
+            if (!EventHandler.UserInfo.ContainsKey(playerId)) return;
+            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags, UserInfoData>(EventHandler.UserInfo[playerId].Item1, data);
         }
 
-        private static bool HandleWhitelist(Player player, UserInfoData data)
+        internal static bool RunUserInfo(Player player)
         {
-            if (player.IsStaffBypassEnabled /* In the future, to comply with VSR, this must be changed to Whitelist Bypass. Unfortunately, SL does not provide a way to access it outside of auth and preauth. */ || SCPStats.Singleton?.Config?.Whitelist == null || SCPStats.Singleton.Config.Whitelist.Count(req => req != "DiscordRoleID") < 1) return false;
+            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(Helper.HandleId(player), out var tupleData) || tupleData.Item2 == null) return false;
+
+            Log.Debug("Found player. Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
+                
+            if(HandleWhitelist(player, tupleData.Item2, tupleData.Item1) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, tupleData.Item2))) return true;
+            Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
+                
+            if(tupleData.Item2.WarnMessage != null) Helper.SendWarningMessage(player, tupleData.Item2.WarnMessage);
+                    
+            HandleHats(player, tupleData.Item2);
+                
+            Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
+            HandleRolesync(player, tupleData.Item2);
+
+            return false;
+        }
+
+        private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
+        {
+            if (flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) || SCPStats.Singleton?.Config?.Whitelist == null || SCPStats.Singleton.Config.Whitelist.Count(req => req != "DiscordRoleID") < 1) return false;
 
             var passed = false;
             
@@ -174,13 +175,13 @@ namespace SCPStats.Websocket
                 if (!CheckRequirements(req, data, "whitelist", req))
                 {
                     if (!SCPStats.Singleton.Config.WhitelistRequireAll) continue;
-                    
+
                     passed = false;
                     break;
                 }
 
                 passed = true;
-                break;
+                if (!SCPStats.Singleton.Config.WhitelistRequireAll) break;
             }
 
             if (passed) return false;
