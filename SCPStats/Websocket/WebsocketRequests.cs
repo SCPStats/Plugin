@@ -355,7 +355,8 @@ namespace SCPStats.Websocket
             var extensions = assembly.GetType("RainbowTags.Extensions");
             if (extensions == null) return;
 
-            if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, new object[] {p}) ?? false)) return;
+            var parameters = new object[] {p, null};
+            if (!(bool) (extensions.GetMethod("IsRainbowTagUser")?.Invoke(null, parameters) ?? false) || parameters[1] == null) return;
 
             var component = assembly.GetType("RainbowTags.RainbowTagController");
 
@@ -366,7 +367,8 @@ namespace SCPStats.Websocket
                 UnityEngine.Object.Destroy(comp);
             }
 
-            p.GameObject.AddComponent(component);
+            var controller = p.GameObject.AddComponent(component);
+            component.GetMethod("AwakeFunc")?.Invoke(controller, new object[] {parameters[1], p.ReferenceHub.serverRoles});
         }
         
         private static Regex RoundSummaryVariable = new Regex("({.*?})");
