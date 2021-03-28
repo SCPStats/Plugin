@@ -83,7 +83,7 @@ namespace SCPStats
             
             foreach (var id in ids)
             {
-                WebsocketHandler.SendRequest(RequestType.UserData, id);
+                WebsocketHandler.SendRequest(RequestType.UserInfo, id);
                 
                 yield return Timing.WaitForSeconds(.1f);
             }
@@ -488,7 +488,7 @@ namespace SCPStats
 
             if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
             UserInfo[id] = new Tuple<CentralAuthPreauthFlags, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
-            WebsocketHandler.SendRequest(RequestType.UserData, id);
+            WebsocketHandler.SendRequest(RequestType.UserInfo, id);
         }
     }
 }
