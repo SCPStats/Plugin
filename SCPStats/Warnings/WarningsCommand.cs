@@ -3,7 +3,6 @@ using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using MEC;
 using RemoteAdmin;
 using SCPStats.Websocket;
 
@@ -12,9 +11,9 @@ namespace SCPStats.Warnings
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class WarningsCommand : ICommand
     {
-        public string Command { get; } = "warnings";
+        public string Command => SCPStats.Singleton?.Translation?.WarningsCommand ?? "warnings";
         public string[] Aliases { get; } = new string[] {"warning", "warns", "getwarns", "getwarnings"};
-        public string Description { get; } = "View warnings on a specific player.";
+        public string Description => SCPStats.Singleton?.Translation?.WarningsDescription ?? "View warnings on a specific player.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -25,7 +24,7 @@ namespace SCPStats.Warnings
                 var p = Player.Get(commandSender.ReferenceHub);
                 if (!p.CheckPermission("scpstats.warnings"))
                 {
-                    response = "You do not have permission to run this command!";
+                    response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
                     return true;
                 }
 
@@ -34,7 +33,7 @@ namespace SCPStats.Warnings
 
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = "Usage: warnings <id>";
+                response = SCPStats.Singleton?.Translation?.WarningsUsage ?? "Usage: warnings <id>";
                 return true;
             }
 
@@ -60,7 +59,7 @@ namespace SCPStats.Warnings
             
             WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
 
-            response = "Requesting warnings...";
+            response = SCPStats.Singleton?.Translation?.WarningsSuccess ?? "Requesting warnings...";
             return true;
         }
     }

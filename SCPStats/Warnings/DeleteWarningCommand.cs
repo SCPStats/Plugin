@@ -11,9 +11,9 @@ namespace SCPStats.Warnings
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class DeleteWarningCommand : ICommand
     {
-        public string Command { get; } = "deletewarning";
+        public string Command => SCPStats.Singleton?.Translation?.DeleteWarningCommand ?? "deletewarning";
         public string[] Aliases { get; } = new string[] {"deletewarnings", "delwarning", "delwarnings", "delwarn", "deletewarns", "deletewarn", "delwarns"};
-        public string Description { get; } = "Delete a warning.";
+        public string Description => SCPStats.Singleton?.Translation?.DeleteWarningDescription ?? "Delete a warning.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -24,7 +24,7 @@ namespace SCPStats.Warnings
                 var p = Player.Get(commandSender.ReferenceHub);
                 if (!p.CheckPermission("scpstats.deletewarning"))
                 {
-                    response = "You do not have permission to run this command!";
+                    response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
                     return true;
                 }
 
@@ -33,7 +33,7 @@ namespace SCPStats.Warnings
 
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = "Usage: deletewarning <id>";
+                response = SCPStats.Singleton?.Translation?.DeleteWarningUsage ?? "Usage: deletewarning <id>";
                 return true;
             }
             
@@ -43,7 +43,7 @@ namespace SCPStats.Warnings
             
             WebsocketHandler.SendRequest(RequestType.DeleteWarnings, msgId+arguments.Array[1]);
 
-            response = "Deleting warning...";
+            response = SCPStats.Singleton?.Translation?.DeleteWarningSuccess ?? "Deleting warning...";
             return true;
         }
     }

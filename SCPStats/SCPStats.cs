@@ -11,7 +11,7 @@ using SCPStats.Websocket;
 
 namespace SCPStats
 {
-    public class SCPStats : Plugin<Config>
+    public class SCPStats : Plugin<Config, Translation>
     {
         public override string Name { get; } = "SCPStats";
         public override string Author { get; } = "PintTheDragon";

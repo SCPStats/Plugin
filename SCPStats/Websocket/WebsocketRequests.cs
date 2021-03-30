@@ -16,14 +16,24 @@ namespace SCPStats.Websocket
 
         internal static Dictionary<string, Player> MessageIDs = new Dictionary<string, Player>();
 
-        private static Dictionary<string, string> WarningTypes = new Dictionary<string, string>()
+        private static string GetWarningTypeName(string type)
         {
-            {"0", "Warning"},
-            {"1", "Ban"},
-            {"2", "Kick"},
-            {"3", "Mute"},
-            {"4", "Intercom Mute"}
-        };
+            switch (type)
+            {
+                case "0":
+                    return SCPStats.Singleton?.Translation?.WarningsTypeWarning ?? "Warning";
+                case "1":
+                    return SCPStats.Singleton?.Translation?.WarningsTypeBan ?? "Ban";
+                case "2":
+                    return SCPStats.Singleton?.Translation?.WarningsTypeKick ?? "Kick";
+                case "3":
+                    return SCPStats.Singleton?.Translation?.WarningsTypeMute ?? "Mute";
+                case "4":
+                    return SCPStats.Singleton?.Translation?.WarningsTypeIntercomMutes ?? "Intercom Mute";
+            }
+
+            return "";
+        }
 
         internal static IEnumerator<float> DequeueRequests()
         {
@@ -62,14 +72,14 @@ namespace SCPStats.Websocket
 
         private static void HandleWarnings(string info)
         {
-            var result = "\nID | Type | Message | Ban Length\n\n";
+            var result = "\n"+(SCPStats.Singleton?.Translation?.Warnings ?? "ID | Type | Message | Ban Length")+"\n\n";
 
             var warnings = info.Substring(4).Split('`');
             var msgId = info.Substring(0, 4);
 
             if (!string.IsNullOrEmpty(info))
             {
-                result = warnings.Select(warning => warning.Split('|')).Where(warningSplit => warningSplit.Length >= 4).Aggregate(result, (current, warningSplit) => current + warningSplit[0] + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "") + "\n");
+                result = warnings.Select(warning => warning.Split('|')).Where(warningSplit => warningSplit.Length >= 4).Aggregate(result, (current, warningSplit) => current + warningSplit[0] + " | " + GetWarningTypeName(warningSplit[1]) + " | " + warningSplit[2] + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "") + "\n");
             }
 
             if (MessageIDs.TryGetValue(msgId, out var player))
@@ -96,13 +106,10 @@ namespace SCPStats.Websocket
             switch (info.Substring(4))
             {
                 case "S":
-                    result = "Successfully deleted warning!";
-                    break;
-                case "D":
-                    result = "This warning was created on another server. You must remove the warning on the same server that it was created!";
+                    result = SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!";
                     break;
                 case "E":
-                    result = "An error occured. Please try again.";
+                    result = SCPStats.Singleton?.Translation?.ErrorMessage ?? "An error occured. Please try again.";
                     break;
             }
 
@@ -187,7 +194,7 @@ namespace SCPStats.Websocket
             if (passed) return false;
             
             Log.Debug("Player is not whitelisted. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-            ServerConsole.Disconnect(player.GameObject, "[SCPStats] You are not whitelisted on this server!");
+            ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.WhitelistKickMessage ?? "[SCPStats] You are not whitelisted on this server!");
             return true;
         }
 
@@ -195,7 +202,7 @@ namespace SCPStats.Websocket
         {
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
             Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-            ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
+            ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.BannedKickMessage ?? "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
             return true;
         }
 

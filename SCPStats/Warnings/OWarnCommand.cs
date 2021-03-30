@@ -11,9 +11,9 @@ namespace SCPStats.Warnings
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class OWarnCommand : ICommand
     {
-        public string Command { get; } = "owarn";
+        public string Command => SCPStats.Singleton?.Translation?.OWarnCommand ?? "owarn";
         public string[] Aliases { get; } = new string[] {"offlinewarn"};
-        public string Description { get; } = "Warn an offline player.";
+        public string Description => SCPStats.Singleton?.Translation?.OWarnDescription ?? "Warn an offline player.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -25,7 +25,7 @@ namespace SCPStats.Warnings
                 var p = Player.Get(commandSender.ReferenceHub);
                 if (!p.CheckPermission("scpstats.warn"))
                 {
-                    response = "You do not have permission to run this command!";
+                    response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
                     return true;
                 }
                 
@@ -35,7 +35,7 @@ namespace SCPStats.Warnings
             
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = "Usage: owarn <id> [reason]";
+                response = SCPStats.Singleton?.Translation?.OWarnUsage ?? "Usage: owarn <id> [reason]";
                 return true;
             }
 
@@ -54,7 +54,7 @@ namespace SCPStats.Warnings
 
             if (!arg.Contains("@"))
             {
-                response = "Please enter a valid user id (for example, ID@steam)!";
+                response = SCPStats.Singleton?.Translation?.OWarnInvalidID ?? "Please enter a valid user id (for example, ID@steam)!";
                 return true;
             }
 
@@ -62,19 +62,19 @@ namespace SCPStats.Warnings
 
             if (userId.Length > 18)
             {
-                response = "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
+                response = SCPStats.Singleton?.Translation?.OWarnIDTooLong ?? "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
                 return true;
             }
 
             if (!arg.EndsWith("@northwood") && !long.TryParse(userId, out _))
             {
-                response = "User IDs cannot contain non-numbers!";
+                response = SCPStats.Singleton?.Translation?.OWarnIDNotNumeric ?? "User IDs cannot contain non-numbers!";
                 return true;
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+userId.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");
 
-            response = "Added warning.";
+            response = SCPStats.Singleton?.Translation?.OWarnSuccess ?? "Added warning.";
             return true;
         }
     }
