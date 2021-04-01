@@ -89,7 +89,7 @@ namespace SCPStats.Websocket
 
             if (player != null)
             {
-                player.RemoteAdminMessage(result, true, "WARNINGS");
+                player.RemoteAdminMessage(result, true, SCPStats.Singleton?.Translation?.WarningsCommand?.ToUpper() ?? "WARNINGS");
             }
             else
             {
@@ -120,7 +120,7 @@ namespace SCPStats.Websocket
 
             if (player != null)
             {
-                player.RemoteAdminMessage(result, true, "DELETEWARNING");
+                player.RemoteAdminMessage(result, true, SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING");
             }
             else
             {

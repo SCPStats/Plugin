@@ -99,6 +99,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus += EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall += EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.PreAuthenticating += EventHandler.OnPreauth;
+            Exiled.Events.Handlers.Server.ReloadedTranslations += this.OnReloadedTranslations;
         }
 
         private static void LoadConfigs()
@@ -190,6 +191,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus -= EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall -= EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.PreAuthenticating -= EventHandler.OnPreauth;
+            Exiled.Events.Handlers.Server.ReloadedTranslations -= this.OnReloadedTranslations;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
@@ -202,6 +204,12 @@ namespace SCPStats
             Singleton = null;
 
             base.OnDisabled();
+        }
+
+        private void OnReloadedTranslations()
+        {
+            this.OnUnregisteringCommands();
+            this.OnRegisteringCommands();
         }
 
         private IEnumerator<float> AutoUpdates()
