@@ -1,4 +1,11 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Verification.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;

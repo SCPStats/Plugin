@@ -1,4 +1,11 @@
-﻿namespace SCPStats
+﻿// -----------------------------------------------------------------------
+// <copyright file="RequestType.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace SCPStats
 {
     internal enum RequestType
     {

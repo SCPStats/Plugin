@@ -1,4 +1,11 @@
-﻿using Exiled.API.Features;
+﻿// -----------------------------------------------------------------------
+// <copyright file="UserInfoEventArgs.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Exiled.API.Features;
 using SCPStats.Websocket.Data;
 
 namespace SCPStats.API.EventArgs

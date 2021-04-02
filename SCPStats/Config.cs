@@ -1,4 +1,11 @@
-﻿using System.Collections.Generic;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Config.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.ComponentModel;
 using Exiled.API.Interfaces;
 using Exiled.Events.EventArgs;

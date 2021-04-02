@@ -1,4 +1,11 @@
-﻿using System.Threading;
+﻿// -----------------------------------------------------------------------
+// <copyright file="WebsocketHandler.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System.Threading;
 using Exiled.API.Features;
 
 namespace SCPStats.Websocket

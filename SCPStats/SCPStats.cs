@@ -1,4 +1,11 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="SCPStats.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;

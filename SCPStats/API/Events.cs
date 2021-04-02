@@ -1,4 +1,11 @@
-﻿using Exiled.Events.Extensions;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Events.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Exiled.Events.Extensions;
 using SCPStats.API.EventArgs;
 
 namespace SCPStats.API

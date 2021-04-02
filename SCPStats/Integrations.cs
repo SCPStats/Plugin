@@ -1,4 +1,11 @@
-﻿using System.Linq;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Integrations.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System.Linq;
 using System.Reflection;
 using Exiled.Loader;
 using JetBrains.Annotations;
