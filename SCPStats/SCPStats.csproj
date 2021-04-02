@@ -214,6 +214,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\API.cs" />
+    <Compile Include="API\EventArgs\UserInfoEventArgs.cs" />
+    <Compile Include="API\Events.cs" />
     <Compile Include="AutoUpdater.cs" />
     <Compile Include="Commands\PauseStatsCommand.cs" />
     <Compile Include="Config.cs" />

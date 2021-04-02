@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using Exiled.API.Features;
 using Exiled.Loader;
 using MEC;
+using SCPStats.API;
+using SCPStats.API.EventArgs;
 using SCPStats.Hats;
 using SCPStats.Websocket.Data;
 
@@ -149,17 +151,25 @@ namespace SCPStats.Websocket
         {
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(Helper.HandleId(player), out var tupleData) || tupleData.Item2 == null) return false;
 
-            Log.Debug("Found player. Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
+            
+            var ev = new UserInfoEventArgs(player, tupleData.Item2, tupleData.Item1);
+            Events.OnUserInfoReceived(ev);
+            
+            Log.Debug("Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
                 
-            if(HandleWhitelist(player, tupleData.Item2, tupleData.Item1) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, tupleData.Item2))) return true;
+            if(HandleWhitelist(player, ev.UserInfo, ev.Flags) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo))) return true;
             Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
                 
-            if(tupleData.Item2.WarnMessage != null) Helper.SendWarningMessage(player, tupleData.Item2.WarnMessage);
+            if(ev.UserInfo.WarnMessage != null) Helper.SendWarningMessage(player, ev.UserInfo.WarnMessage);
                     
-            HandleHats(player, tupleData.Item2);
+            HandleHats(player, ev.UserInfo);
                 
             Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
-            HandleRolesync(player, tupleData.Item2);
+            HandleRolesync(player, ev.UserInfo);
+            
+            Log.Debug("Finished handling user info. Invoking UserInfoHandled event.");
+            Events.OnUserInfoHandled(ev);
 
             return false;
         }
