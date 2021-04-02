@@ -15,9 +15,6 @@ namespace SCPStats
         [Description("The Secret for your server. This should be treated like a password. You must register your server at https://scpstats.com to obtain this.")]
         public string Secret { get; set; } = "fill this";
 
-        [Description("Enabling this will create a separate config file (located next to the plugin config in the SCPStats directory) for SCPStats' Server ID and Secret. This can help you keep them secure, as well as make updating servers much easier. If you host multiple servers, it is highly recommended that you use this option.")]
-        public bool SeparateConfig { get; set; } = false;
-
         [Description("Turning this off will disable the auto updater, which will automatically update the plugin.")]
         public bool AutoUpdates { get; set; } = true;
 
@@ -45,9 +42,6 @@ namespace SCPStats
 
         [Description("SCPStats includes hats to give perks to its donators. If you want to reward your own donators with hats, you can give them the scpstats.hats permission.")]
         public bool EnableHats { get; set; } = true;
-
-        [Description("This is the amount of time (in seconds) that hats positions and will be updated in. The lower the number, the smoother the hats will look, but it will also put more load on the server.")]
-        public float HatUpdateTime { get; set; } = .4f;
 
         [Description("SCPStats will send a message to players attempting to pick up hats informing them where they can go to get one themselves.")]
         public bool DisplayHatHint { get; set; } = true;

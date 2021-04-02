@@ -11,7 +11,7 @@
         Join = 8,
         Leave = 9,
         Use = 10,
-        UserData = 11,
+        UserInfo = 11,
         AddWarning = 15,
         GetWarnings = 16,
         DeleteWarnings = 17,

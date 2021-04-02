@@ -104,13 +104,6 @@ namespace SCPStats
         private static void LoadConfigs()
         {
             if (Singleton == null) return;
-            if (!Singleton.Config.SeparateConfig)
-            {
-                ServerID = Singleton.Config.ServerId;
-                Secret = Singleton.Config.Secret;
-
-                return;
-            }
 
             if (Paths.Configs == null) return;
 
@@ -120,30 +113,51 @@ namespace SCPStats
             var serverIdPath = Path.Combine(path, Server.Port + "-ServerID.txt");
             var secretPath = Path.Combine(path, Server.Port + "-Secret.txt");
 
-            var flag = false;
+            string serverId;
+            string secret;
             
             if (!File.Exists(serverIdPath))
             {
-                var stream = File.CreateText(serverIdPath);
-                stream.Write("fill this");
-                stream.Dispose();
-                
-                flag = true;
+                File.WriteAllText(serverIdPath, Singleton.Config.ServerId);
+                serverId = Singleton.Config.ServerId;
             }
-            
+            else serverId = File.ReadAllText(serverIdPath);
+
             if (!File.Exists(secretPath))
             {
-                var stream = File.CreateText(secretPath);
-                stream.Write("fill this");
-                stream.Dispose();
-                
-                flag = true;
+                File.WriteAllText(secretPath, Singleton.Config.Secret);
+                secret = Singleton.Config.Secret;
+            }
+            else secret = File.ReadAllText(secretPath);
+
+            if (serverId == "fill this" && Singleton.Config.ServerId != "fill this")
+            {
+                File.WriteAllText(serverIdPath, Singleton.Config.ServerId);
+                serverId = Singleton.Config.ServerId;
+            }
+            
+            if (secret == "fill this" && Singleton.Config.Secret != "fill this")
+            {
+                File.WriteAllText(secretPath, Singleton.Config.Secret);
+                secret = Singleton.Config.Secret;
             }
 
-            if (flag) return;
+            serverId = AlphaNums.Replace(serverId, "").Substring(0, 18);
+            secret = AlphaNums.Replace(secret, "").Substring(0, 32);
 
-            ServerID = AlphaNums.Replace(File.ReadAllText(serverIdPath), "");
-            Secret = AlphaNums.Replace(File.ReadAllText(secretPath), "");
+            if (serverId.Length != 18 && serverId != "fill this")
+            {
+                File.WriteAllText(serverIdPath, "fill this");
+                ServerID = "fill this";
+            }
+            else ServerID = serverId;
+
+            if (secret.Length != 32 && secret != "fill this")
+            {
+                File.WriteAllText(secretPath, "fill this");
+                Secret = "fill this";
+            }
+            else Secret = secret;
         }
 
         public override void OnDisabled()
