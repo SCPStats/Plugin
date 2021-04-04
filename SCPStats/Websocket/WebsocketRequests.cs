@@ -156,11 +156,24 @@ namespace SCPStats.Websocket
             EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>(preauthFlags, data);
         }
 
-        internal static bool RunUserInfo(Player player)
+        internal static bool RunUserInfo(Player player, bool noRecurse = false)
         {
             var playerId = Helper.HandleId(player);
             
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData.Item2 == null) return false;
+            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
+
+            if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData))
+            {
+                if (noRecurse) return false;
+                
+                WebsocketHandler.SendRequest(RequestType.UserInfo, playerId);
+                Timing.CallDelayed(.5f, () => RunUserInfo(player, true));
+                    
+                return true;
+
+            }
+
+            if (tupleData.Item2 == null) return false;
 
             Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
             
