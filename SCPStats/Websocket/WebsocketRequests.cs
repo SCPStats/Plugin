@@ -214,7 +214,7 @@ namespace SCPStats.Websocket
             Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
             HandleRolesync(player, ev.UserInfo);
             
-            Log.Debug("Finished handling user info. Invoking UserInfoHandled event.");
+            Log.Debug("Finished handling user info. Invoking UserInfoHandled event.", SCPStats.Singleton?.Config?.Debug ?? false);
             Events.OnUserInfoHandled(ev);
         }
 
