@@ -15,7 +15,7 @@ namespace SCPStats.API.EventArgs
     /// </summary>
     public class UserInfoEventArgs : System.EventArgs
     {
-        internal UserInfoEventArgs(Player player, UserInfoData userInfo, CentralAuthPreauthFlags flags)
+        internal UserInfoEventArgs(Player player, UserInfoData userInfo, CentralAuthPreauthFlags? flags)
         {
             Player = player;
             UserInfo = userInfo;
@@ -35,6 +35,6 @@ namespace SCPStats.API.EventArgs
         /// <summary>
         /// The <see cref="CentralAuthPreauthFlags"/> sent by the player during preauth.
         /// </summary>
-        public CentralAuthPreauthFlags Flags { get; }
+        public CentralAuthPreauthFlags? Flags { get; }
     }
 }

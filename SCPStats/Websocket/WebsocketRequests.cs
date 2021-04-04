@@ -150,15 +150,17 @@ namespace SCPStats.Websocket
             Log.Debug("Is banned: " + data.IsBanned, SCPStats.Singleton?.Config?.Debug ?? false);
             Log.Debug("Has hat perms: " + data.HasHat, SCPStats.Singleton?.Config?.Debug ?? false);
 
-            if (!EventHandler.UserInfo.ContainsKey(playerId)) return;
-            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags, UserInfoData>(EventHandler.UserInfo[playerId].Item1, data);
+            CentralAuthPreauthFlags? preauthFlags = null;
+            if (EventHandler.UserInfo.TryGetValue(playerId, out var userinfo)) preauthFlags = userinfo.Item1;
+            
+            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>(preauthFlags, data);
         }
 
         internal static bool RunUserInfo(Player player)
         {
             var playerId = Helper.HandleId(player);
             
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData.Item2 == null || !EventHandler.UserInfo.Remove(playerId)) return false;
+            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData.Item2 == null) return false;
 
             Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
             
@@ -167,15 +169,15 @@ namespace SCPStats.Websocket
             
             Log.Debug("Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
                 
-            if(HandleWhitelist(player, ev.UserInfo, ev.Flags) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo))) return true;
+            if(ev.Flags.HasValue && (HandleWhitelist(player, ev.UserInfo, ev.Flags.Value) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo)))) return true;
             Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
 
-            Timing.RunCoroutine(DelayedUserInfo(player, ev));
+            Timing.RunCoroutine(DelayedUserInfo(player, ev, playerId));
 
             return false;
         }
 
-        private static IEnumerator<float> DelayedUserInfo(Player player, UserInfoEventArgs ev)
+        private static IEnumerator<float> DelayedUserInfo(Player player, UserInfoEventArgs ev, string playerId)
         {
             yield return Timing.WaitForSeconds(.1f);
             

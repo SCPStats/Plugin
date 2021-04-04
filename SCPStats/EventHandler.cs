@@ -39,7 +39,7 @@ namespace SCPStats
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
         
-        internal static Dictionary<string, Tuple<CentralAuthPreauthFlags, UserInfoData>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags, UserInfoData>>();
+        internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>>();
 
         internal static void Reset()
         {
@@ -86,7 +86,7 @@ namespace SCPStats
         {
             yield return Timing.WaitForSeconds(1.5f);
 
-            var ids = (from player in Player.List where player?.UserId != null && Helper.GetPlayerInfo(player, false, false).IsAllowed select Helper.HandleId(player)).ToList();
+            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select Helper.HandleId(player)).ToList();
             
             foreach (var id in ids)
             {
@@ -99,8 +99,7 @@ namespace SCPStats
 
             foreach (var player in Player.List)
             {
-                var playerInfo = Helper.GetPlayerInfo(player, false, false);
-                if (player.UserId == null || !playerInfo.IsAllowed) continue;
+                if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
 
                 WebsocketRequests.RunUserInfo(player);
             }
@@ -494,7 +493,7 @@ namespace SCPStats
             var id = Helper.HandleId(ev.UserId);
 
             if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-            UserInfo[id] = new Tuple<CentralAuthPreauthFlags, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
+            UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
             WebsocketHandler.SendRequest(RequestType.UserInfo, id);
         }
     }
