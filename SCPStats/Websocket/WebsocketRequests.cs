@@ -151,9 +151,21 @@ namespace SCPStats.Websocket
             Log.Debug("Has hat perms: " + data.HasHat, SCPStats.Singleton?.Config?.Debug ?? false);
 
             CentralAuthPreauthFlags? preauthFlags = null;
-            if (EventHandler.UserInfo.TryGetValue(playerId, out var userinfo)) preauthFlags = userinfo.Item1;
+            var runImmediately = false;
+            if (EventHandler.UserInfo.TryGetValue(playerId, out var userinfo))
+            {
+                preauthFlags = userinfo.Item1;
+                runImmediately = userinfo.Item3;
+            }
             
-            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>(preauthFlags, data);
+            if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
+            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(preauthFlags, data, runImmediately);
+            if (!runImmediately) return;
+            
+            var player = Player.List.FirstOrDefault(pl => pl?.UserId != null && Helper.HandleId(pl) == playerId);
+            if (player == null) return;
+
+            RunUserInfo(player, true);
         }
 
         internal static bool RunUserInfo(Player player, bool noRecurse = false)
@@ -166,11 +178,12 @@ namespace SCPStats.Websocket
             {
                 if (noRecurse) return false;
                 
+                if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
+                EventHandler.UserInfo[playerId] = EventHandler.UserInfo.TryGetValue(playerId, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
+                
                 WebsocketHandler.SendRequest(RequestType.UserInfo, playerId);
-                Timing.CallDelayed(.5f, () => RunUserInfo(player, true));
-                    
-                return true;
 
+                return false;
             }
 
             if (tupleData.Item2 == null) return false;

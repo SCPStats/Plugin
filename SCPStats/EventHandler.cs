@@ -39,7 +39,7 @@ namespace SCPStats
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
         
-        internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>>();
+        internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>>();
 
         internal static void Reset()
         {
@@ -87,21 +87,15 @@ namespace SCPStats
             yield return Timing.WaitForSeconds(1.5f);
 
             var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select Helper.HandleId(player)).ToList();
-            
+
             foreach (var id in ids)
             {
+                if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
+                UserInfo[id] = UserInfo.TryGetValue(id, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
+
                 WebsocketHandler.SendRequest(RequestType.UserInfo, id);
-                
+
                 yield return Timing.WaitForSeconds(.1f);
-            }
-
-            yield return Timing.WaitForSeconds(5f);
-
-            foreach (var player in Player.List)
-            {
-                if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
-
-                WebsocketRequests.RunUserInfo(player);
             }
         }
 
@@ -493,7 +487,7 @@ namespace SCPStats
             var id = Helper.HandleId(ev.UserId);
 
             if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-            UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
+            UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
             WebsocketHandler.SendRequest(RequestType.UserInfo, id);
         }
     }
