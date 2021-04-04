@@ -156,7 +156,9 @@ namespace SCPStats.Websocket
 
         internal static bool RunUserInfo(Player player)
         {
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(Helper.HandleId(player), out var tupleData) || tupleData.Item2 == null) return false;
+            var playerId = Helper.HandleId(player);
+            
+            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData.Item2 == null || !EventHandler.UserInfo.Remove(playerId)) return false;
 
             Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
             
@@ -167,18 +169,25 @@ namespace SCPStats.Websocket
                 
             if(HandleWhitelist(player, ev.UserInfo, ev.Flags) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo))) return true;
             Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
-                
+
+            Timing.RunCoroutine(DelayedUserInfo(player, ev));
+
+            return false;
+        }
+
+        private static IEnumerator<float> DelayedUserInfo(Player player, UserInfoEventArgs ev)
+        {
+            yield return Timing.WaitForSeconds(.1f);
+            
             if(ev.UserInfo.WarnMessage != null) Helper.SendWarningMessage(player, ev.UserInfo.WarnMessage);
                     
             HandleHats(player, ev.UserInfo);
-                
+            
             Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
             HandleRolesync(player, ev.UserInfo);
             
             Log.Debug("Finished handling user info. Invoking UserInfoHandled event.");
             Events.OnUserInfoHandled(ev);
-
-            return false;
         }
 
         private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
