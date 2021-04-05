@@ -125,29 +125,17 @@ namespace SCPStats
             
             if (!File.Exists(serverIdPath))
             {
-                File.WriteAllText(serverIdPath, Singleton.Config.ServerId);
-                serverId = Singleton.Config.ServerId;
+                File.WriteAllText(serverIdPath, "fill this");
+                serverId = "fill this";
             }
             else serverId = File.ReadAllText(serverIdPath);
 
             if (!File.Exists(secretPath))
             {
-                File.WriteAllText(secretPath, Singleton.Config.Secret);
-                secret = Singleton.Config.Secret;
+                File.WriteAllText(secretPath, "fill this");
+                secret = "fill this";
             }
             else secret = File.ReadAllText(secretPath);
-
-            if (serverId == "fill this" && Singleton.Config.ServerId != "fill this")
-            {
-                File.WriteAllText(serverIdPath, Singleton.Config.ServerId);
-                serverId = Singleton.Config.ServerId;
-            }
-            
-            if (secret == "fill this" && Singleton.Config.Secret != "fill this")
-            {
-                File.WriteAllText(secretPath, Singleton.Config.Secret);
-                secret = Singleton.Config.Secret;
-            }
 
             serverId = AlphaNums.Replace(serverId, "").Substring(0, 18);
             secret = AlphaNums.Replace(secret, "").Substring(0, 32);
