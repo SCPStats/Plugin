@@ -150,13 +150,43 @@ namespace SCPStats.Websocket
             Log.Debug("Is banned: " + data.IsBanned, SCPStats.Singleton?.Config?.Debug ?? false);
             Log.Debug("Has hat perms: " + data.HasHat, SCPStats.Singleton?.Config?.Debug ?? false);
 
-            if (!EventHandler.UserInfo.ContainsKey(playerId)) return;
-            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags, UserInfoData>(EventHandler.UserInfo[playerId].Item1, data);
+            CentralAuthPreauthFlags? preauthFlags = null;
+            var runImmediately = false;
+            if (EventHandler.UserInfo.TryGetValue(playerId, out var userinfo))
+            {
+                preauthFlags = userinfo.Item1;
+                runImmediately = userinfo.Item3;
+            }
+            
+            if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
+            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(preauthFlags, data, runImmediately);
+            if (!runImmediately) return;
+            
+            var player = Player.List.FirstOrDefault(pl => pl?.UserId != null && Helper.HandleId(pl) == playerId);
+            if (player == null) return;
+
+            RunUserInfo(player, true);
         }
 
-        internal static bool RunUserInfo(Player player)
+        internal static bool RunUserInfo(Player player, bool noRecurse = false)
         {
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player) || !EventHandler.UserInfo.TryGetValue(Helper.HandleId(player), out var tupleData) || tupleData.Item2 == null) return false;
+            var playerId = Helper.HandleId(player);
+            
+            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
+
+            if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData))
+            {
+                if (noRecurse) return false;
+                
+                if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
+                EventHandler.UserInfo[playerId] = EventHandler.UserInfo.TryGetValue(playerId, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
+                
+                WebsocketHandler.SendRequest(RequestType.UserInfo, playerId);
+
+                return false;
+            }
+
+            if (tupleData.Item2 == null) return false;
 
             Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
             
@@ -165,20 +195,27 @@ namespace SCPStats.Websocket
             
             Log.Debug("Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
                 
-            if(HandleWhitelist(player, ev.UserInfo, ev.Flags) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo))) return true;
+            if(ev.Flags.HasValue && (HandleWhitelist(player, ev.UserInfo, ev.Flags.Value) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo)))) return true;
             Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
-                
+
+            Timing.RunCoroutine(DelayedUserInfo(player, ev, playerId));
+
+            return false;
+        }
+
+        private static IEnumerator<float> DelayedUserInfo(Player player, UserInfoEventArgs ev, string playerId)
+        {
+            yield return Timing.WaitForSeconds(.1f);
+            
             if(ev.UserInfo.WarnMessage != null) Helper.SendWarningMessage(player, ev.UserInfo.WarnMessage);
                     
             HandleHats(player, ev.UserInfo);
-                
+            
             Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
             HandleRolesync(player, ev.UserInfo);
             
-            Log.Debug("Finished handling user info. Invoking UserInfoHandled event.");
+            Log.Debug("Finished handling user info. Invoking UserInfoHandled event.", SCPStats.Singleton?.Config?.Debug ?? false);
             Events.OnUserInfoHandled(ev);
-
-            return false;
         }
 
         private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
