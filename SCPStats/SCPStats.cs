@@ -101,7 +101,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.EscapingPocketDimension += EventHandler.OnEscapingPocketDimension;
             Exiled.Events.Handlers.Player.Banned += EventHandler.OnBan;
-            Exiled.Events.Handlers.Player.Kicked += EventHandler.OnKick;
+            Exiled.Events.Handlers.Player.Kicking += EventHandler.OnKick;
             Exiled.Events.Handlers.Player.ChangingMuteStatus += EventHandler.OnMute;
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus += EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall += EventHandler.OnRecalling;
@@ -180,7 +180,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.EscapingPocketDimension -= EventHandler.OnEscapingPocketDimension;
             Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;
-            Exiled.Events.Handlers.Player.Kicked -= EventHandler.OnKick;
+            Exiled.Events.Handlers.Player.Kicking -= EventHandler.OnKick;
             Exiled.Events.Handlers.Player.ChangingMuteStatus -= EventHandler.OnMute;
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus -= EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall -= EventHandler.OnRecalling;
