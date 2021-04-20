@@ -441,7 +441,10 @@ namespace SCPStats
             "[Kicked by uAFK]",
             "You were AFK",
             "[Anty-AFK]",
-            "[Anty AFK]"
+            "[Anty AFK]",
+            "Auto-Kick:",
+            "[Auto-Kick]",
+            "[Auto Kick]"
         };
         
         internal static List<string> IgnoredMessagesFromIntegration = new List<string>();
