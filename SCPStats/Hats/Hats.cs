@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+﻿﻿// -----------------------------------------------------------------------
 // <copyright file="Hats.cs" company="SCPStats.com">
 // Copyright (c) SCPStats.com. All rights reserved.
 // Licensed under the Apache v2 license.
@@ -19,11 +19,11 @@ namespace SCPStats.Hats
             p.SpawnHat(HatCommand.HatPlayers[p.UserId]);
         }
         
-        internal static void SpawnHat(this Player p, ItemType item)
+        internal static void SpawnHat(this Player p, HatInfo hat)
         {
             if (!SCPStats.Singleton?.Config.EnableHats ?? true) return;
             
-            API.API.SpawnHat(p, item);
+            API.API.SpawnHat(p, hat);
         }
 
         internal static Vector3 GetHatPosForRole(RoleType role)

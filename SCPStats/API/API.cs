@@ -18,18 +18,19 @@ namespace SCPStats.API
     public static class API
     {
         /// <summary>
-        /// Spawn a hat. This method automatically adjusts the position and rotations for certain hats to make them look better.
+        /// Spawn a hat. This method automatically adjusts the position and rotations for certain hats to make them look better if they are set to zero.
         /// </summary>
         /// <param name="player">The <see cref="Player"/> who should wear the hat.</param>
-        /// <param name="item">The <see cref="ItemType"/> of the hat.</param>
-        public static void SpawnHat(Player player, ItemType item)
+        /// <param name="hat">The <see cref="HatInfo"/> of the hat.</param>
+        public static void SpawnHat(Player player, HatInfo hat)
         {
-            if (item == ItemType.None) return;
+            if (hat.Item == ItemType.None) return;
 
             var pos = Hats.Hats.GetHatPosForRole(player.Role);
             var itemOffset = Vector3.zero;
             var rot = Quaternion.Euler(0, 0, 0);
-            
+            var item = hat.Item;
+
             var gameObject = UnityEngine.Object.Instantiate<GameObject>(Server.Host.Inventory.pickupPrefab);
             
             switch (item)
@@ -87,6 +88,10 @@ namespace SCPStats.API
                     itemOffset = new Vector3(0, .225f, 0);
                     break;
             }
+
+            gameObject.transform.localScale = hat.Scale == Vector3.zero ? gameObject.transform.localScale : hat.Scale;
+            itemOffset = hat.Position == Vector3.zero ? itemOffset : hat.Position;
+            rot = hat.Rotation == Quaternion.identity ? rot : hat.Rotation;
 
             NetworkServer.Spawn(gameObject);
             

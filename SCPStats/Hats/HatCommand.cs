@@ -22,7 +22,7 @@ namespace SCPStats.Hats
         public string[] Aliases { get; } = new string[] { "hats" };
         public string Description { get; } = "Change your hat ingame. This only applies to the current round.";
         
-        internal static Dictionary<string, ItemType> HatPlayers = new Dictionary<string, ItemType>();
+        internal static Dictionary<string, HatInfo> HatPlayers = new Dictionary<string, HatInfo>();
 
         private static Dictionary<string, ItemType> items = new Dictionary<string, ItemType>()
         {
@@ -82,7 +82,7 @@ namespace SCPStats.Hats
                 return true;
             }
             
-            if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = ItemType.SCP268;
+            if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = new HatInfo();
             
             HatPlayerComponent playerComponent;
             if (!p.GameObject.TryGetComponent(out playerComponent))
@@ -144,8 +144,8 @@ namespace SCPStats.Hats
 
                     var item = items[command];
                     
-                    HatPlayers[p.UserId] = item;
-                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(item);
+                    HatPlayers[p.UserId] = new HatInfo(item);
+                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId]);
                     
                     response = "Your hat has been changed.";
                     return true;

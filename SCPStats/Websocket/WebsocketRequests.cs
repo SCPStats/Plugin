@@ -250,6 +250,7 @@ namespace SCPStats.Websocket
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
             Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
             ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
+            player.Disconnect();
             return true;
         }
 
@@ -261,8 +262,8 @@ namespace SCPStats.Websocket
             
             var item = (ItemType) Convert.ToInt32(data.HatID);
 
-            if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = item;
-            else HatCommand.HatPlayers[player.UserId] = ItemType.SCP268;
+            if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation);
+            else HatCommand.HatPlayers[player.UserId] = new HatInfo(ItemType.SCP268);
 
             if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
             {
