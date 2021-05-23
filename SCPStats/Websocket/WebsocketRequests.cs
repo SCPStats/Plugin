@@ -250,7 +250,6 @@ namespace SCPStats.Websocket
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
             Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
             ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
-            player.Disconnect();
             return true;
         }
 
