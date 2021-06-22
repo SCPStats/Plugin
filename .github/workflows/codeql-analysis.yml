@@ -49,13 +49,13 @@ jobs:
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
     - name: Setup Nuget
-      uses: warrenbuckley/Setup-Nuget@v1
+      uses: iRebbok/setup-nuget@master
     
     - name: Restore Packages
       run: nuget restore SCPStats.sln
       
     - name: Setup MSBuild
-      uses: warrenbuckley/Setup-MSBuild@v1
+      uses: microsoft/setup-msbuild@v1
 
     - name: Download references
       uses: carlosperate/download-file-action@v1.0.3
