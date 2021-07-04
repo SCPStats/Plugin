@@ -18,9 +18,9 @@ namespace SCPStats.Hats
     [CommandHandler(typeof(ClientCommandHandler))]
     public class HatCommand: ICommand
     {
-        public string Command { get; } = "hat";
+        public string Command => SCPStats.Singleton?.Translation?.HatCommand ?? "hat";
         public string[] Aliases { get; } = new string[] { "hats" };
-        public string Description { get; } = "Change your hat ingame. This only applies to the current round.";
+        public string Description => SCPStats.Singleton?.Translation?.HatDescription ?? "Change your hat ingame. This only applies to the current round.";
         
         internal static Dictionary<string, HatInfo> HatPlayers = new Dictionary<string, HatInfo>();
 
@@ -64,7 +64,7 @@ namespace SCPStats.Hats
         {
             if (!(sender is PlayerCommandSender))
             {
-                response = "This command can only be ran by a player!";
+                response = SCPStats.Singleton?.Translation?.NotPlayer ?? "This command can only be ran by a player!";
                 return true;
             }
             
@@ -72,13 +72,13 @@ namespace SCPStats.Hats
 
             if (!HatPlayers.ContainsKey(p.UserId) && !p.CheckPermission("scpstats.hat") && !p.CheckPermission("scpstats.hats"))
             {
-                response = "You do not have permission to use this command!";
+                response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to use this command!";
                 return true;
             }
 
             if (arguments.Count < 1)
             {
-                response = "Usage: .hat <on/off/toggle/item>";
+                response = SCPStats.Singleton?.Translation?.HatUsage ?? "Usage: .hat <on/off/toggle/item>";
                 return true;
             }
             
@@ -98,39 +98,38 @@ namespace SCPStats.Hats
                     if (playerComponent.item == null)
                     {
                         if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId]);
-                        response = "You put on your hat.";
+                        response = SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.";
                         return true;
                     }
 
-                    response = "You can't put two hats on at once!";
+                    response = SCPStats.Singleton?.Translation?.HatEnableFail ?? "You can't put two hats on at once!";
                     return true;
                 case "off":
                     if (RemoveHat(playerComponent))
                     {
-                        response = "You took off your hat.";
+                        response = SCPStats.Singleton?.Translation?.HatDisabled ?? "You took off your hat.";
                         return true;
                     }
 
-                    response = "You don't have a hat on. You need to put one on before you can take it off.";
+                    response = SCPStats.Singleton?.Translation?.HatDisableFail ?? "You don't have a hat on. You need to put one on before you can take it off.";
                     return true;
                 case "toggle":
                     if (playerComponent.item == null)
                     {
                         if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId]);
-                        response = "You put on your hat.";
+                        response = SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.";
                         return true;
                     }
                     else
                     {
                         RemoveHat(playerComponent);
-                        response = "You took off your hat.";
+                        response = SCPStats.Singleton?.Translation?.HatDisabled ?? "You took off your hat.";
                         return true;
                     }
-                    break;
                 default:
                     if (!items.ContainsKey(command))
                     {
-                        response = "This hat doesn't exist! Available hats:" +
+                        response = (SCPStats.Singleton?.Translation?.HatList ?? "This hat doesn't exist! Available hats:") +
                                    "\nSCP-268" +
                                    "\nSCP-500" +
                                    "\nCoin" +
@@ -147,7 +146,7 @@ namespace SCPStats.Hats
                     HatPlayers[p.UserId] = new HatInfo(item);
                     if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId]);
                     
-                    response = "Your hat has been changed.";
+                    response = SCPStats.Singleton?.Translation?.HatChanged ?? "Your hat has been changed.";
                     return true;
             }
         }

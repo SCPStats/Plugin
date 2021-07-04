@@ -18,9 +18,9 @@ namespace SCPStats.Warnings
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class WarnCommand : ICommand
     {
-        public string Command { get; } = "warn";
-        public string[] Aliases { get; } = new string[] {};
-        public string Description { get; } = "Warn a player.";
+        public string Command => SCPStats.Singleton?.Translation?.WarnCommand ?? "warn";
+        public string[] Aliases { get; } = Array.Empty<string>();
+        public string Description => SCPStats.Singleton?.Translation?.WarnDescription ?? "Warn a player.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -32,7 +32,7 @@ namespace SCPStats.Warnings
                 var p = Player.Get(commandSender.ReferenceHub);
                 if (!p.CheckPermission("scpstats.warn"))
                 {
-                    response = "You do not have permission to run this command!";
+                    response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
                     return true;
                 }
 
@@ -42,7 +42,7 @@ namespace SCPStats.Warnings
             
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = "Usage: warn <id> [reason]";
+                response = SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]";
                 return true;
             }
 
@@ -66,14 +66,14 @@ namespace SCPStats.Warnings
 
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player))
             {
-                response = "The specified player was not found! Use the owarn command to warn offline players.";
+                response = SCPStats.Singleton?.Translation?.WarnPlayerNotFound ?? "The specified player was not found! Use the owarn command to warn offline players.";
                 return true;
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+player.Nickname+"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName+"\",\"online\":true}");
             Helper.SendWarningMessage(player, message);
             
-            response = "Added warning.";
+            response = SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.";
             return true;
         }
     }
