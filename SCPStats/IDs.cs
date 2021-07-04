@@ -60,18 +60,6 @@ namespace SCPStats
             {"Scp018", "SCP018"}
         };
 
-        internal static int ToID(this ItemType item)
-        {
-            if (ItemIDs.TryGetValue(item.ToString(), out var id)) return id;
-            return -1;
-        }
-        
-        internal static int ToID(this GrenadeType grenade)
-        {
-            if (GrenadeIDs.TryGetValue(grenade.ToString(), out var id) && ItemIDs.TryGetValue(id, out var id2)) return id2;
-            return -1;
-        }
-        
         private static readonly Dictionary<string, int> DamageTypeIDs = new Dictionary<string, int>()
         {
             {"None", 0},
@@ -106,12 +94,6 @@ namespace SCPStats
             {"Poison", 29},
             {"Asphyxiation", 30}
         };
-        
-        internal static int ToID(this DamageTypes.DamageType damageType)
-        {
-            if (DamageTypeIDs.TryGetValue(damageType.ToString(), out var id)) return id;
-            return -1;
-        }
 
         private static readonly Dictionary<string, int> RoleIDs = new Dictionary<string, int>()
         {
@@ -135,7 +117,25 @@ namespace SCPStats
             {"Scp93953", 16},
             {"Scp93989", 17},
         };
+
+        internal static int ToID(this ItemType item)
+        {
+            if (ItemIDs.TryGetValue(item.ToString(), out var id)) return id;
+            return -1;
+        }
         
+        internal static int ToID(this GrenadeType grenade)
+        {
+            if (GrenadeIDs.TryGetValue(grenade.ToString(), out var id) && ItemIDs.TryGetValue(id, out var id2)) return id2;
+            return -1;
+        }
+
+        internal static int ToID(this DamageTypes.DamageType damageType)
+        {
+            if (DamageTypeIDs.TryGetValue(damageType.ToString(), out var id)) return id;
+            return -1;
+        }
+
         internal static int ToID(this RoleType roleType)
         {
             if (RoleIDs.TryGetValue(roleType.ToString(), out var id)) return id;
