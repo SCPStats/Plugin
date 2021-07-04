@@ -38,8 +38,6 @@ namespace SCPStats
 
         private CoroutineHandle update;
         private CoroutineHandle requests;
-        
-        private static Regex AlphaNums = new Regex("[^A-Za-z0-9]");
 
         public override void OnEnabled()
         {
@@ -138,8 +136,8 @@ namespace SCPStats
             }
             else secret = File.ReadAllText(secretPath);
 
-            serverId = AlphaNums.Replace(serverId, "").Substring(0, 18);
-            secret = AlphaNums.Replace(secret, "").Substring(0, 32);
+            serverId = serverId.Trim().ToLower();
+            secret = secret.Trim().ToLower();
 
             if (serverId.Length != 18 && serverId != "fill this")
             {
