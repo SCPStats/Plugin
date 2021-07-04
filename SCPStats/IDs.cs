@@ -10,6 +10,12 @@ using Exiled.API.Enums;
 
 namespace SCPStats
 {
+    // All of this mess is not done for the sake of getting the IDs. This is done because the IDs
+    // are prone to change, and will mess things up when they do. All of the dictionaries here
+    // provide a static ID to things based on their name (which will not change). This means that
+    // if someone decided to add a new item in the middle of all the item IDs, instead of it breaking
+    // half of the item IDs, these helpers will map all of those broken IDs back to what they were meant
+    // to be.
     internal static class IDs
     {
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
