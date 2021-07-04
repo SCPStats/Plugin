@@ -66,39 +66,39 @@ namespace SCPStats
             {"Scp018", "SCP018"}
         };
 
-        private static readonly Dictionary<string, int> DamageTypeIDs = new Dictionary<string, int>()
+        private static readonly Dictionary<DamageTypes.DamageType, int> DamageTypeIDs = new Dictionary<DamageTypes.DamageType, int>()
         {
-            {"None", 0},
-            {"Lure", 1},
-            {"Nuke", 2},
-            {"Wall", 3},
-            {"Decont", 4},
-            {"Tesla", 5},
-            {"Falldown", 6},
-            {"Flying", 7},
-            {"FriendlyFireDetector", 8},
-            {"Contain", 9},
-            {"Pocket", 10},
-            {"RagdollLess", 11},
-            {"Com15", 12},
-            {"P90", 13},
-            {"E11StandardRifle", 14},
-            {"Mp7", 15},
-            {"Logicer", 16},
-            {"Usp", 17},
-            {"MicroHid", 18},
-            {"Grenade", 19},
-            {"Scp049", 20},
-            {"Scp0492", 21},
-            {"Scp096", 22},
-            {"Scp106", 23},
-            {"Scp173", 24},
-            {"Scp939", 25},
-            {"Scp207", 26},
-            {"Recontainment", 27},
-            {"Bleeding", 28},
-            {"Poison", 29},
-            {"Asphyxiation", 30}
+            {DamageTypes.None, 0},
+            {DamageTypes.Lure, 1},
+            {DamageTypes.Nuke, 2},
+            {DamageTypes.Wall, 3},
+            {DamageTypes.Decont, 4},
+            {DamageTypes.Tesla, 5},
+            {DamageTypes.Falldown, 6},
+            {DamageTypes.Flying, 7},
+            {DamageTypes.FriendlyFireDetector, 8},
+            {DamageTypes.Contain, 9},
+            {DamageTypes.Pocket, 10},
+            {DamageTypes.RagdollLess, 11},
+            {DamageTypes.Com15, 12},
+            {DamageTypes.P90, 13},
+            {DamageTypes.E11StandardRifle, 14},
+            {DamageTypes.Mp7, 15},
+            {DamageTypes.Logicer, 16},
+            {DamageTypes.Usp, 17},
+            {DamageTypes.MicroHid, 18},
+            {DamageTypes.Grenade, 19},
+            {DamageTypes.Scp049, 20},
+            {DamageTypes.Scp0492, 21},
+            {DamageTypes.Scp096, 22},
+            {DamageTypes.Scp106, 23},
+            {DamageTypes.Scp173, 24},
+            {DamageTypes.Scp939, 25},
+            {DamageTypes.Scp207, 26},
+            {DamageTypes.Recontainment, 27},
+            {DamageTypes.Bleeding, 28},
+            {DamageTypes.Poison, 29},
+            {DamageTypes.Asphyxiation, 30}
         };
 
         private static readonly Dictionary<string, int> RoleIDs = new Dictionary<string, int>()
@@ -138,7 +138,7 @@ namespace SCPStats
 
         internal static int ToID(this DamageTypes.DamageType damageType)
         {
-            if (DamageTypeIDs.TryGetValue(damageType.ToString(), out var id)) return id;
+            if (DamageTypeIDs.TryGetValue(damageType, out var id)) return id;
             return -1;
         }
 
