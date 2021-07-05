@@ -79,7 +79,7 @@ namespace SCPStats.Websocket
             }
         }
         
-        private static List<WarningType> DisplayedWarningTypes { get; set; } = new List<WarningType>()
+        private static List<WarningType> WarningsDisplayedTypes { get; set; } = new List<WarningType>()
         {
             WarningType.Warning,
             WarningType.Ban,
@@ -88,7 +88,7 @@ namespace SCPStats.Websocket
             WarningType.IntercomMute
         };
 
-        private static List<WarningSection> DisplayedWarningSections { get; set; } = new List<WarningSection>()
+        private static List<WarningSection> WarningsDisplayedSections { get; set; } = new List<WarningSection>()
         {
             WarningSection.ID,
             WarningSection.Type,
@@ -104,7 +104,7 @@ namespace SCPStats.Websocket
             var warnings = info.Substring(4).Split('`');
             var msgId = info.Substring(0, 4);
 
-            var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).Where(warning => (SCPStats.Singleton?.Translation?.DisplayedWarningTypes ?? DisplayedWarningTypes).Contains(warning.Type)).ToList();
+            var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).Where(warning => (SCPStats.Singleton?.Translation?.WarningsDisplayedTypes ?? WarningsDisplayedTypes).Contains(warning.Type)).ToList();
 
             var generatingEventArgs = new GeneratingWarningMessageEventArgs(warningsList, result);
             Events.OnGeneratingWarningMessage(generatingEventArgs);
@@ -113,7 +113,7 @@ namespace SCPStats.Websocket
             {
                 var message = new List<string>();
 
-                foreach (var section in SCPStats.Singleton?.Translation?.DisplayedWarningSections ?? DisplayedWarningSections)
+                foreach (var section in SCPStats.Singleton?.Translation?.WarningsDisplayedSections ?? WarningsDisplayedSections)
                 {
                     switch (section)
                     {
@@ -135,7 +135,7 @@ namespace SCPStats.Websocket
                     }
                 }
 
-                return String.Join(" | ", message);
+                return String.Join(SCPStats.Singleton?.Translation?.WarningsSectionSeparator ?? " | ", message);
             }));
 
             var sendingEventArgs = new SendingWarningMessageEventArgs(warningsList, result);
