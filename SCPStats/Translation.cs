@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Exiled.API.Interfaces;
+using SCPStats.Websocket.Data;
 
 namespace SCPStats
 {
@@ -64,6 +66,26 @@ namespace SCPStats
         
         [Description("The name used for warnings in the warnings command.")]
         public string WarningsTypeIntercomMutes { get; set; } = "Intercom Mute";
+
+        [Description("The types of warnings that will be displayed by the warnings command. Possible options are: \"Warning\", \"Ban\", \"Kick\", \"Mute\", and \"IntercomMute\".")]
+        public List<WarningType> DisplayedWarningTypes { get; set; } = new List<WarningType>()
+        {
+            WarningType.Warning,
+            WarningType.Ban,
+            WarningType.Kick,
+            WarningType.Mute,
+            WarningType.IntercomMute
+        };
+
+        [Description("The warning sections that will be displayed in each warning by the warning command. Possible options are: \"ID\", \"Type\", \"Message\", \"Length\", \"Issuer\".")]
+        public List<WarningSection> DisplayedWarningSections { get; set; } = new List<WarningSection>()
+        {
+            WarningSection.ID,
+            WarningSection.Type,
+            WarningSection.Message,
+            WarningSection.Length,
+            WarningSection.Issuer
+        };
         
         [Description("Uses to change the warn command.")]
         public string WarnCommand { get; set; } = "warn";

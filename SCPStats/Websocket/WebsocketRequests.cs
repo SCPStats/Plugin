@@ -78,6 +78,24 @@ namespace SCPStats.Websocket
                 }
             }
         }
+        
+        private static List<WarningType> DisplayedWarningTypes { get; set; } = new List<WarningType>()
+        {
+            WarningType.Warning,
+            WarningType.Ban,
+            WarningType.Kick,
+            WarningType.Mute,
+            WarningType.IntercomMute
+        };
+
+        private static List<WarningSection> DisplayedWarningSections { get; set; } = new List<WarningSection>()
+        {
+            WarningSection.ID,
+            WarningSection.Type,
+            WarningSection.Message,
+            WarningSection.Length,
+            WarningSection.Issuer
+        };
 
         private static void HandleWarnings(string info)
         {
@@ -86,12 +104,39 @@ namespace SCPStats.Websocket
             var warnings = info.Substring(4).Split('`');
             var msgId = info.Substring(0, 4);
 
-            var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).ToList();
+            var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).Where(warning => (SCPStats.Singleton?.Translation?.DisplayedWarningTypes ?? DisplayedWarningTypes).Contains(warning.Type)).ToList();
 
             var generatingEventArgs = new GeneratingWarningMessageEventArgs(warningsList, result);
             Events.OnGeneratingWarningMessage(generatingEventArgs);
 
-            result = generatingEventArgs.Warnings.Aggregate(generatingEventArgs.InitialMessage, (current, warning) => current + warning.ID + " | " + GetWarningTypeName(warning.Type) + " | " + warning.Message + (warning.Type == WarningType.Ban ? " | " + warning.Length + " seconds" : "") + "\n");
+            result = String.Join("\n", generatingEventArgs.Warnings.Select(warning =>
+            {
+                var message = new List<string>();
+
+                foreach (var section in SCPStats.Singleton?.Translation?.DisplayedWarningSections ?? DisplayedWarningSections)
+                {
+                    switch (section)
+                    {
+                        case WarningSection.ID:
+                            message.Add(warning.ID.ToString());
+                            break;
+                        case WarningSection.Type:
+                            message.Add(GetWarningTypeName(warning.Type));
+                            break;
+                        case WarningSection.Message:
+                            message.Add(warning.Message);
+                            break;
+                        case WarningSection.Length:
+                            message.Add(warning.Type == WarningType.Ban ? warning.Length + " seconds" : "");
+                            break;
+                        case WarningSection.Issuer:
+                            message.Add(warning.Issuer);
+                            break;
+                    }
+                }
+
+                return String.Join(" | ", message);
+            }));
 
             var sendingEventArgs = new SendingWarningMessageEventArgs(warningsList, result);
             Events.OnSendingWarningMessage(sendingEventArgs);
