@@ -215,6 +215,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\API.cs" />
+    <Compile Include="API\EventArgs\GeneratingWarningMessageEventArgs.cs" />
+    <Compile Include="API\EventArgs\SendingWarningMessageEventArgs.cs" />
     <Compile Include="API\EventArgs\UserInfoEventArgs.cs" />
     <Compile Include="API\Events.cs" />
     <Compile Include="AutoUpdater.cs" />
@@ -245,6 +247,7 @@
     <Compile Include="Websocket\Data\RoundStatsData.cs" />
     <Compile Include="Websocket\Data\Stats.cs" />
     <Compile Include="Websocket\Data\UserInfoData.cs" />
+    <Compile Include="Websocket\Data\Warning.cs" />
     <Compile Include="Websocket\WebsocketHandler.cs" />
     <Compile Include="Websocket\WebsocketRequests.cs" />
     <Compile Include="Websocket\WebsocketThread.cs" />

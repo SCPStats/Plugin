@@ -48,7 +48,7 @@ namespace SCPStats
         public string WarningsSuccess { get; set; } = "Requesting warnings...";
 
         [Description("The message sent when the list of warnings is received.")]
-        public string Warnings { get; set; } = "ID | Type | Message | Ban Length";
+        public string Warnings { get; set; } = "\nID | Type | Message | Ban Length\n\n";
         
         [Description("The name used for warnings in the warnings command.")]
         public string WarningsTypeWarning { get; set; } = "Warning";

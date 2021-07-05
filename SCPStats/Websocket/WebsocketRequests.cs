@@ -25,19 +25,19 @@ namespace SCPStats.Websocket
 
         internal static Dictionary<string, Player> MessageIDs = new Dictionary<string, Player>();
 
-        private static string GetWarningTypeName(string type)
+        private static string GetWarningTypeName(WarningType type)
         {
             switch (type)
             {
-                case "0":
+                case WarningType.Warning:
                     return SCPStats.Singleton?.Translation?.WarningsTypeWarning ?? "Warning";
-                case "1":
+                case WarningType.Ban:
                     return SCPStats.Singleton?.Translation?.WarningsTypeBan ?? "Ban";
-                case "2":
+                case WarningType.Kick:
                     return SCPStats.Singleton?.Translation?.WarningsTypeKick ?? "Kick";
-                case "3":
+                case WarningType.Mute:
                     return SCPStats.Singleton?.Translation?.WarningsTypeMute ?? "Mute";
-                case "4":
+                case WarningType.IntercomMute:
                     return SCPStats.Singleton?.Translation?.WarningsTypeIntercomMutes ?? "Intercom Mute";
             }
 
@@ -81,15 +81,20 @@ namespace SCPStats.Websocket
 
         private static void HandleWarnings(string info)
         {
-            var result = "\n"+(SCPStats.Singleton?.Translation?.Warnings ?? "ID | Type | Message | Ban Length")+"\n\n";
+            var result = SCPStats.Singleton?.Translation?.Warnings ?? "\nID | Type | Message | Ban Length\n\n";
 
             var warnings = info.Substring(4).Split('`');
             var msgId = info.Substring(0, 4);
 
-            if (!string.IsNullOrEmpty(info))
-            {
-                result = warnings.Select(warning => warning.Split('|')).Where(warningSplit => warningSplit.Length >= 4).Aggregate(result, (current, warningSplit) => current + warningSplit[0] + " | " + GetWarningTypeName(warningSplit[1]) + " | " + warningSplit[2] + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "") + "\n");
-            }
+            var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).ToList();
+
+            var generatingEventArgs = new GeneratingWarningMessageEventArgs(warningsList, result);
+            Events.OnGeneratingWarningMessage(generatingEventArgs);
+
+            result = generatingEventArgs.Warnings.Aggregate(generatingEventArgs.InitialMessage, (current, warning) => current + warning.ID + " | " + GetWarningTypeName(warning.Type) + " | " + warning.Message + (warning.Type == WarningType.Ban ? " | " + warning.Length + " seconds" : "") + "\n");
+
+            var sendingEventArgs = new SendingWarningMessageEventArgs(warningsList, result);
+            Events.OnSendingWarningMessage(sendingEventArgs);
 
             if (MessageIDs.TryGetValue(msgId, out var player))
             {
@@ -98,11 +103,11 @@ namespace SCPStats.Websocket
 
             if (player != null)
             {
-                player.RemoteAdminMessage(result, true, SCPStats.Singleton?.Translation?.WarningsCommand?.ToUpper() ?? "WARNINGS");
+                player.RemoteAdminMessage(sendingEventArgs.Message, true, SCPStats.Singleton?.Translation?.WarningsCommand?.ToUpper() ?? "WARNINGS");
             }
             else
             {
-                ServerConsole.AddLog(result);
+                ServerConsole.AddLog(sendingEventArgs.Message);
             }
         }
 
