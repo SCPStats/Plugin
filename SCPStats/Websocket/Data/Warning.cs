@@ -18,6 +18,11 @@
         public string Message { get; set; } = "";
 
         /// <summary>
+        /// The ID of the server that this warn was made on.
+        /// </summary>
+        public string Server { get; set; } = "";
+
+        /// <summary>
         /// The length of the warning, in the case of a ban.
         /// </summary>
         public int Length { get; set; } = 0;
@@ -32,8 +37,9 @@
             if (data.Length > 0 && int.TryParse(data[0], out var id)) ID = id;
             if (data.Length > 1 && int.TryParse(data[1], out var type)) Type = (WarningType) type;
             if (data.Length > 2) Message = data[2];
-            if (data.Length > 3 && int.TryParse(data[3], out var length)) Length = length;
-            if (data.Length > 4) Issuer = data[4];
+            if (data.Length > 3) Server = data[3];
+            if (data.Length > 4 && int.TryParse(data[4], out var length)) Length = length;
+            if (data.Length > 5) Issuer = data[5];
         }
     }
 

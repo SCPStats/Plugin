@@ -109,7 +109,7 @@ namespace SCPStats.Websocket
             var generatingEventArgs = new GeneratingWarningMessageEventArgs(warningsList, result);
             Events.OnGeneratingWarningMessage(generatingEventArgs);
 
-            result = String.Join("\n", generatingEventArgs.Warnings.Select(warning =>
+            result += String.Join("\n", generatingEventArgs.Warnings.Select(warning =>
             {
                 var message = new List<string>();
 
