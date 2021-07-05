@@ -83,8 +83,7 @@ namespace SCPStats
             WarningSection.ID,
             WarningSection.Type,
             WarningSection.Message,
-            WarningSection.Length,
-            WarningSection.Issuer
+            WarningSection.Length
         };
         
         [Description("Uses to change the warn command.")]
