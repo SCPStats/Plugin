@@ -95,11 +95,11 @@ namespace SCPStats.Commands
             else
             {
                 data = "{\"type\":\"0\",\"playerId\":\"" + Helper.HandleId(player).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + player.Nickname + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\",\"online\":true}";
+                Helper.SendWarningMessage(player, message);
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, data);
-            Helper.SendWarningMessage(player, message);
-            
+
             response = SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.";
             return true;
         }
