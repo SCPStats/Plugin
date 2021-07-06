@@ -86,6 +86,9 @@ namespace SCPStats
             WarningSection.Length
         };
 
+        [Description("Should seconds be converted to years, months, days, etc instead of displaying directly as seconds.")]
+        public bool WarningsPrettyPrintSeconds { get; set; } = true;
+
         [Description("The separator between warning sections in the warnings command.")]
         public string WarningsSectionSeparator { get; set; } = " | ";
         
@@ -160,5 +163,13 @@ namespace SCPStats
 
         [Description("The message sent when a user changes their hat.")]
         public string HatChanged { get; set; } = "Your hat has been changed.";
+
+        public string TimeSeconds { get; set; } = "second(s)";
+        public string TimeMinutes { get; set; } = "minute(s)";
+        public string TimeHours { get; set; } = "hour(s)";
+        public string TimeDays { get; set; } = "day(s)";
+        public string TimeWeeks { get; set; } = "week(s)";
+        public string TimeMonths { get; set; } = "month(s)";
+        public string TimeYears { get; set; } = "year(s)";
     }
 }
