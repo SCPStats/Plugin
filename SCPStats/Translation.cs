@@ -102,13 +102,13 @@ namespace SCPStats
         public string WarnUsage { get; set; } = "Usage: warn <id> [reason]";
 
         [Description("The message sent when a user inputs an invalid ID in the owarn command.")]
-        public string WarnInvalidID { get; set; } = "Please enter a valid user id (for example, ID@steam)!";
+        public string WarnInvalidId { get; set; } = "Please enter a valid user id (for example, ID@steam)!";
         
         [Description("The message sent when a user inputs an ID that is too long in the owarn command.")]
-        public string WarnIDTooLong { get; set; } = "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
+        public string WarnIdTooLong { get; set; } = "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
         
         [Description("The message sent when a user inputs an ID that contains non-numbers in the owarn command.")]
-        public string WarnIDNotNumeric { get; set; } = "User IDs cannot contain non-numbers!";
+        public string WarnIdNotNumeric { get; set; } = "User IDs cannot contain non-numbers!";
 
         [Description("The message sent when the warn command is executed successfully.")]
         public string WarnSuccess { get; set; } = "Added warning.";

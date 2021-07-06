@@ -72,7 +72,7 @@ namespace SCPStats.Warnings
 
                 if (!arg.Contains("@"))
                 {
-                    response = SCPStats.Singleton?.Translation?.WarnInvalidID ?? "Please enter a valid user id (for example, ID@steam)!";
+                    response = SCPStats.Singleton?.Translation?.WarnInvalidId ?? "Please enter a valid user id (for example, ID@steam)!";
                     return false;
                 }
 
@@ -80,13 +80,13 @@ namespace SCPStats.Warnings
 
                 if (ID.Length > 18)
                 {
-                    response = SCPStats.Singleton?.Translation?.WarnIDTooLong ?? "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
+                    response = SCPStats.Singleton?.Translation?.WarnIdTooLong ?? "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
                     return false;
                 }
 
                 if (!arg.EndsWith("@northwood") && !long.TryParse(ID, out _))
                 {
-                    response = SCPStats.Singleton?.Translation?.WarnIDNotNumeric ?? "User IDs cannot contain non-numbers!";
+                    response = SCPStats.Singleton?.Translation?.WarnIdNotNumeric ?? "User IDs cannot contain non-numbers!";
                     return false;
                 }
             }
