@@ -75,7 +75,7 @@ namespace SCPStats
         public ushort WarningMessageDuration { get; set; } = 5;
 
         [Description("If a kick message starts with one of these, it will not be recorded.")]
-        public List<string> IgnoredMessages = new List<string>()
+        public List<string> IgnoredMessages { get; set; } = new List<string>()
         {
             "[SCPStats]",
             "VPNs and proxies are forbidden",
