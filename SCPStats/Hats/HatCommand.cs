@@ -73,13 +73,13 @@ namespace SCPStats.Hats
             if (!HatPlayers.ContainsKey(p.UserId) && !p.CheckPermission("scpstats.hat") && !p.CheckPermission("scpstats.hats"))
             {
                 response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to use this command!";
-                return true;
+                return false;
             }
 
             if (arguments.Count < 1)
             {
                 response = SCPStats.Singleton?.Translation?.HatUsage ?? "Usage: .hat <on/off/toggle/item>";
-                return true;
+                return false;
             }
             
             if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = new HatInfo();
@@ -103,7 +103,7 @@ namespace SCPStats.Hats
                     }
 
                     response = SCPStats.Singleton?.Translation?.HatEnableFail ?? "You can't put two hats on at once!";
-                    return true;
+                    return false;
                 case "off":
                     if (RemoveHat(playerComponent))
                     {
@@ -112,7 +112,7 @@ namespace SCPStats.Hats
                     }
 
                     response = SCPStats.Singleton?.Translation?.HatDisableFail ?? "You don't have a hat on. You need to put one on before you can take it off.";
-                    return true;
+                    return false;
                 case "toggle":
                     if (playerComponent.item == null)
                     {
@@ -138,7 +138,7 @@ namespace SCPStats.Hats
                                    "\nAdrenaline" +
                                    "\nWeaponManagerTablet" +
                                    "\nSCP-207";
-                        return true;
+                        return false;
                     }
 
                     var item = items[command];

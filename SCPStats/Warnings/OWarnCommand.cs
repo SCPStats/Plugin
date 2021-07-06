@@ -33,7 +33,7 @@ namespace SCPStats.Warnings
                 if (!p.CheckPermission("scpstats.warn"))
                 {
                     response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
-                    return true;
+                    return false;
                 }
                 
                 issuerID = Helper.HandleId(p);
@@ -43,7 +43,7 @@ namespace SCPStats.Warnings
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = SCPStats.Singleton?.Translation?.OWarnUsage ?? "Usage: owarn <id> [reason]";
-                return true;
+                return false;
             }
 
             var message = "";
@@ -62,7 +62,7 @@ namespace SCPStats.Warnings
             if (!arg.Contains("@"))
             {
                 response = SCPStats.Singleton?.Translation?.OWarnInvalidID ?? "Please enter a valid user id (for example, ID@steam)!";
-                return true;
+                return false;
             }
 
             var userId = Helper.HandleId(arg);
@@ -70,13 +70,13 @@ namespace SCPStats.Warnings
             if (userId.Length > 18)
             {
                 response = SCPStats.Singleton?.Translation?.OWarnIDTooLong ?? "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
-                return true;
+                return false;
             }
 
             if (!arg.EndsWith("@northwood") && !long.TryParse(userId, out _))
             {
                 response = SCPStats.Singleton?.Translation?.OWarnIDNotNumeric ?? "User IDs cannot contain non-numbers!";
-                return true;
+                return false;
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+userId.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");

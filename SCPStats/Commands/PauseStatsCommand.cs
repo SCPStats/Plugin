@@ -24,7 +24,7 @@ namespace SCPStats.Commands
             if (sender is PlayerCommandSender p && !p.CheckPermission("scpstats.pause"))
             {
                 response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
-                return true;
+                return false;
             }
 
             EventHandler.PauseRound = true;

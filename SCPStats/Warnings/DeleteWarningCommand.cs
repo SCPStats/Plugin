@@ -32,7 +32,7 @@ namespace SCPStats.Warnings
                 if (!p.CheckPermission("scpstats.deletewarning"))
                 {
                     response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
-                    return true;
+                    return false;
                 }
 
                 pl = p;
@@ -41,7 +41,7 @@ namespace SCPStats.Warnings
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = SCPStats.Singleton?.Translation?.DeleteWarningUsage ?? "Usage: deletewarning <id>";
-                return true;
+                return false;
             }
             
             var msgId = WebsocketRequests.Random.Next(1000, 9999).ToString();

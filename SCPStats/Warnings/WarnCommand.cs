@@ -33,7 +33,7 @@ namespace SCPStats.Warnings
                 if (!p.CheckPermission("scpstats.warn"))
                 {
                     response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
-                    return true;
+                    return false;
                 }
 
                 issuerID = Helper.HandleId(p);
@@ -43,7 +43,7 @@ namespace SCPStats.Warnings
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]";
-                return true;
+                return false;
             }
 
             var message = "";
@@ -67,7 +67,7 @@ namespace SCPStats.Warnings
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player))
             {
                 response = SCPStats.Singleton?.Translation?.WarnPlayerNotFound ?? "The specified player was not found! Use the owarn command to warn offline players.";
-                return true;
+                return false;
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+player.Nickname+"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName+"\",\"online\":true}");

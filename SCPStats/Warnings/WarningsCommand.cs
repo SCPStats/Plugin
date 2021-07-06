@@ -32,7 +32,7 @@ namespace SCPStats.Warnings
                 if (!p.CheckPermission("scpstats.warnings"))
                 {
                     response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
-                    return true;
+                    return false;
                 }
 
                 pl = p;
@@ -41,7 +41,7 @@ namespace SCPStats.Warnings
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
                 response = SCPStats.Singleton?.Translation?.WarningsUsage ?? "Usage: warnings <id>";
-                return true;
+                return false;
             }
 
             var arg = arguments.Array[1].Trim().ToLower();
