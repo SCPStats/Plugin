@@ -13,7 +13,7 @@ using Exiled.Permissions.Extensions;
 using RemoteAdmin;
 using SCPStats.Websocket;
 
-namespace SCPStats.Warnings
+namespace SCPStats.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class DeleteWarningCommand : ICommand

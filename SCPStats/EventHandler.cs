@@ -13,6 +13,7 @@ using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
 using MEC;
+using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket;
 using SCPStats.Websocket.Data;

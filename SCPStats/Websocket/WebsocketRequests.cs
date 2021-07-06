@@ -14,6 +14,7 @@ using Exiled.Loader;
 using MEC;
 using SCPStats.API;
 using SCPStats.API.EventArgs;
+using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket.Data;
 

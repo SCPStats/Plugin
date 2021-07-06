@@ -11,9 +11,10 @@ using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
 using RemoteAdmin;
+using SCPStats.Hats;
 using Object = UnityEngine.Object;
 
-namespace SCPStats.Hats
+namespace SCPStats.Commands
 {
     [CommandHandler(typeof(ClientCommandHandler))]
     public class HatCommand: ICommand

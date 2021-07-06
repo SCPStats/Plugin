@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using Exiled.API.Features;
+using SCPStats.Commands;
 using UnityEngine;
 
 namespace SCPStats.Hats
