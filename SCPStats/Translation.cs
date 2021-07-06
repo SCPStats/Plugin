@@ -101,33 +101,18 @@ namespace SCPStats
         [Description("The message sent when a user uses the warn command incorrectly.")]
         public string WarnUsage { get; set; } = "Usage: warn <id> [reason]";
 
-        [Description("The message sent when the player input was not found.")]
-        public string WarnPlayerNotFound { get; set; } = "The specified player was not found! Use the owarn command to warn offline players.";
+        [Description("The message sent when a user inputs an invalid ID in the owarn command.")]
+        public string WarnInvalidID { get; set; } = "Please enter a valid user id (for example, ID@steam)!";
+        
+        [Description("The message sent when a user inputs an ID that is too long in the owarn command.")]
+        public string WarnIDTooLong { get; set; } = "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
+        
+        [Description("The message sent when a user inputs an ID that contains non-numbers in the owarn command.")]
+        public string WarnIDNotNumeric { get; set; } = "User IDs cannot contain non-numbers!";
 
         [Description("The message sent when the warn command is executed successfully.")]
         public string WarnSuccess { get; set; } = "Added warning.";
-        
-        [Description("Uses to change the owarn command.")]
-        public string OWarnCommand { get; set; } = "owarn";
 
-        [Description("The description of the owarn command.")]
-        public string OWarnDescription { get; set; } = "Warn an offline player.";
-
-        [Description("The message sent when a user uses the owarn command incorrectly.")]
-        public string OWarnUsage { get; set; } = "Usage: owarn <id> [reason]";
-
-        [Description("The message sent when a user inputs an invalid ID in the owarn command.")]
-        public string OWarnInvalidID { get; set; } = "Please enter a valid user id (for example, ID@steam)!";
-        
-        [Description("The message sent when a user inputs an ID that is too long in the owarn command.")]
-        public string OWarnIDTooLong { get; set; } = "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
-        
-        [Description("The message sent when a user inputs an ID that contains non-numbers in the owarn command.")]
-        public string OWarnIDNotNumeric { get; set; } = "User IDs cannot contain non-numbers!";
-
-        [Description("The message sent when the owarn command is executed successfully.")]
-        public string OWarnSuccess { get; set; } = "Added warning.";
-        
         [Description("Uses to change the pause stats command.")]
         public string PauseStatsCommand { get; set; } = "pausestats";
 

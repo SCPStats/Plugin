@@ -64,13 +64,38 @@ namespace SCPStats.Warnings
                 player = Player.Get(id);
             }
 
+            var ID = "";
+
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player))
             {
-                response = SCPStats.Singleton?.Translation?.WarnPlayerNotFound ?? "The specified player was not found! Use the owarn command to warn offline players.";
-                return false;
+                var arg = arguments.Array[1].Trim().ToLower();
+
+                if (!arg.Contains("@"))
+                {
+                    response = SCPStats.Singleton?.Translation?.WarnInvalidID ?? "Please enter a valid user id (for example, ID@steam)!";
+                    return false;
+                }
+
+                ID = Helper.HandleId(arg);
+
+                if (ID.Length > 18)
+                {
+                    response = SCPStats.Singleton?.Translation?.WarnIDTooLong ?? "User IDs have a maximum length of 18 characters. The one you have input is larger than that!";
+                    return false;
+                }
+
+                if (!arg.EndsWith("@northwood") && !long.TryParse(ID, out _))
+                {
+                    response = SCPStats.Singleton?.Translation?.WarnIDNotNumeric ?? "User IDs cannot contain non-numbers!";
+                    return false;
+                }
+            }
+            else
+            {
+                ID = Helper.HandleId(player);
             }
             
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+Helper.HandleId(player)+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+player.Nickname+"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName+"\",\"online\":true}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"0\",\"playerId\":\""+ID.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+player.Nickname+"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName+"\",\"online\":true}");
             Helper.SendWarningMessage(player, message);
             
             response = SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.";
