@@ -4,7 +4,7 @@ using CommandSystem;
 namespace SCPStats.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class NoteCommand
+    public class NoteCommand : ICommand
     {
         public string Command => SCPStats.Singleton?.Translation?.NoteCommand ?? "note";
         public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.NoteCommandAliases?.ToArray() ?? Array.Empty<string>();
