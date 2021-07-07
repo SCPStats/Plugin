@@ -55,7 +55,7 @@ namespace SCPStats
                 return;
             }
             
-            harmony = new Harmony("SCPStats-"+Version);
+            harmony = new Harmony($"SCPStats-{Version}-{DateTime.Now.Ticks}");
             harmony.PatchAll();
             
             EventHandler.Start();
