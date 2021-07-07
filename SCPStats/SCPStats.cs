@@ -48,8 +48,10 @@ namespace SCPStats
             if (Secret == "fill this" || ServerID == "fill this")
             {
                 Log.Warn("Config for SCPStats has not been filled out correctly. Disabling!");
-                this.OnUnregisteringCommands();
+
                 this.OnDisabled();
+                Timing.CallDelayed(1f, this.OnUnregisteringCommands);
+
                 return;
             }
             
