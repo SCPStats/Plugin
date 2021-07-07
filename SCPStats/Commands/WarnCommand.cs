@@ -27,7 +27,7 @@ namespace SCPStats.Commands
             return ExecuteCustomDisplay(arguments, sender, out response, true, SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]", SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.");
         }
 
-        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool silent, string usage, string success, int type = 0)
+        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool displayed, string usage, string success, int type = 0)
         {
             var issuerID = "";
             var issuerName = "";
@@ -95,12 +95,12 @@ namespace SCPStats.Commands
                     return false;
                 }
 
-                data = "{\"type\":\"" + type + "\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!silent ? ",\"online\":true" : "") + "}";
+                data = "{\"type\":\"" + type + "\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!displayed ? ",\"online\":true" : "") + "}";
             }
             else
             {
                 data = "{\"type\":\"" + type + "\",\"playerId\":\"" + Helper.HandleId(player).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + player.Nickname + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\",\"online\":true}";
-                if(silent) Helper.SendWarningMessage(player, message);
+                if(displayed) Helper.SendWarningMessage(player, message);
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, data);
