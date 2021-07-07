@@ -24,6 +24,11 @@ namespace SCPStats.Commands
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            return ExecuteCustomDisplay(arguments, sender, out response, true);
+        }
+
+        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool display)
+        {
             var issuerID = "";
             var issuerName = "";
             
@@ -95,7 +100,7 @@ namespace SCPStats.Commands
             else
             {
                 data = "{\"type\":\"0\",\"playerId\":\"" + Helper.HandleId(player).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + player.Nickname + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\",\"online\":true}";
-                Helper.SendWarningMessage(player, message);
+                if(display) Helper.SendWarningMessage(player, message);
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, data);

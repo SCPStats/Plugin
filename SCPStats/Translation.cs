@@ -113,6 +113,12 @@ namespace SCPStats
         [Description("The message sent when the warn command is executed successfully.")]
         public string WarnSuccess { get; set; } = "Added warning.";
 
+        [Description("Uses to change the silent warn command.")]
+        public string SilentWarnCommand { get; set; } = "silentwarn";
+
+        [Description("The description of the silent warn command.")]
+        public string SilentWarnDescription { get; set; } = "Silently warn a player (without showing a message on their screen).";
+
         [Description("Uses to change the pause stats command.")]
         public string PauseStatsCommand { get; set; } = "pausestats";
 

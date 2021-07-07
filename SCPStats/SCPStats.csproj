@@ -223,6 +223,7 @@
     <Compile Include="Commands\DeleteWarningCommand.cs" />
     <Compile Include="Commands\HatCommand.cs" />
     <Compile Include="Commands\PauseStatsCommand.cs" />
+    <Compile Include="Commands\SilentWarnCommand.cs" />
     <Compile Include="Commands\WarnCommand.cs" />
     <Compile Include="Commands\WarningsCommand.cs" />
     <Compile Include="Config.cs" />
