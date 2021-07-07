@@ -95,7 +95,7 @@ namespace SCPStats.Commands
                     return false;
                 }
 
-                data = "{\"type\":\"0\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"}";
+                data = "{\"type\":\"0\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!display ? ",\"online\":true" : "") + "}";
             }
             else
             {
