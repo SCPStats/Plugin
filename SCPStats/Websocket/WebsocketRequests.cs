@@ -32,6 +32,8 @@ namespace SCPStats.Websocket
             {
                 case WarningType.Warning:
                     return SCPStats.Singleton?.Translation?.WarningsTypeWarning ?? "Warning";
+                case WarningType.Note:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeNote ?? "Note";
                 case WarningType.Ban:
                     return SCPStats.Singleton?.Translation?.WarningsTypeBan ?? "Ban";
                 case WarningType.Kick:
@@ -147,6 +149,7 @@ namespace SCPStats.Websocket
         private static List<WarningType> WarningsDisplayedTypes { get; set; } = new List<WarningType>()
         {
             WarningType.Warning,
+            WarningType.Note,
             WarningType.Ban,
             WarningType.Kick,
             WarningType.Mute,

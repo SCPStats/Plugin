@@ -61,6 +61,9 @@ namespace SCPStats
         [Description("The name used for warnings in the warnings command.")]
         public string WarningsTypeWarning { get; set; } = "Warning";
         
+        [Description("The name used for notes in the warnings command.")]
+        public string WarningsTypeNote { get; set; } = "Note";
+        
         [Description("The name used for bans in the warnings command.")]
         public string WarningsTypeBan { get; set; } = "Ban";
         
@@ -73,10 +76,11 @@ namespace SCPStats
         [Description("The name used for warnings in the warnings command.")]
         public string WarningsTypeIntercomMutes { get; set; } = "Intercom Mute";
 
-        [Description("The types of warnings that will be displayed by the warnings command. Possible options are: \"Warning\", \"Ban\", \"Kick\", \"Mute\", and \"IntercomMute\".")]
+        [Description("The types of warnings that will be displayed by the warnings command. Possible options are: \"Warning\", \"Note\", \"Ban\", \"Kick\", \"Mute\", \"IntercomMute\".")]
         public List<WarningType> WarningsDisplayedTypes { get; set; } = new List<WarningType>()
         {
             WarningType.Warning,
+            WarningType.Note,
             WarningType.Ban,
             WarningType.Kick,
             WarningType.Mute,
@@ -133,6 +137,24 @@ namespace SCPStats
 
         [Description("The message sent when a user uses the silent warn command incorrectly.")]
         public string SilentWarnUsage { get; set; } = "Usage: swarn <id> [reason]";
+
+        [Description("The message sent when the warn command is executed successfully.")]
+        public string SilentWarnSuccess { get; set; } = "Added warning.";
+        
+        [Description("Used to change the note command.")]
+        public string NoteCommand { get; set; } = "note";
+
+        [Description("Used to change the note aliases.")]
+        public List<string> NoteCommandAliases { get; set; } = new List<string>() {};
+
+        [Description("The description of the note command.")]
+        public string NoteDescription { get; set; } = "Create a note about a player.";
+
+        [Description("The message sent when a user uses the note command incorrectly.")]
+        public string NoteUsage { get; set; } = "Usage: note <id> [message]";
+
+        [Description("The message sent when the note is executed successfully.")]
+        public string NoteSuccess { get; set; } = "Added note.";
 
         [Description("Used to change the pause stats command.")]
         public string PauseStatsCommand { get; set; } = "pausestats";

@@ -24,10 +24,10 @@ namespace SCPStats.Commands
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            return ExecuteCustomDisplay(arguments, sender, out response, true);
+            return ExecuteCustomDisplay(arguments, sender, out response, true, SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]", SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.");
         }
 
-        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool silent)
+        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool silent, string usage, string success, int type = 0)
         {
             var issuerID = "";
             var issuerName = "";
@@ -47,7 +47,7 @@ namespace SCPStats.Commands
             
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = silent ? SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]" : SCPStats.Singleton?.Translation?.SilentWarnUsage ?? "Usage: swarn <id> [reason]";
+                response = usage;
                 return false;
             }
 
@@ -95,17 +95,17 @@ namespace SCPStats.Commands
                     return false;
                 }
 
-                data = "{\"type\":\"0\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!silent ? ",\"online\":true" : "") + "}";
+                data = "{\"type\":\"" + type + "\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!silent ? ",\"online\":true" : "") + "}";
             }
             else
             {
-                data = "{\"type\":\"0\",\"playerId\":\"" + Helper.HandleId(player).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + player.Nickname + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\",\"online\":true}";
+                data = "{\"type\":\"" + type + "\",\"playerId\":\"" + Helper.HandleId(player).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + player.Nickname + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\",\"online\":true}";
                 if(silent) Helper.SendWarningMessage(player, message);
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, data);
 
-            response = SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.";
+            response = success;
             return true;
         }
     }

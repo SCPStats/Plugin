@@ -50,7 +50,8 @@
         Ban = 1,
         Kick = 2,
         Mute = 3,
-        IntercomMute = 4
+        IntercomMute = 4,
+        Note = 5
     }
 
     public enum WarningSection
