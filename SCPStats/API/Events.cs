@@ -26,12 +26,12 @@ namespace SCPStats.API
         public static Exiled.Events.Events.CustomEventHandler<UserInfoEventArgs> UserInfoHandled;
 
         /// <summary>
-        /// Called before a warning message is generated.
+        /// Called before a warning message is generated for the warnings command.
         /// </summary>
         public static Exiled.Events.Events.CustomEventHandler<GeneratingWarningMessageEventArgs> GeneratingWarningMessage;
 
         /// <summary>
-        /// Called before a warning message is sent.
+        /// Called before a warning message is sent for the warnings command.
         /// </summary>
         public static Exiled.Events.Events.CustomEventHandler<SendingWarningMessageEventArgs> SendingWarningMessage;
 
