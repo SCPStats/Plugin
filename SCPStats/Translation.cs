@@ -149,6 +149,9 @@ namespace SCPStats
         [Description("The message sent when a user changes their hat.")]
         public string HatChanged { get; set; } = "Your hat has been changed.";
 
+        [Description("The hint shown when a person tries to pick up someone else's hat.")]
+        public string HatHint { get; set; } = "You can get a hat like this at patreon.com/SCPStats.";
+
         public string TimeSeconds { get; set; } = "second(s)";
         public string TimeMinutes { get; set; } = "minute(s)";
         public string TimeHours { get; set; } = "hour(s)";

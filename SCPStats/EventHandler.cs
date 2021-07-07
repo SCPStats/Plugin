@@ -305,7 +305,7 @@ namespace SCPStats
             {
                 if (ev.Player?.UserId != null && !ev.Player.IsHost && ev.Player.IsVerified && ev.Player.IPAddress != "127.0.0.WAN" && ev.Player.IPAddress != "127.0.0.1" && (hat.player == null || hat.player.gameObject != ev.Player?.GameObject) && (SCPStats.Singleton?.Config.DisplayHatHint ?? true))
                 {
-                    ev.Player.ShowHint("You can get a hat like this at patreon.com/SCPStats.", 2f);
+                    ev.Player.ShowHint(SCPStats.Singleton?.Translation?.HatHint ?? "You can get a hat like this at patreon.com/SCPStats.", 2f);
                 }
                 
                 ev.IsAllowed = false;
