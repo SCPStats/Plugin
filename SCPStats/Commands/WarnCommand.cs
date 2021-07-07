@@ -47,7 +47,7 @@ namespace SCPStats.Commands
             
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]";
+                response = display ? SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]" : SCPStats.Singleton?.Translation?.SilentWarnUsage ?? "Usage: swarn <id> [reason]";
                 return false;
             }
 

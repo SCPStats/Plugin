@@ -123,13 +123,16 @@ namespace SCPStats
         public string WarnSuccess { get; set; } = "Added warning.";
 
         [Description("Used to change the silent warn command.")]
-        public string SilentWarnCommand { get; set; } = "silentwarn";
+        public string SilentWarnCommand { get; set; } = "swarn";
 
         [Description("Used to change the silent command aliases.")]
-        public List<string> SilentWarnCommandAliases { get; set; } = new List<string>() {"swarn"};
+        public List<string> SilentWarnCommandAliases { get; set; } = new List<string>() {"silentwarn"};
 
         [Description("The description of the silent warn command.")]
         public string SilentWarnDescription { get; set; } = "Silently warn a player (without showing a message on their screen).";
+
+        [Description("The message sent when a user uses the silent warn command incorrectly.")]
+        public string SilentWarnUsage { get; set; } = "Usage: swarn <id> [reason]";
 
         [Description("Used to change the pause stats command.")]
         public string PauseStatsCommand { get; set; } = "pausestats";
