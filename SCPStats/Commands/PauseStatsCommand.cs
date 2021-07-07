@@ -16,7 +16,7 @@ namespace SCPStats.Commands
     public class PauseStatsCommand : ICommand
     {
         public string Command => SCPStats.Singleton?.Translation?.PauseStatsCommand ?? "pausestats";
-        public string[] Aliases { get; } = new string[] {"pausestat", "pausescpstats", "pausescpstat", "pauseround"};
+        public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.PauseStatsCommandAliases?.ToArray() ?? new string[] {"pausestat", "pausescpstats", "pausescpstat", "pauseround"};
         public string Description => SCPStats.Singleton?.Translation?.PauseStatsDescription ?? "Temporarily pause stat collection for the round. Useful for events.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)

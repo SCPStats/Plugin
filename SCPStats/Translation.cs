@@ -25,6 +25,9 @@ namespace SCPStats
         [Description("Used to change the delete warning command.")]
         public string DeleteWarningCommand { get; set; } = "deletewarning";
 
+        [Description("Used to change the delete warning command aliases.")]
+        public List<string> DeleteWarningCommandAliases { get; set; } = new List<string>() {"deletewarnings", "delwarning", "delwarnings", "delwarn", "deletewarns", "deletewarn", "delwarns"};
+
         [Description("The description of the delete warning command.")]
         public string DeleteWarningDescription { get; set; } = "Delete a warning.";
 
@@ -39,6 +42,9 @@ namespace SCPStats
         
         [Description("Used to change the warnings command.")]
         public string WarningsCommand { get; set; } = "warnings";
+
+        [Description("Used to change the warnings command aliases.")]
+        public List<string> WarningsCommandAliases { get; set; } = new List<string>() {"warning", "warns", "getwarns", "getwarnings"};
 
         [Description("The description of the warnings command.")]
         public string WarningsDescription { get; set; } = "View warnings on a specific player.";
@@ -95,6 +101,9 @@ namespace SCPStats
         [Description("Used to change the warn command.")]
         public string WarnCommand { get; set; } = "warn";
 
+        [Description("Used to change the warn command aliases.")]
+        public List<string> WarnCommandAliases { get; set; } = new List<string>() {};
+
         [Description("The description of the warn command.")]
         public string WarnDescription { get; set; } = "Warn a player.";
 
@@ -116,11 +125,17 @@ namespace SCPStats
         [Description("Used to change the silent warn command.")]
         public string SilentWarnCommand { get; set; } = "silentwarn";
 
+        [Description("Used to change the silent command aliases.")]
+        public List<string> SilentWarnCommandAliases { get; set; } = new List<string>() {"swarn"};
+
         [Description("The description of the silent warn command.")]
         public string SilentWarnDescription { get; set; } = "Silently warn a player (without showing a message on their screen).";
 
         [Description("Used to change the pause stats command.")]
         public string PauseStatsCommand { get; set; } = "pausestats";
+
+        [Description("Used to change the pause stats command aliases.")]
+        public List<string> PauseStatsCommandAliases { get; set; } = new List<string>() {"pausestat", "pausescpstats", "pausescpstat", "pauseround"};
 
         [Description("The description of the pause stats command.")]
         public string PauseStatsDescription { get; set; } = "Temporarily pause stat collection for the round. Useful for events.";
@@ -130,6 +145,9 @@ namespace SCPStats
         
         [Description("Used to change the hat command.")]
         public string HatCommand { get; set; } = "hat";
+
+        [Description("Used to change the hat command aliases.")]
+        public List<string> HatCommandAliases { get; set; } = new List<string>() { "hats" };
 
         [Description("The description of the hat command.")]
         public string HatDescription { get; set; } = "Change your hat ingame. This only applies to the current round.";

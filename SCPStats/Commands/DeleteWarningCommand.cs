@@ -19,7 +19,7 @@ namespace SCPStats.Commands
     public class DeleteWarningCommand : ICommand
     {
         public string Command => SCPStats.Singleton?.Translation?.DeleteWarningCommand ?? "deletewarning";
-        public string[] Aliases { get; } = new string[] {"deletewarnings", "delwarning", "delwarnings", "delwarn", "deletewarns", "deletewarn", "delwarns"};
+        public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.DeleteWarningCommandAliases?.ToArray() ?? new string[] {"deletewarnings", "delwarning", "delwarnings", "delwarn", "deletewarns", "deletewarn", "delwarns"};
         public string Description => SCPStats.Singleton?.Translation?.DeleteWarningDescription ?? "Delete a warning.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)

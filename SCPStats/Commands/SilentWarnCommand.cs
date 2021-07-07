@@ -7,7 +7,7 @@ namespace SCPStats.Commands
     public class SilentWarnCommand : ICommand
     {
         public string Command => SCPStats.Singleton?.Translation?.SilentWarnCommand ?? "silentwarn";
-        public string[] Aliases { get; } = new string[] {"swarn"};
+        public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.SilentWarnCommandAliases?.ToArray() ?? new string[] {"swarn"};
         public string Description => SCPStats.Singleton?.Translation?.SilentWarnDescription ?? "Silently warn a player (without showing a message on their screen).";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)

@@ -20,7 +20,7 @@ namespace SCPStats.Commands
     public class HatCommand: ICommand
     {
         public string Command => SCPStats.Singleton?.Translation?.HatCommand ?? "hat";
-        public string[] Aliases { get; } = new string[] { "hats" };
+        public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.HatCommandAliases?.ToArray() ?? new string[] { "hats" };
         public string Description => SCPStats.Singleton?.Translation?.HatDescription ?? "Change your hat ingame. This only applies to the current round.";
         
         internal static Dictionary<string, HatInfo> HatPlayers = new Dictionary<string, HatInfo>();

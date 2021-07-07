@@ -19,7 +19,7 @@ namespace SCPStats.Commands
     public class WarnCommand : ICommand
     {
         public string Command => SCPStats.Singleton?.Translation?.WarnCommand ?? "warn";
-        public string[] Aliases { get; } = Array.Empty<string>();
+        public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.WarnCommandAliases?.ToArray() ?? Array.Empty<string>();
         public string Description => SCPStats.Singleton?.Translation?.WarnDescription ?? "Warn a player.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
