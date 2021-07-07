@@ -22,7 +22,7 @@ namespace SCPStats
         [Description("The kick message used when a player is banned.")]
         public string BannedKickMessage { get; set; } = "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!";
         
-        [Description("Uses to change the delete warning command.")]
+        [Description("Used to change the delete warning command.")]
         public string DeleteWarningCommand { get; set; } = "deletewarning";
 
         [Description("The description of the delete warning command.")]
@@ -37,7 +37,7 @@ namespace SCPStats
         [Description("The message sent when a warning is deleted successfully.")]
         public string WarningDeleted { get; set; } = "Successfully deleted warning!";
         
-        [Description("Uses to change the warnings command.")]
+        [Description("Used to change the warnings command.")]
         public string WarningsCommand { get; set; } = "warnings";
 
         [Description("The description of the warnings command.")]
@@ -92,7 +92,7 @@ namespace SCPStats
         [Description("The separator between warning sections in the warnings command.")]
         public string WarningsSectionSeparator { get; set; } = " | ";
         
-        [Description("Uses to change the warn command.")]
+        [Description("Used to change the warn command.")]
         public string WarnCommand { get; set; } = "warn";
 
         [Description("The description of the warn command.")]
@@ -113,13 +113,13 @@ namespace SCPStats
         [Description("The message sent when the warn command is executed successfully.")]
         public string WarnSuccess { get; set; } = "Added warning.";
 
-        [Description("Uses to change the silent warn command.")]
+        [Description("Used to change the silent warn command.")]
         public string SilentWarnCommand { get; set; } = "silentwarn";
 
         [Description("The description of the silent warn command.")]
         public string SilentWarnDescription { get; set; } = "Silently warn a player (without showing a message on their screen).";
 
-        [Description("Uses to change the pause stats command.")]
+        [Description("Used to change the pause stats command.")]
         public string PauseStatsCommand { get; set; } = "pausestats";
 
         [Description("The description of the pause stats command.")]
@@ -128,7 +128,7 @@ namespace SCPStats
         [Description("The message sent when the pause stats command is executed successfully.")]
         public string PauseStatsSuccess { get; set; } = "Successfully paused stat collection for the round.";
         
-        [Description("Uses to change the hat command.")]
+        [Description("Used to change the hat command.")]
         public string HatCommand { get; set; } = "hat";
 
         [Description("The description of the hat command.")]
