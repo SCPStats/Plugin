@@ -27,7 +27,7 @@ namespace SCPStats.Commands
             return ExecuteCustomDisplay(arguments, sender, out response, true);
         }
 
-        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool display)
+        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool silent)
         {
             var issuerID = "";
             var issuerName = "";
@@ -47,7 +47,7 @@ namespace SCPStats.Commands
             
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = display ? SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]" : SCPStats.Singleton?.Translation?.SilentWarnUsage ?? "Usage: swarn <id> [reason]";
+                response = silent ? SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]" : SCPStats.Singleton?.Translation?.SilentWarnUsage ?? "Usage: swarn <id> [reason]";
                 return false;
             }
 
@@ -95,12 +95,12 @@ namespace SCPStats.Commands
                     return false;
                 }
 
-                data = "{\"type\":\"0\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!display ? ",\"online\":true" : "") + "}";
+                data = "{\"type\":\"0\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!silent ? ",\"online\":true" : "") + "}";
             }
             else
             {
                 data = "{\"type\":\"0\",\"playerId\":\"" + Helper.HandleId(player).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + player.Nickname + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\",\"online\":true}";
-                if(display) Helper.SendWarningMessage(player, message);
+                if(silent) Helper.SendWarningMessage(player, message);
             }
             
             WebsocketHandler.SendRequest(RequestType.AddWarning, data);
