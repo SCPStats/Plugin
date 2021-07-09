@@ -281,7 +281,7 @@ namespace SCPStats
 
             if (ev.IsEscaped)
             {
-                var cuffer = ev.Player?.IsCuffed ?? false ? Helper.GetPlayerInfo(Player.Get(ev.Player.CufferId)) : new PlayerInfo(null, RoleType.None, true);
+                var cuffer = (ev.Player?.CufferId ?? -1) != -1 ? Helper.GetPlayerInfo(Player.Get(ev.Player.CufferId)) : new PlayerInfo(null, RoleType.None, true);
 
                 if (!cuffer.IsAllowed || cuffer.PlayerID == playerInfo.PlayerID)
                 {
