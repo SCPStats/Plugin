@@ -83,7 +83,7 @@ namespace SCPStats.Commands
                 return false;
             }
             
-            if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = new HatInfo();
+            if (!HatPlayers.ContainsKey(p.UserId)) HatPlayers[p.UserId] = new HatInfo(ItemType.SCP268);
             
             HatPlayerComponent playerComponent;
             if (!p.GameObject.TryGetComponent(out playerComponent))
