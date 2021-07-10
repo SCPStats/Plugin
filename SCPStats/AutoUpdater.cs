@@ -14,7 +14,7 @@ namespace SCPStats
 {
     internal static class AutoUpdater
     {
-        private const string Version = "1.2.5-2";
+        private const string Version = "1.3.0";
 
         internal static async Task RunUpdater(int waitTime = 0)
         {
@@ -22,6 +22,8 @@ namespace SCPStats
             
             using (var client = new WebClient())
             {
+                if (SCPStats.Singleton == null) return;
+
                 var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/version");
                 if (res == Version) return;
 

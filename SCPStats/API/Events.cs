@@ -19,14 +19,28 @@ namespace SCPStats.API
         /// Called when a player joins, before user info is handled.
         /// </summary>
         public static Exiled.Events.Events.CustomEventHandler<UserInfoEventArgs> UserInfoReceived;
-        
+
         /// <summary>
         /// Called after user info has been handled (after bans and rolesync, etc). This will not run if the player has been kicked.
         /// </summary>
         public static Exiled.Events.Events.CustomEventHandler<UserInfoEventArgs> UserInfoHandled;
 
+        /// <summary>
+        /// Called before a warning message is generated for the warnings command.
+        /// </summary>
+        public static Exiled.Events.Events.CustomEventHandler<GeneratingWarningMessageEventArgs> GeneratingWarningMessage;
+
+        /// <summary>
+        /// Called before a warning message is sent for the warnings command.
+        /// </summary>
+        public static Exiled.Events.Events.CustomEventHandler<SendingWarningMessageEventArgs> SendingWarningMessage;
+
         internal static void OnUserInfoReceived(UserInfoEventArgs ev) => UserInfoReceived.InvokeSafely(ev);
-        
+
         internal static void OnUserInfoHandled(UserInfoEventArgs ev) => UserInfoHandled.InvokeSafely(ev);
+
+        internal static void OnGeneratingWarningMessage(GeneratingWarningMessageEventArgs ev) => GeneratingWarningMessage.InvokeSafely(ev);
+
+        internal static void OnSendingWarningMessage(SendingWarningMessageEventArgs ev) => SendingWarningMessage.InvokeSafely(ev);
     }
 }

@@ -14,6 +14,7 @@ using Exiled.Loader;
 using MEC;
 using SCPStats.API;
 using SCPStats.API.EventArgs;
+using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket.Data;
 
@@ -25,14 +26,26 @@ namespace SCPStats.Websocket
 
         internal static Dictionary<string, Player> MessageIDs = new Dictionary<string, Player>();
 
-        private static Dictionary<string, string> WarningTypes = new Dictionary<string, string>()
+        private static string GetWarningTypeName(WarningType type)
         {
-            {"0", "Warning"},
-            {"1", "Ban"},
-            {"2", "Kick"},
-            {"3", "Mute"},
-            {"4", "Intercom Mute"}
-        };
+            switch (type)
+            {
+                case WarningType.Warning:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeWarning ?? "Warning";
+                case WarningType.Note:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeNote ?? "Note";
+                case WarningType.Ban:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeBan ?? "Ban";
+                case WarningType.Kick:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeKick ?? "Kick";
+                case WarningType.Mute:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeMute ?? "Mute";
+                case WarningType.IntercomMute:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeIntercomMutes ?? "Intercom Mute";
+            }
+
+            return "";
+        }
 
         internal static IEnumerator<float> DequeueRequests()
         {
@@ -69,17 +82,140 @@ namespace SCPStats.Websocket
             }
         }
 
+        private static int Minutes = 60;
+        private static int Hours = Minutes * 60;
+        private static int Days = Hours * 24;
+        private static int Weeks = Days * 7;
+        private static int Months = Days * 30;
+        private static int Years = Days * 365;
+
+        private static string SecondsToString(int seconds)
+        {
+            var years = 0;
+            var months = 0;
+            var weeks = 0;
+            var days = 0;
+            var hours = 0;
+            var minutes = 0;
+
+            if (seconds / Years >= 1)
+            {
+                years = seconds / Years;
+                seconds -= years * Years;
+            }
+
+            if (seconds / Months >= 1)
+            {
+                months = seconds / Months;
+                seconds -= months * Months;
+            }
+
+            if (seconds / Weeks >= 1)
+            {
+                weeks = seconds / Weeks;
+                seconds -= weeks * Months;
+            }
+
+            if (seconds / Days >= 1)
+            {
+                days = seconds / Days;
+                seconds -= days * Days;
+            }
+
+            if (seconds / Hours >= 1)
+            {
+                hours = seconds / Hours;
+                seconds -= hours * Hours;
+            }
+
+            if (seconds / Minutes >= 1)
+            {
+                minutes = seconds / Minutes;
+                seconds -= minutes * Minutes;
+            }
+
+            return String.Join(", ", new Tuple<int, string>[]
+            {
+                new Tuple<int, string>(years, SCPStats.Singleton?.Translation?.TimeYears ?? "year(s)"),
+                new Tuple<int, string>(weeks, SCPStats.Singleton?.Translation?.TimeWeeks ?? "week(s)"),
+                new Tuple<int, string>(months, SCPStats.Singleton?.Translation?.TimeMonths ?? "month(s)"),
+                new Tuple<int, string>(days, SCPStats.Singleton?.Translation?.TimeDays ?? "day(s)"),
+                new Tuple<int, string>(hours, SCPStats.Singleton?.Translation?.TimeHours ?? "hour(s)"),
+                new Tuple<int, string>(minutes, SCPStats.Singleton?.Translation?.TimeMinutes ?? "minute(s)"),
+                new Tuple<int, string>(seconds, SCPStats.Singleton?.Translation?.TimeSeconds ?? "second(s)")
+            }.Where(item => item.Item1 > 0).Select(item => item.Item1 + " " + item.Item2));
+        }
+
+        private static List<WarningType> WarningsDisplayedTypes { get; set; } = new List<WarningType>()
+        {
+            WarningType.Warning,
+            WarningType.Note,
+            WarningType.Ban,
+            WarningType.Kick,
+            WarningType.Mute,
+            WarningType.IntercomMute
+        };
+
+        private static List<WarningSection> WarningsDisplayedSections { get; set; } = new List<WarningSection>()
+        {
+            WarningSection.ID,
+            WarningSection.Type,
+            WarningSection.Message,
+            WarningSection.Length,
+            WarningSection.Issuer
+        };
+
+        private static Regex WarningCleanupRegex = new Regex("(?:\\s+\\|)+\\s*$");
+
         private static void HandleWarnings(string info)
         {
-            var result = "\nID | Type | Message | Ban Length\n\n";
+            var result = SCPStats.Singleton?.Translation?.Warnings ?? "\nID | Type | Message | Ban Length\n\n";
 
             var warnings = info.Substring(4).Split('`');
             var msgId = info.Substring(0, 4);
 
-            if (!string.IsNullOrEmpty(info))
+            var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).Where(warning => (SCPStats.Singleton?.Translation?.WarningsDisplayedTypes ?? WarningsDisplayedTypes).Contains(warning.Type)).ToList();
+
+            var generatingEventArgs = new GeneratingWarningMessageEventArgs(warningsList, result);
+            Events.OnGeneratingWarningMessage(generatingEventArgs);
+
+            result += String.Join("\n", generatingEventArgs.Warnings.Select(warning =>
             {
-                result = warnings.Select(warning => warning.Split('|')).Where(warningSplit => warningSplit.Length >= 4).Aggregate(result, (current, warningSplit) => current + warningSplit[0] + " | " + WarningTypes[warningSplit[1]] + " | " + warningSplit[2] + (warningSplit.Length > 4 && warningSplit[1] == "1" ? " | " + warningSplit[4] + " seconds" : "") + "\n");
-            }
+                var message = new List<string>();
+
+                foreach (var section in SCPStats.Singleton?.Translation?.WarningsDisplayedSections ?? WarningsDisplayedSections)
+                {
+                    switch (section)
+                    {
+                        case WarningSection.ID:
+                            message.Add(warning.ID.ToString());
+                            break;
+                        case WarningSection.Type:
+                            message.Add(GetWarningTypeName(warning.Type));
+                            break;
+                        case WarningSection.Message:
+                            message.Add(warning.Message);
+                            break;
+                        case WarningSection.Length:
+                            if (warning.Type != WarningType.Ban)
+                            {
+                                message.Add("");
+                                break;
+                            }
+
+                            message.Add((SCPStats.Singleton?.Translation?.WarningsPrettyPrintSeconds ?? true) ? SecondsToString(warning.Length) : warning.Length + " " + (SCPStats.Singleton?.Translation?.TimeSeconds ?? "second(s)"));
+                            break;
+                        case WarningSection.Issuer:
+                            message.Add(warning.Issuer);
+                            break;
+                    }
+                }
+
+                return WarningCleanupRegex.Replace(String.Join(SCPStats.Singleton?.Translation?.WarningsSectionSeparator ?? " | ", message), "");
+            }));
+
+            var sendingEventArgs = new SendingWarningMessageEventArgs(warningsList, result);
+            Events.OnSendingWarningMessage(sendingEventArgs);
 
             if (MessageIDs.TryGetValue(msgId, out var player))
             {
@@ -88,11 +224,11 @@ namespace SCPStats.Websocket
 
             if (player != null)
             {
-                player.RemoteAdminMessage(result, true, "WARNINGS");
+                player.RemoteAdminMessage(sendingEventArgs.Message, true, SCPStats.Singleton?.Translation?.WarningsCommand?.ToUpper() ?? "WARNINGS");
             }
             else
             {
-                ServerConsole.AddLog(result);
+                ServerConsole.AddLog(sendingEventArgs.Message);
             }
         }
 
@@ -105,13 +241,10 @@ namespace SCPStats.Websocket
             switch (info.Substring(4))
             {
                 case "S":
-                    result = "Successfully deleted warning!";
-                    break;
-                case "D":
-                    result = "This warning was created on another server. You must remove the warning on the same server that it was created!";
+                    result = SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!";
                     break;
                 case "E":
-                    result = "An error occured. Please try again.";
+                    result = SCPStats.Singleton?.Translation?.ErrorMessage ?? "An error occured. Please try again.";
                     break;
             }
 
@@ -122,7 +255,7 @@ namespace SCPStats.Websocket
 
             if (player != null)
             {
-                player.RemoteAdminMessage(result, true, "DELETEWARNING");
+                player.RemoteAdminMessage(result, true, SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING");
             }
             else
             {
@@ -241,7 +374,7 @@ namespace SCPStats.Websocket
             if (passed) return false;
             
             Log.Debug("Player is not whitelisted. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-            ServerConsole.Disconnect(player.GameObject, "[SCPStats] You are not whitelisted on this server!");
+            ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.WhitelistKickMessage ?? "[SCPStats] You are not whitelisted on this server!");
             return true;
         }
 
@@ -249,7 +382,7 @@ namespace SCPStats.Websocket
         {
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
             Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-            ServerConsole.Disconnect(player.GameObject, "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
+            ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.BannedKickMessage ?? "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
             return true;
         }
 

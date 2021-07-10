@@ -91,7 +91,7 @@ namespace SCPStats.API
 
             gameObject.transform.localScale = hat.Scale == Vector3.zero ? gameObject.transform.localScale : hat.Scale;
             itemOffset = hat.Position == Vector3.zero ? itemOffset : hat.Position;
-            rot = hat.Rotation == Quaternion.identity ? rot : hat.Rotation;
+            rot = hat.Rotation.IsZero() ? rot : hat.Rotation;
 
             NetworkServer.Spawn(gameObject);
             

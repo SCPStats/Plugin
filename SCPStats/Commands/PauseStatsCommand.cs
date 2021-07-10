@@ -15,31 +15,20 @@ namespace SCPStats.Commands
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class PauseStatsCommand : ICommand
     {
-        public string Command { get; } = "pausestats";
-        public string[] Aliases { get; } = new string[] {"pausestat", "pausescpstats", "pausescpstat", "pauseround"};
-        public string Description { get; } = "Temporarily pause stat collection for the round. Useful for events.";
+        public string Command => SCPStats.Singleton?.Translation?.PauseStatsCommand ?? "pausestats";
+        public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.PauseStatsCommandAliases?.ToArray() ?? new string[] {"pausestat", "pausescpstats", "pausescpstat", "pauseround"};
+        public string Description => SCPStats.Singleton?.Translation?.PauseStatsDescription ?? "Temporarily pause stat collection for the round. Useful for events.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            bool perms;
-
-            if (sender is PlayerCommandSender p)
+            if (sender is PlayerCommandSender p && !p.CheckPermission("scpstats.pause"))
             {
-                perms = p.CheckPermission("scpstats.pause");
-            }
-            else
-            {
-                perms = true;
+                response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
+                return false;
             }
 
-            if (!perms)
-            {
-                response = "You do not have permission to run this command! Missing permission: scpstats.pause";
-                return true;
-            }
-            
             EventHandler.PauseRound = true;
-            response = "Successfully paused stat collection for the round.";
+            response = SCPStats.Singleton?.Translation?.PauseStatsSuccess ?? "Successfully paused stat collection for the round.";
             return true;
         }
     }

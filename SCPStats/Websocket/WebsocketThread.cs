@@ -28,14 +28,11 @@ namespace SCPStats.Websocket
         private static bool PingerActive = false;
         private static bool CreatingClient = false;
         private static bool Pinged = true;
-        private static bool Exited = false;
-        
+
         internal static void StartServer()
         {
             Thread.Sleep(2000);
 
-            ws?.CloseAsync();
-            
             while (Queue.TryDequeue(out var _))
             {
             }
@@ -44,11 +41,10 @@ namespace SCPStats.Websocket
 
             ws = null;
             CreatingClient = false;
-            Exited = false;
 
             CreateConnection();
-            
-            while (!Exited)
+
+            while (true)
             {
                 Signal.WaitOne();
 
@@ -58,13 +54,6 @@ namespace SCPStats.Websocket
                 {
                     try
                     {
-                        if (message == "exit")
-                        {
-                            Exited = true;
-                            ws?.Close();
-                            break;
-                        }
-
                         if (CreatingClient) continue;
                         if (ws == null || !ws.IsAlive)
                         {
@@ -82,8 +71,6 @@ namespace SCPStats.Websocket
 
                 Signal.Reset();
             }
-            
-            if(ws != null && ws.IsAlive) ws.Close();
         }
 
         private static string HmacSha256Digest(string secret, string message)
@@ -98,7 +85,7 @@ namespace SCPStats.Websocket
             try
             {
                 CreatingClient = true;
-            
+
                 if (delay != 0) await Task.Delay(delay);
 
                 if (ws != null && (ws.IsAlive || ws.ReadyState == WebSocketState.Open || ws.ReadyState == WebSocketState.Connecting))
@@ -107,18 +94,11 @@ namespace SCPStats.Websocket
                     ws.OnMessage -= OnMessage;
                     ws.OnClose -= OnClose;
                     ws.OnError -= OnError;
-                    
+
                     ws.Close();
                 }
-            
-                Pinged = false;
 
-                if (Exited)
-                {
-                    CreatingClient = false;
-                    if(SCPStats.Singleton != null) SCPStats.Singleton.OnDisabled();
-                    return;
-                }
+                Pinged = false;
 
                 ws = new WebSocket("wss://ws.scpstats.com") {Log = {Level = LogLevel.Fatal}};
 
@@ -126,13 +106,15 @@ namespace SCPStats.Websocket
                 ws.OnMessage += OnMessage;
                 ws.OnClose += OnClose;
                 ws.OnError += OnError;
-                
+
                 ws.Connect();
             }
             catch (Exception e)
             {
                 Log.Error(e);
                 CreatingClient = false;
+
+                if (e is ThreadAbortException) return;
                 CreateConnection(5000);
             }
         }
@@ -141,12 +123,6 @@ namespace SCPStats.Websocket
         {
             while (ws != null && ws.IsAlive)
             {
-                if (Exited)
-                {
-                    PingerActive = false;
-                    return;
-                }
-                
                 if (Pinged)
                 {
                     PingerActive = false;
@@ -188,8 +164,7 @@ namespace SCPStats.Websocket
             ws.OnMessage -= OnMessage;
             ws.OnClose -= OnClose;
             ws.OnError -= OnError;
-            
-            if (Exited) return;
+
             Log.Debug("Restarting Websocket Client", SCPStats.Singleton?.Config?.Debug ?? false);
             CreateConnection(10000);
         }

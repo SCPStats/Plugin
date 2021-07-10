@@ -74,6 +74,23 @@ namespace SCPStats
         [Description("How long the above warning message should be.")]
         public ushort WarningMessageDuration { get; set; } = 5;
 
+        [Description("If a kick message starts with one of these, it will not be recorded.")]
+        public List<string> IgnoredMessages { get; set; } = new List<string>()
+        {
+            "[SCPStats]",
+            "VPNs and proxies are forbidden",
+            "<size=70><color=red>You are banned.",
+            "Your account must be at least",
+            "You have been banned.",
+            "[Kicked by uAFK]",
+            "You were AFK",
+            "[Anty-AFK]",
+            "[Anty AFK]",
+            "Auto-Kick:",
+            "[Auto-Kick]",
+            "[Auto Kick]"
+        };
+
         [Description("This can help solve problems, but will spam your console.")]
         public bool Debug { get; set; } = false;
     }

@@ -18,8 +18,7 @@ namespace SCPStats.Websocket
         {
             if (wss != null && wss.IsAlive)
             {
-                WebsocketThread.Queue.Enqueue("exit");
-                WebsocketThread.Signal.Set();
+                wss.Abort();
             }
 
             wss = new Thread(WebsocketThread.StartServer) {IsBackground = true, Priority = ThreadPriority.BelowNormal};
@@ -28,8 +27,7 @@ namespace SCPStats.Websocket
         
         internal static void Stop()
         {
-            WebsocketThread.Queue.Enqueue("exit");
-            WebsocketThread.Signal.Set();
+            wss.Abort();
         }
         
         internal static void SendRequest(RequestType type, string data = "")

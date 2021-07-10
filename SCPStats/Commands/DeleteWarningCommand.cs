@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="WarningsCommand.cs" company="SCPStats.com">
+// <copyright file="DeleteWarningCommand.cs" company="SCPStats.com">
 // Copyright (c) SCPStats.com. All rights reserved.
 // Licensed under the Apache v2 license.
 // </copyright>
@@ -10,18 +10,17 @@ using System.Linq;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
-using MEC;
 using RemoteAdmin;
 using SCPStats.Websocket;
 
-namespace SCPStats.Warnings
+namespace SCPStats.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class WarningsCommand : ICommand
+    public class DeleteWarningCommand : ICommand
     {
-        public string Command { get; } = "warnings";
-        public string[] Aliases { get; } = new string[] {"warning", "warns", "getwarns", "getwarnings"};
-        public string Description { get; } = "View warnings on a specific player.";
+        public string Command => SCPStats.Singleton?.Translation?.DeleteWarningCommand ?? "deletewarning";
+        public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.DeleteWarningCommandAliases?.ToArray() ?? new string[] {"deletewarnings", "delwarning", "delwarnings", "delwarn", "deletewarns", "deletewarn", "delwarns"};
+        public string Description => SCPStats.Singleton?.Translation?.DeleteWarningDescription ?? "Delete a warning.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -30,10 +29,10 @@ namespace SCPStats.Warnings
             if (sender is PlayerCommandSender commandSender)
             {
                 var p = Player.Get(commandSender.ReferenceHub);
-                if (!p.CheckPermission("scpstats.warnings"))
+                if (!p.CheckPermission("scpstats.deletewarning"))
                 {
-                    response = "You do not have permission to run this command!";
-                    return true;
+                    response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
+                    return false;
                 }
 
                 pl = p;
@@ -41,33 +40,17 @@ namespace SCPStats.Warnings
 
             if (arguments.Array == null || arguments.Array.Length < 2)
             {
-                response = "Usage: warnings <id>";
-                return true;
+                response = SCPStats.Singleton?.Translation?.DeleteWarningUsage ?? "Usage: deletewarning <id>";
+                return false;
             }
-
-            var arg = arguments.Array[1].Trim().ToLower();
-
-            var player = Player.Get(arg);
-
-            if (player == null && int.TryParse(arg, out var id))
-            {
-                player = Player.Get(id);
-            }
-
-            var userId = Helper.HandleId(arg);
-
-            if (player?.UserId != null)
-            {
-                userId = Helper.HandleId(player);
-            }
-
+            
             var msgId = WebsocketRequests.Random.Next(1000, 9999).ToString();
             foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl).ToList()) WebsocketRequests.MessageIDs.Remove(keys.Key);
             WebsocketRequests.MessageIDs[msgId] = pl;
             
-            WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
+            WebsocketHandler.SendRequest(RequestType.DeleteWarnings, msgId+arguments.Array[1]);
 
-            response = "Requesting warnings...";
+            response = SCPStats.Singleton?.Translation?.DeleteWarningSuccess ?? "Deleting warning...";
             return true;
         }
     }

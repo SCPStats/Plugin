@@ -10,68 +10,62 @@ using Exiled.API.Enums;
 
 namespace SCPStats
 {
+    // All of this mess is not done for the sake of getting the IDs. This is done because the IDs
+    // are prone to change, and will mess things up when they do. All of the dictionaries here
+    // provide a static ID to things based on their name (which will not change). This means that
+    // if someone decided to add a new item in the middle of all the item IDs, instead of it breaking
+    // half of the item IDs, these helpers will map all of those broken IDs back to what they were meant
+    // to be.
     internal static class IDs
     {
-        private static readonly Dictionary<ItemType, int> ItemIDs = new Dictionary<ItemType,int>()
+        private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
-            {ItemType.None, -1},
-            {ItemType.KeycardJanitor, 0},
-            {ItemType.KeycardScientist, 1},
-            {ItemType.KeycardScientistMajor, 2},
-            {ItemType.KeycardZoneManager, 3},
-            {ItemType.KeycardGuard, 4},
-            {ItemType.KeycardSeniorGuard, 5},
-            {ItemType.KeycardContainmentEngineer, 6},
-            {ItemType.KeycardNTFLieutenant, 7},
-            {ItemType.KeycardNTFCommander, 8},
-            {ItemType.KeycardFacilityManager, 9},
-            {ItemType.KeycardChaosInsurgency, 10},
-            {ItemType.KeycardO5, 11},
-            {ItemType.Radio, 12},
-            {ItemType.GunCOM15, 13},
-            {ItemType.Medkit, 14},
-            {ItemType.Flashlight, 15},
-            {ItemType.MicroHID, 16},
-            {ItemType.SCP500, 17},
-            {ItemType.SCP207, 18},
-            {ItemType.WeaponManagerTablet, 19},
-            {ItemType.GunE11SR, 20},
-            {ItemType.GunProject90, 21},
-            {ItemType.Ammo556, 22},
-            {ItemType.GunMP7, 23},
-            {ItemType.GunLogicer, 24},
-            {ItemType.GrenadeFrag, 25},
-            {ItemType.GrenadeFlash, 26},
-            {ItemType.Disarmer, 27},
-            {ItemType.Ammo762, 28},
-            {ItemType.Ammo9mm, 29},
-            {ItemType.GunUSP, 30},
-            {ItemType.SCP018, 31},
-            {ItemType.SCP268, 32},
-            {ItemType.Adrenaline, 33},
-            {ItemType.Painkillers, 34},
-            {ItemType.Coin, 35}
+            {"None", -1},
+            {"KeycardJanitor", 0},
+            {"KeycardScientist", 1},
+            {"KeycardScientistMajor", 2},
+            {"KeycardZoneManager", 3},
+            {"KeycardGuard", 4},
+            {"KeycardSeniorGuard", 5},
+            {"KeycardContainmentEngineer", 6},
+            {"KeycardNTFLieutenant", 7},
+            {"KeycardNTFCommander", 8},
+            {"KeycardFacilityManager", 9},
+            {"KeycardChaosInsurgency", 10},
+            {"KeycardO5", 11},
+            {"Radio", 12},
+            {"GunCOM15", 13},
+            {"Medkit", 14},
+            {"Flashlight", 15},
+            {"MicroHID", 16},
+            {"SCP500", 17},
+            {"SCP207", 18},
+            {"WeaponManagerTablet", 19},
+            {"GunE11SR", 20},
+            {"GunProject90", 21},
+            {"Ammo556", 22},
+            {"GunMP7", 23},
+            {"GunLogicer", 24},
+            {"GrenadeFrag", 25},
+            {"GrenadeFlash", 26},
+            {"Disarmer", 27},
+            {"Ammo762", 28},
+            {"Ammo9mm", 29},
+            {"GunUSP", 30},
+            {"SCP018", 31},
+            {"SCP268", 32},
+            {"Adrenaline", 33},
+            {"Painkillers", 34},
+            {"Coin", 35}
         };
 
-        private static readonly Dictionary<GrenadeType, ItemType> GrenadeIDs = new Dictionary<GrenadeType, ItemType>()
+        private static readonly Dictionary<string, string> GrenadeIDs = new Dictionary<string, string>()
         {
-            {GrenadeType.FragGrenade, ItemType.GrenadeFrag},
-            {GrenadeType.Flashbang, ItemType.GrenadeFlash},
-            {GrenadeType.Scp018, ItemType.SCP018}
+            {"FragGrenade", "GrenadeFrag"},
+            {"Flashbang", "GrenadeFlash"},
+            {"Scp018", "SCP018"}
         };
 
-        internal static int ToID(this ItemType item)
-        {
-            if (ItemIDs.TryGetValue(item, out var id)) return id;
-            return -1;
-        }
-        
-        internal static int ToID(this GrenadeType grenade)
-        {
-            if (GrenadeIDs.TryGetValue(grenade, out var id)) return id.ToID();
-            return -1;
-        }
-        
         private static readonly Dictionary<DamageTypes.DamageType, int> DamageTypeIDs = new Dictionary<DamageTypes.DamageType, int>()
         {
             {DamageTypes.None, 0},
@@ -106,39 +100,51 @@ namespace SCPStats
             {DamageTypes.Poison, 29},
             {DamageTypes.Asphyxiation, 30}
         };
+
+        private static readonly Dictionary<string, int> RoleIDs = new Dictionary<string, int>()
+        {
+            {"None", -1},
+            {"Scp173", 0},
+            {"ClassD", 1},
+            {"Spectator", 2},
+            {"Scp106", 3},
+            {"NtfScientist", 4},
+            {"Scp049", 5},
+            {"Scientist", 6},
+            {"Scp079", 7},
+            {"ChaosInsurgency", 8},
+            {"Scp096", 9},
+            {"Scp0492", 10},
+            {"NtfLieutenant", 11},
+            {"NtfCommander", 12},
+            {"NtfCadet", 13},
+            {"Tutorial", 14},
+            {"FacilityGuard", 15},
+            {"Scp93953", 16},
+            {"Scp93989", 17},
+        };
+
+        internal static int ToID(this ItemType item)
+        {
+            if (ItemIDs.TryGetValue(item.ToString(), out var id)) return id;
+            return -1;
+        }
         
+        internal static int ToID(this GrenadeType grenade)
+        {
+            if (GrenadeIDs.TryGetValue(grenade.ToString(), out var id) && ItemIDs.TryGetValue(id, out var id2)) return id2;
+            return -1;
+        }
+
         internal static int ToID(this DamageTypes.DamageType damageType)
         {
             if (DamageTypeIDs.TryGetValue(damageType, out var id)) return id;
             return -1;
         }
 
-        private static readonly Dictionary<RoleType, int> RoleIDs = new Dictionary<RoleType, int>()
-        {
-            {RoleType.None, -1},
-            {RoleType.Scp173, 0},
-            {RoleType.ClassD, 1},
-            {RoleType.Spectator, 2},
-            {RoleType.Scp106, 3},
-            {RoleType.NtfScientist, 4},
-            {RoleType.Scp049, 5},
-            {RoleType.Scientist, 6},
-            {RoleType.Scp079, 7},
-            {RoleType.ChaosInsurgency, 8},
-            {RoleType.Scp096, 9},
-            {RoleType.Scp0492, 10},
-            {RoleType.NtfLieutenant, 11},
-            {RoleType.NtfCommander, 12},
-            {RoleType.NtfCadet, 13},
-            {RoleType.Tutorial, 14},
-            {RoleType.FacilityGuard, 15},
-            {RoleType.Scp93953, 16},
-            {RoleType.Scp93989, 17},
-        };
-        
         internal static int ToID(this RoleType roleType)
         {
-            if (RoleIDs.TryGetValue(roleType, out var id)) return id;
+            if (RoleIDs.TryGetValue(roleType.ToString(), out var id)) return id;
             return -1;
         }
     }

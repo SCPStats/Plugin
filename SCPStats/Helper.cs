@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Exiled.API.Features;
 using Exiled.Loader;
+using UnityEngine;
 
 namespace SCPStats
 {
@@ -172,5 +173,7 @@ namespace SCPStats
         internal static void SendWarningMessage(Player p, string reason){
             if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none" && SCPStats.Singleton.Config.WarningMessageDuration > 0) p.Broadcast(SCPStats.Singleton.Config.WarningMessageDuration, SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason));
         }
+
+        internal static bool IsZero(this Quaternion rot) => rot.x == 0 && rot.y == 0 && rot.z == 0;
     }
 }

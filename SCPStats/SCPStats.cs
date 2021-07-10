@@ -18,12 +18,12 @@ using SCPStats.Websocket;
 
 namespace SCPStats
 {
-    public class SCPStats : Plugin<Config>
+    public class SCPStats : Plugin<Config, Translation>
     {
         public override string Name { get; } = "SCPStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 2, 5);
-        public override Version RequiredExiledVersion { get; } = new Version(2, 8, 0);
+        public override Version Version { get; } = new Version(1, 3, 0);
+        public override Version RequiredExiledVersion { get; } = new Version(2, 11, 1);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
         public override string Prefix { get; } = "scp_stats";
 
@@ -38,8 +38,6 @@ namespace SCPStats
 
         private CoroutineHandle update;
         private CoroutineHandle requests;
-        
-        private static Regex AlphaNums = new Regex("[^A-Za-z0-9]");
 
         public override void OnEnabled()
         {
@@ -50,12 +48,14 @@ namespace SCPStats
             if (Secret == "fill this" || ServerID == "fill this")
             {
                 Log.Warn("Config for SCPStats has not been filled out correctly. Disabling!");
-                this.OnUnregisteringCommands();
+
                 this.OnDisabled();
+                Timing.CallDelayed(1f, this.OnUnregisteringCommands);
+
                 return;
             }
             
-            harmony = new Harmony("SCPStats-"+Version);
+            harmony = new Harmony($"SCPStats-{Version}-{DateTime.Now.Ticks}");
             harmony.PatchAll();
             
             EventHandler.Start();
@@ -88,7 +88,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RestartingRound += EventHandler.OnRoundRestart;
             Exiled.Events.Handlers.Server.WaitingForPlayers += EventHandler.Waiting;
             Exiled.Events.Handlers.Player.Dying += EventHandler.OnKill;
-            Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
+            Exiled.Events.Handlers.Player.ChangedRole += EventHandler.OnRoleChanged;
             Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Verified += EventHandler.OnJoin;
@@ -106,6 +106,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus += EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall += EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.PreAuthenticating += EventHandler.OnPreauth;
+            Exiled.Events.Handlers.Server.ReloadedTranslations += this.OnReloadedTranslations;
         }
 
         private static void LoadConfigs()
@@ -137,8 +138,8 @@ namespace SCPStats
             }
             else secret = File.ReadAllText(secretPath);
 
-            serverId = AlphaNums.Replace(serverId, "").Substring(0, 18);
-            secret = AlphaNums.Replace(secret, "").Substring(0, 32);
+            serverId = serverId.Trim().ToLower();
+            secret = secret.Trim().ToLower();
 
             if (serverId.Length != 18 && serverId != "fill this")
             {
@@ -167,7 +168,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RestartingRound -= EventHandler.OnRoundRestart;
             Exiled.Events.Handlers.Server.WaitingForPlayers -= EventHandler.Waiting;
             Exiled.Events.Handlers.Player.Dying -= EventHandler.OnKill;
-            Exiled.Events.Handlers.Player.ChangingRole -= EventHandler.OnRoleChanged;
+            Exiled.Events.Handlers.Player.ChangedRole -= EventHandler.OnRoleChanged;
             Exiled.Events.Handlers.Player.PickingUpItem -= EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;
@@ -185,6 +186,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.ChangingIntercomMuteStatus -= EventHandler.OnIntercomMute;
             Exiled.Events.Handlers.Scp049.FinishingRecall -= EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.PreAuthenticating -= EventHandler.OnPreauth;
+            Exiled.Events.Handlers.Server.ReloadedTranslations -= this.OnReloadedTranslations;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
@@ -197,6 +199,12 @@ namespace SCPStats
             Singleton = null;
 
             base.OnDisabled();
+        }
+
+        private void OnReloadedTranslations()
+        {
+            this.OnUnregisteringCommands();
+            this.OnRegisteringCommands();
         }
 
         private IEnumerator<float> AutoUpdates()

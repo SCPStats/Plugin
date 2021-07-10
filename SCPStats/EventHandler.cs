@@ -13,6 +13,7 @@ using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
 using MEC;
+using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket;
 using SCPStats.Websocket.Data;
@@ -266,9 +267,9 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\":\""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.ToID()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.ToID()+"\",\"damageType\":\""+ev.HitInformation.GetDamageType().ToID()+"\"}");
         }
 
-        internal static void OnRoleChanged(ChangingRoleEventArgs ev)
+        internal static void OnRoleChanged(ChangedRoleEventArgs ev)
         {
-            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
+            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.Player.Role != RoleType.None && ev.Player.Role != RoleType.Spectator)
             {
                 Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
             }
@@ -280,7 +281,7 @@ namespace SCPStats
 
             if (ev.IsEscaped)
             {
-                var cuffer = ev.Player?.IsCuffed ?? false ? Helper.GetPlayerInfo(Player.Get(ev.Player.CufferId)) : new PlayerInfo(null, RoleType.None, true);
+                var cuffer = ev.OldCufferId != -1 ? Helper.GetPlayerInfo(Player.Get(ev.OldCufferId)) : new PlayerInfo(null, RoleType.None, true);
 
                 if (!cuffer.IsAllowed || cuffer.PlayerID == playerInfo.PlayerID)
                 {
@@ -288,12 +289,12 @@ namespace SCPStats
                     cuffer.PlayerRole = RoleType.None;
                 }
 
-                if(playerInfo.PlayerID != null || cuffer.PlayerID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+playerInfo.PlayerRole.ToID()+"\",\"cufferid\":\""+cuffer.PlayerID+"\",\"cufferrole\":\""+cuffer.PlayerRole.ToID()+"\"}");
+                if(playerInfo.PlayerID != null || cuffer.PlayerID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+ev.OldRole.ToID()+"\",\"cufferid\":\""+cuffer.PlayerID+"\",\"cufferrole\":\""+cuffer.PlayerRole.ToID()+"\"}");
             }
 
             if (playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+ev.NewRole.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+playerInfo.PlayerRole.ToID()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
@@ -304,7 +305,7 @@ namespace SCPStats
             {
                 if (ev.Player?.UserId != null && !ev.Player.IsHost && ev.Player.IsVerified && ev.Player.IPAddress != "127.0.0.WAN" && ev.Player.IPAddress != "127.0.0.1" && (hat.player == null || hat.player.gameObject != ev.Player?.GameObject) && (SCPStats.Singleton?.Config.DisplayHatHint ?? true))
                 {
-                    ev.Player.ShowHint("You can get a hat like this at patreon.com/SCPStats.", 2f);
+                    ev.Player.ShowHint(SCPStats.Singleton?.Translation?.HatHint ?? "You can get a hat like this at patreon.com/SCPStats.", 2f);
                 }
                 
                 ev.IsAllowed = false;
@@ -451,7 +452,7 @@ namespace SCPStats
         
         internal static void OnKick(KickingEventArgs ev)
         {
-            if (!ev.IsAllowed || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target) || JustJoined.Contains(ev.Target.UserId) || IgnoredMessages.Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
+            if (!ev.IsAllowed || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target) || JustJoined.Contains(ev.Target.UserId) || (SCPStats.Singleton?.Translation?.BannedKickMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.BannedKickMessage)) || (SCPStats.Singleton?.Translation?.WhitelistKickMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.WhitelistKickMessage)) || (SCPStats.Singleton?.Config?.IgnoredMessages ?? IgnoredMessages).Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
 
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) ? Helper.HandleId(ev.Issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Issuer?.Nickname) && !(ev.Issuer?.IsHost ?? false) ? ev.Issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
         }
