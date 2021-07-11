@@ -91,6 +91,9 @@ namespace SCPStats
             "[Auto Kick]"
         };
 
+        [Description("Should SCPStats record stats? It is recommened to disable stat tracking on event/gamemode servers.")]
+        public bool DisableRecordingStats { get; set; } = false;
+
         [Description("This can help solve problems, but will spam your console.")]
         public bool Debug { get; set; } = false;
     }

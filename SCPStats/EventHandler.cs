@@ -35,7 +35,7 @@ namespace SCPStats
 
         internal static bool RanServer = false;
 
-        public static bool PauseRound = false;
+        public static bool PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
 
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
@@ -53,7 +53,7 @@ namespace SCPStats
             PocketPlayers.Clear();
             JustJoined.Clear();
 
-            PauseRound = false;
+            PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
         }
 
         internal static void Start()
@@ -135,7 +135,9 @@ namespace SCPStats
         private static IEnumerator<float> SendStart()
         {
             yield return Timing.WaitForSeconds(.2f);
-            
+
+            if (!Helper.IsRoundRunning()) yield break;
+
             foreach (var player in Player.List)
             {
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
@@ -239,7 +241,7 @@ namespace SCPStats
             
             Restarting = false;
             DidRoundEnd = false;
-            PauseRound = false;
+            PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
             
             UserInfo.Clear();
         }
