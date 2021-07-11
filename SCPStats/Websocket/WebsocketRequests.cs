@@ -512,17 +512,26 @@ namespace SCPStats.Websocket
         private static void GiveRole(Player player, string key)
         {
             Log.Debug("Giving " + player.UserId + " the role " + key, SCPStats.Singleton?.Config?.Debug ?? false);
-            
+
             if (!ServerStatic.PermissionsHandler._groups.ContainsKey(key))
             {
                 Log.Error("Group " + key + " does not exist. There is an issue in your rolesync config!");
                 return;
             }
 
+            //Gets a player's gtag, but only if it is currently active.
+            var gtag = player.GlobalBadge.HasValue && player.Group != null && !player.Group.Cover && !player.BadgeHidden && player.Group.BadgeText == player.GlobalBadge.Value.Text && player.Group.BadgeColor == player.GlobalBadge.Value.Color ? player.GlobalBadge : null;
+
             var group = ServerStatic.PermissionsHandler._groups[key];
 
             player.ReferenceHub.serverRoles.SetGroup(group, false);
             ServerStatic.PermissionsHandler._members[player.UserId] = key;
+
+            if (gtag != null)
+            {
+                player.ReferenceHub.serverRoles.SetText(gtag.Value.Text);
+                player.ReferenceHub.serverRoles.SetColor(gtag.Value.Color);
+            }
 
             Rainbow(player);
 
