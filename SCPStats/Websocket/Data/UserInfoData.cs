@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Text;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ namespace SCPStats.Websocket.Data
 {
     public class UserInfoData
     {
+        private static readonly CultureInfo UsCulture = new CultureInfo("en-US");
+
         public bool IsBooster { get; }
         public bool IsDiscordMember { get; }
         public string[] DiscordRoles { get; }
@@ -40,9 +43,23 @@ namespace SCPStats.Websocket.Data
             Stats = length > 6 && flags[6] != "0" ? flags[6].Split('|') : new string[]{};
             IsBanned = length > 7 && flags[7] == "1";
             WarnMessage = length > 8 && !string.IsNullOrEmpty(flags[8]) ? Encoding.UTF8.GetString(Convert.FromBase64String(flags[8])) : null;
-            HatScale = length > 11 && !string.IsNullOrEmpty(flags[9]) && !string.IsNullOrEmpty(flags[10]) && !string.IsNullOrEmpty(flags[11]) ? new Vector3(float.Parse(flags[9]), float.Parse(flags[10]), float.Parse(flags[11])) : Vector3.zero;
-            HatOffset = length > 14 && !string.IsNullOrEmpty(flags[12]) && !string.IsNullOrEmpty(flags[13]) && !string.IsNullOrEmpty(flags[14]) ? new Vector3(float.Parse(flags[12]), float.Parse(flags[13]), float.Parse(flags[14])) : Vector3.zero;
-            HatRotation = length > 17 && !string.IsNullOrEmpty(flags[15]) && !string.IsNullOrEmpty(flags[16]) && !string.IsNullOrEmpty(flags[17]) ? Quaternion.Euler(float.Parse(flags[15]), float.Parse(flags[16]), float.Parse(flags[17])) : Quaternion.identity;
+
+            HatScale = length > 11
+                       && !string.IsNullOrEmpty(flags[9]) && !string.IsNullOrEmpty(flags[10]) && !string.IsNullOrEmpty(flags[11])
+                       && float.TryParse(flags[9], NumberStyles.Float, UsCulture, out var hatScaleX) && float.TryParse(flags[10], NumberStyles.Float, UsCulture, out var hatScaleY) && float.TryParse(flags[11], NumberStyles.Float, UsCulture, out var hatScaleZ)
+                ? new Vector3(hatScaleX, hatScaleY, hatScaleZ) 
+                : Vector3.zero;
+            HatOffset = length > 14
+                       && !string.IsNullOrEmpty(flags[12]) && !string.IsNullOrEmpty(flags[13]) && !string.IsNullOrEmpty(flags[14])
+                       && float.TryParse(flags[12], NumberStyles.Float, UsCulture, out var hatOffsetX) && float.TryParse(flags[13], NumberStyles.Float, UsCulture, out var hatOffsetY) && float.TryParse(flags[14], NumberStyles.Float, UsCulture, out var hatOffsetZ)
+                ? new Vector3(hatOffsetX, hatOffsetY, hatOffsetZ) 
+                : Vector3.zero;
+            HatRotation = length > 17
+                        && !string.IsNullOrEmpty(flags[15]) && !string.IsNullOrEmpty(flags[16]) && !string.IsNullOrEmpty(flags[17])
+                        && float.TryParse(flags[15], NumberStyles.Float, UsCulture, out var hatRotationX) && float.TryParse(flags[16], NumberStyles.Float, UsCulture, out var hatRotationY) && float.TryParse(flags[17], NumberStyles.Float, UsCulture, out var hatRotationZ)
+                ? Quaternion.Euler(hatRotationX, hatRotationY, hatRotationZ) 
+                : Quaternion.identity;
+
             IsCustomHat = HatScale != Vector3.zero || HatOffset != Vector3.zero || !HatRotation.IsZero();
         }
     }
