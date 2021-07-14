@@ -173,5 +173,67 @@ namespace SCPStats.API
             if (MessageIDsStore.WarningsDict.ContainsKey(msgId)) MessageIDsStore.WarningsDict.Remove(msgId);
             return new List<Warning>();
         }
+
+        /// <summary>
+        /// Warn a player.
+        /// </summary>
+        /// <param name="player">The player who will be warned.</param>
+        /// <param name="message">The warning message.</param>
+        /// <param name="issuerId">The user ID of the issuer of the warning, or an empty string if there is none.</param>
+        /// <param name="issuerName">The username of the issuer of the warning, or an empty string if there is none.</param>
+        /// <param name="silent">Should the warn be displayed to the player via broadcast.</param>
+        public static void AddWarning(Player player, string message, string issuerId = "", string issuerName = "", bool silent = false)
+        {
+            if (!silent)
+            {
+                Helper.SendWarningMessage(player, message);
+            }
+
+            AddWarning(player.RawUserId, message, issuerId, issuerName, true);
+        }
+
+        /// <summary>
+        /// Warn a player.
+        /// </summary>
+        /// <param name="userId">The user ID of the player who will be warned.</param>
+        /// <param name="message">The warning message.</param>
+        /// <param name="issuerId">The user ID of the issuer of the warning, or an empty string if there is none.</param>
+        /// <param name="issuerName">The username of the issuer of the warning, or an empty string if there is none.</param>
+        /// <param name="silent">Should the warn be displayed to the player via broadcast. This will only take effect on the player's next join.</param>
+        public static void AddWarning(string userId, string message, string issuerId = "", string issuerName = "", bool silent = false)
+        {
+            AddWarningWithType(0, userId, message, issuerId, issuerName, silent);
+        }
+        
+        /// <summary>
+        /// Add a note to a player.
+        /// </summary>
+        /// <param name="player">The player who will have a note added to them.</param>
+        /// <param name="message">The note message.</param>
+        /// <param name="issuerId">The user ID of the issuer of the note, or an empty string if there is none.</param>
+        /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
+        public static void AddNote(Player player, string message, string issuerId = "", string issuerName = "")
+        {
+            AddNote(player.RawUserId, message, issuerId, issuerName);
+        }
+
+        /// <summary>
+        /// Warn a player.
+        /// </summary>
+        /// <param name="userId">The user ID of the player who will have a note added to them.</param>
+        /// <param name="message">The note message.</param>
+        /// <param name="issuerId">The user ID of the issuer of the note, or an empty string if there is none.</param>
+        /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
+        public static void AddNote(string userId, string message, string issuerId = "", string issuerName = "")
+        {
+            AddWarningWithType(5, userId, message, issuerId, issuerName);
+        }
+        
+        private static void AddWarningWithType(int type, string userId, string message, string issuerId = "", string issuerName = "", bool silent = false)
+        {
+            var fixedUserId = Helper.HandleId(userId);
+
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
+        }
     }
 }

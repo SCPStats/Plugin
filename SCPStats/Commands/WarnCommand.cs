@@ -7,6 +7,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
@@ -69,8 +70,6 @@ namespace SCPStats.Commands
                 player = Player.Get(id);
             }
 
-            var data = "";
-
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player))
             {
                 var arg = arguments.Array[1].Trim().ToLower();
@@ -95,15 +94,28 @@ namespace SCPStats.Commands
                     return false;
                 }
 
-                data = "{\"type\":\"" + type + "\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\"" + (!displayed ? ",\"online\":true" : "") + "}";
+                switch (type)
+                {
+                    case 0:
+                        API.API.AddWarning(userId, message, issuerID, issuerName, !displayed);
+                        break;
+                    case 5:
+                        API.API.AddNote(userId, message, issuerID, issuerName);
+                        break;
+                }
             }
             else
             {
-                data = "{\"type\":\"" + type + "\",\"playerId\":\"" + Helper.HandleId(player).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + player.Nickname + "\",\"issuer\":\"" + issuerID + "\",\"issuerName\":\"" + issuerName + "\",\"online\":true}";
-                if(displayed) Helper.SendWarningMessage(player, message);
+                switch (type)
+                {
+                    case 0:
+                        API.API.AddWarning(player, message, issuerID, issuerName, !displayed);
+                        break;
+                    case 5:
+                        API.API.AddNote(player, message, issuerID, issuerName);
+                        break;
+                }
             }
-            
-            WebsocketHandler.SendRequest(RequestType.AddWarning, data);
 
             response = success;
             return true;
