@@ -159,13 +159,11 @@ namespace SCPStats.API
         /// <returns>A list of all the warnings that the specified player has.</returns>
         public static async Task<List<Warning>> GetWarnings(string userID)
         {
-            var fixedUserId = Helper.HandleId(userID);
-
             var promise = new TaskCompletionSource<List<Warning>>();
 
             var msgId = MessageIDsStore.IncrementWarningsCounter();
             MessageIDsStore.WarningsDict[msgId] = promise;
-            WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userID);
+            WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+Helper.HandleId(userID));
 
             var task = await Task.WhenAny(promise.Task, Task.Delay(5000));
             if (task == promise.Task) return await promise.Task;
@@ -231,9 +229,7 @@ namespace SCPStats.API
         
         private static void AddWarningWithType(int type, string userID, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            var fixedUserId = Helper.HandleId(userID);
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + Helper.HandleId(userID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + Helper.HandleId(issuerID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
         }
         
         /// <summary>
