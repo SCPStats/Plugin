@@ -22,10 +22,6 @@ namespace SCPStats.Websocket
 {
     internal static class WebsocketRequests
     {
-        internal static Random Random = new Random();
-
-        internal static Dictionary<string, Player> MessageIDs = new Dictionary<string, Player>();
-
         internal static IEnumerator<float> DequeueRequests()
         {
             while (true)
