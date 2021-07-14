@@ -1,4 +1,11 @@
-﻿namespace SCPStats.Websocket.Data
+﻿// -----------------------------------------------------------------------
+// <copyright file="Warning.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace SCPStats.Websocket.Data
 {
     public class Warning
     {
