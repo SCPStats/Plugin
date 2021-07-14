@@ -5,9 +5,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Exiled.API.Features;
 using Mirror;
 using SCPStats.Hats;
+using SCPStats.Websocket;
+using SCPStats.Websocket.Data;
 using UnityEngine;
 
 namespace SCPStats.API
@@ -95,7 +100,7 @@ namespace SCPStats.API
             item = hat.Scale == Vector3.zero && hat.Position == Vector3.zero && hat.Rotation.IsZero() ? item : hat.Item;
 
             NetworkServer.Spawn(gameObject);
-            
+
             var pickup = gameObject.GetComponent<Pickup>();
             pickup.SetupPickup(item, 0, Server.Host.Inventory.gameObject, new Pickup.WeaponModifiers(true, 0, 0, 0), player.CameraTransform.position+pos, player.CameraTransform.rotation * rot);
             SpawnHat(player, pickup, itemOffset, rot);
@@ -135,6 +140,38 @@ namespace SCPStats.API
             playerComponent.item.pos = Hats.Hats.GetHatPosForRole(player.Role);
             playerComponent.item.itemOffset = posOffset;
             playerComponent.item.rot = rotOffset;
+        }
+
+        /// <summary>
+        /// Gets the warnings that a specific player has.
+        /// </summary>
+        /// <param name="player">The player whose warnings will be retrieved.</param>
+        /// <returns>A list of all the warnings that the specified player has.</returns>
+        public static async Task<List<Warning>> GetWarnings(Player player)
+        {
+            return await GetWarnings(player.RawUserId);
+        }
+
+        /// <summary>
+        /// Gets the warnings that a specific player has.
+        /// </summary>
+        /// <param name="userId">The user ID of the player whose warnings will be retrieved.</param>
+        /// <returns>A list of all the warnings that the specified player has.</returns>
+        public static async Task<List<Warning>> GetWarnings(string userId)
+        {
+            var fixedUserId = Helper.HandleId(userId);
+
+            var promise = new TaskCompletionSource<List<Warning>>();
+
+            var msgId = MessageIDsStore.IncrementWarningsCounter();
+            MessageIDsStore.WarningsDict[msgId] = promise;
+            WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
+
+            var task = await Task.WhenAny(promise.Task, Task.Delay(5000));
+            if (task == promise.Task) return await promise.Task;
+
+            if (MessageIDsStore.WarningsDict.ContainsKey(msgId)) MessageIDsStore.WarningsDict.Remove(msgId);
+            return new List<Warning>();
         }
     }
 }

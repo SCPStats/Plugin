@@ -46,9 +46,10 @@ namespace SCPStats
         {
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
-            
+
             WebsocketHandler.Stop();
-            
+            MessageIDsStore.Reset();
+
             SpawnsDone.Clear();
             PocketPlayers.Clear();
             JustJoined.Clear();

@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Exiled.API.Features;
 using Exiled.Loader;
+using SCPStats.Websocket.Data;
 using UnityEngine;
 
 namespace SCPStats
@@ -175,5 +176,26 @@ namespace SCPStats
         }
 
         internal static bool IsZero(this Quaternion rot) => rot.x == 0 && rot.y == 0 && rot.z == 0;
+        
+        internal static string GetWarningTypeName(this WarningType type)
+        {
+            switch (type)
+            {
+                case WarningType.Warning:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeWarning ?? "Warning";
+                case WarningType.Note:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeNote ?? "Note";
+                case WarningType.Ban:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeBan ?? "Ban";
+                case WarningType.Kick:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeKick ?? "Kick";
+                case WarningType.Mute:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeMute ?? "Mute";
+                case WarningType.IntercomMute:
+                    return SCPStats.Singleton?.Translation?.WarningsTypeIntercomMutes ?? "Intercom Mute";
+            }
+
+            return "";
+        }
     }
 }

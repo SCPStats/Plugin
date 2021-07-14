@@ -249,6 +249,7 @@
     <Compile Include="Websocket\Data\Stats.cs" />
     <Compile Include="Websocket\Data\UserInfoData.cs" />
     <Compile Include="Websocket\Data\Warning.cs" />
+    <Compile Include="Websocket\MessageIDsStore.cs" />
     <Compile Include="Websocket\WebsocketHandler.cs" />
     <Compile Include="Websocket\WebsocketRequests.cs" />
     <Compile Include="Websocket\WebsocketThread.cs" />
