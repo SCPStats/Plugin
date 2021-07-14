@@ -44,10 +44,6 @@ namespace SCPStats.Websocket
                         {
                             HandleWarnings(info.Substring(2));
                         }
-                        else if (info.StartsWith("wd"))
-                        {
-                            HandleDeleteWarning(info.Substring(2));
-                        }
                         else if (info.StartsWith("rs"))
                         {
                             HandleRoundSummary(info.Substring(2));
@@ -76,37 +72,6 @@ namespace SCPStats.Websocket
             }
             
             promise?.SetResult(warningsList);
-        }
-
-        private static void HandleDeleteWarning(string info)
-        {
-            var result = "";
-
-            var msgId = info.Substring(0, 4);
-
-            switch (info.Substring(4))
-            {
-                case "S":
-                    result = SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!";
-                    break;
-                case "E":
-                    result = SCPStats.Singleton?.Translation?.ErrorMessage ?? "An error occured. Please try again.";
-                    break;
-            }
-
-            if (MessageIDs.TryGetValue(msgId, out var player))
-            {
-                MessageIDs.Remove(msgId);
-            }
-
-            if (player != null)
-            {
-                player.RemoteAdminMessage(result, true, SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING");
-            }
-            else
-            {
-                ServerConsole.AddLog(result);
-            }
         }
 
         private static void HandleUserInfo(string info)

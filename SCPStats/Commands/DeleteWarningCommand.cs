@@ -24,8 +24,6 @@ namespace SCPStats.Commands
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            Player pl = null;
-            
             if (sender is PlayerCommandSender commandSender)
             {
                 var p = Player.Get(commandSender.ReferenceHub);
@@ -34,8 +32,6 @@ namespace SCPStats.Commands
                     response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
                     return false;
                 }
-
-                pl = p;
             }
 
             if (arguments.Array == null || arguments.Array.Length < 2)
@@ -43,14 +39,16 @@ namespace SCPStats.Commands
                 response = SCPStats.Singleton?.Translation?.DeleteWarningUsage ?? "Usage: deletewarning <id>";
                 return false;
             }
-            
-            var msgId = WebsocketRequests.Random.Next(1000, 9999).ToString();
-            foreach (var keys in WebsocketRequests.MessageIDs.Where(pair => pair.Value == pl).ToList()) WebsocketRequests.MessageIDs.Remove(keys.Key);
-            WebsocketRequests.MessageIDs[msgId] = pl;
-            
-            WebsocketHandler.SendRequest(RequestType.DeleteWarnings, msgId+arguments.Array[1]);
 
-            response = SCPStats.Singleton?.Translation?.DeleteWarningSuccess ?? "Deleting warning...";
+            if (!int.TryParse(arguments.Array[1], out var id))
+            {
+                response = SCPStats.Singleton?.Translation?.DeleteWarningIdNotNumeric ?? "Warning IDs cannot contain non-numbers!";
+                return false;
+            }
+
+            API.API.DeleteWarning(id);
+
+            response = SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!";
             return true;
         }
     }

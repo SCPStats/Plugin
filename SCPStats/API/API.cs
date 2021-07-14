@@ -235,5 +235,14 @@ namespace SCPStats.API
 
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
         }
+        
+        /// <summary>
+        /// Removes a warning by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the warning.</param>
+        public static void DeleteWarning(int id)
+        {
+            WebsocketHandler.SendRequest(RequestType.DeleteWarnings, "1000"+id);
+        }
     }
 }

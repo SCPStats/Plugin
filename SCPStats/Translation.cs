@@ -40,9 +40,9 @@ namespace SCPStats
 
         [Description("The message sent when a user uses the delete warning command incorrectly.")]
         public string DeleteWarningUsage { get; set; } = "Usage: deletewarning <id>";
-
-        [Description("The message sent when the delete warning command is executed successfully.")]
-        public string DeleteWarningSuccess { get; set; } = "Deleting warning...";
+        
+        [Description("The message sent when a user inputs an ID that contains non-numbers in the delwarn command.")]
+        public string DeleteWarningIdNotNumeric { get; set; } = "Warning IDs cannot contain non-numbers!";
 
         [Description("The message sent when a warning is deleted successfully.")]
         public string WarningDeleted { get; set; } = "Successfully deleted warning!";
