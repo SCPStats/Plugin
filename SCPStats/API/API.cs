@@ -155,17 +155,17 @@ namespace SCPStats.API
         /// <summary>
         /// Gets the warnings that a specific player has.
         /// </summary>
-        /// <param name="userId">The user ID of the player whose warnings will be retrieved.</param>
+        /// <param name="userID">The user ID of the player whose warnings will be retrieved.</param>
         /// <returns>A list of all the warnings that the specified player has.</returns>
-        public static async Task<List<Warning>> GetWarnings(string userId)
+        public static async Task<List<Warning>> GetWarnings(string userID)
         {
-            var fixedUserId = Helper.HandleId(userId);
+            var fixedUserId = Helper.HandleId(userID);
 
             var promise = new TaskCompletionSource<List<Warning>>();
 
             var msgId = MessageIDsStore.IncrementWarningsCounter();
             MessageIDsStore.WarningsDict[msgId] = promise;
-            WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userId);
+            WebsocketHandler.SendRequest(RequestType.GetWarnings, msgId+userID);
 
             var task = await Task.WhenAny(promise.Task, Task.Delay(5000));
             if (task == promise.Task) return await promise.Task;
@@ -179,30 +179,30 @@ namespace SCPStats.API
         /// </summary>
         /// <param name="player">The player who will be warned.</param>
         /// <param name="message">The warning message.</param>
-        /// <param name="issuerId">The user ID of the issuer of the warning, or an empty string if there is none.</param>
+        /// <param name="issuerID">The user ID of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="silent">Should the warn be displayed to the player via broadcast.</param>
-        public static void AddWarning(Player player, string message, string issuerId = "", string issuerName = "", bool silent = false)
+        public static void AddWarning(Player player, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
             if (!silent)
             {
                 Helper.SendWarningMessage(player, message);
             }
 
-            AddWarning(player.RawUserId, message, issuerId, issuerName, true);
+            AddWarning(player.RawUserId, message, issuerID, issuerName, true);
         }
 
         /// <summary>
         /// Warn a player.
         /// </summary>
-        /// <param name="userId">The user ID of the player who will be warned.</param>
+        /// <param name="userID">The user ID of the player who will be warned.</param>
         /// <param name="message">The warning message.</param>
-        /// <param name="issuerId">The user ID of the issuer of the warning, or an empty string if there is none.</param>
+        /// <param name="issuerID">The user ID of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="silent">Should the warn be displayed to the player via broadcast. This will only take effect on the player's next join.</param>
-        public static void AddWarning(string userId, string message, string issuerId = "", string issuerName = "", bool silent = false)
+        public static void AddWarning(string userID, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            AddWarningWithType(0, userId, message, issuerId, issuerName, silent);
+            AddWarningWithType(0, userID, message, issuerID, issuerName, silent);
         }
         
         /// <summary>
@@ -210,30 +210,30 @@ namespace SCPStats.API
         /// </summary>
         /// <param name="player">The player who will have a note added to them.</param>
         /// <param name="message">The note message.</param>
-        /// <param name="issuerId">The user ID of the issuer of the note, or an empty string if there is none.</param>
+        /// <param name="issuerID">The user ID of the issuer of the note, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
-        public static void AddNote(Player player, string message, string issuerId = "", string issuerName = "")
+        public static void AddNote(Player player, string message, string issuerID = "", string issuerName = "")
         {
-            AddNote(player.RawUserId, message, issuerId, issuerName);
+            AddNote(player.RawUserId, message, issuerID, issuerName);
         }
 
         /// <summary>
         /// Warn a player.
         /// </summary>
-        /// <param name="userId">The user ID of the player who will have a note added to them.</param>
+        /// <param name="userID">The user ID of the player who will have a note added to them.</param>
         /// <param name="message">The note message.</param>
-        /// <param name="issuerId">The user ID of the issuer of the note, or an empty string if there is none.</param>
+        /// <param name="issuerID">The user ID of the issuer of the note, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
-        public static void AddNote(string userId, string message, string issuerId = "", string issuerName = "")
+        public static void AddNote(string userID, string message, string issuerID = "", string issuerName = "")
         {
-            AddWarningWithType(5, userId, message, issuerId, issuerName);
+            AddWarningWithType(5, userID, message, issuerID, issuerName);
         }
         
-        private static void AddWarningWithType(int type, string userId, string message, string issuerId = "", string issuerName = "", bool silent = false)
+        private static void AddWarningWithType(int type, string userID, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            var fixedUserId = Helper.HandleId(userId);
+            var fixedUserId = Helper.HandleId(userID);
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerId.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + issuerID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
         }
     }
 }
