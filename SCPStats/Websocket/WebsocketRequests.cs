@@ -116,6 +116,13 @@ namespace SCPStats.Websocket
 
             if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData))
             {
+                if (SCPStats.Singleton?.Config?.RequireConfirmation ?? false)
+                {
+                    Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                    ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.NotConfirmedKickMessage ?? "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.");
+                    return true;
+                }
+
                 if (noRecurse) return false;
                 
                 if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());

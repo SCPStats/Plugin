@@ -28,7 +28,10 @@ namespace SCPStats
         
         [Description("The kick message used when a player is banned.")]
         public string BannedKickMessage { get; set; } = "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!";
-        
+
+        [Description("If RequireConfirmation is enabled, this message will be sent when an unconfirmed user joins.")]
+        public string NotConfirmedKickMessage { get; set; } = "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.";
+
         [Description("Used to change the delete warning command.")]
         public string DeleteWarningCommand { get; set; } = "deletewarning";
 
