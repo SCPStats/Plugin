@@ -333,9 +333,8 @@ namespace SCPStats
 
         internal static void OnJoin(VerifiedEventArgs ev)
         {
-            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
-            if (ev.Player?.UserId == null || !playerInfo.IsAllowed) return;
-            
+            if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
+
             if (firstJoin)
             {
                 firstJoin = false;
@@ -343,6 +342,9 @@ namespace SCPStats
             }
 
             if (WebsocketRequests.RunUserInfo(ev.Player)) return;
+
+            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
+            if (!playerInfo.IsAllowed) return;
 
             JustJoined.Add(ev.Player.UserId);
             Timing.CallDelayed(10f, () =>

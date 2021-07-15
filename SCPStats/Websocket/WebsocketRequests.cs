@@ -111,17 +111,12 @@ namespace SCPStats.Websocket
         internal static bool RunUserInfo(Player player, bool noRecurse = false)
         {
             var playerId = Helper.HandleId(player);
-            
+
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
 
             if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData))
             {
-                if (SCPStats.Singleton?.Config?.RequireConfirmation ?? false)
-                {
-                    Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-                    ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.NotConfirmedKickMessage ?? "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.");
-                    return true;
-                }
+                if (HandleUnconfirmedUser(player)) return true;
 
                 if (noRecurse) return false;
                 
@@ -133,7 +128,7 @@ namespace SCPStats.Websocket
                 return false;
             }
 
-            if (tupleData.Item2 == null) return false;
+            if (tupleData.Item2 == null) return HandleUnconfirmedUser(player);
 
             Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
             
@@ -146,6 +141,18 @@ namespace SCPStats.Websocket
             Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
 
             Timing.RunCoroutine(DelayedUserInfo(player, ev, playerId));
+
+            return false;
+        }
+
+        private static bool HandleUnconfirmedUser(Player player)
+        {
+            if (SCPStats.Singleton?.Config?.RequireConfirmation ?? false)
+            {
+                Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.NotConfirmedKickMessage ?? "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.");
+                return true;
+            }
 
             return false;
         }
