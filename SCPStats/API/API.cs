@@ -187,20 +187,21 @@ namespace SCPStats.API
                 Helper.SendWarningMessage(player, message);
             }
 
-            AddWarning(player.RawUserId, message, issuerID, issuerName, true);
+            AddWarning(player.RawUserId, player.Nickname, message, issuerID, issuerName, true);
         }
 
         /// <summary>
         /// Warn a player.
         /// </summary>
         /// <param name="userID">The user ID of the player who will be warned.</param>
+        /// <param name="userName">The username of the player who will be warned.</param>
         /// <param name="message">The warning message.</param>
         /// <param name="issuerID">The user ID of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="silent">Should the warn be displayed to the player via broadcast. This will only take effect on the player's next join.</param>
-        public static void AddWarning(string userID, string message, string issuerID = "", string issuerName = "", bool silent = false)
+        public static void AddWarning(string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            AddWarningWithType(0, userID, message, issuerID, issuerName, silent);
+            AddWarningWithType(0, userID, userName, message, issuerID, issuerName, silent);
         }
         
         /// <summary>
@@ -212,24 +213,25 @@ namespace SCPStats.API
         /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
         public static void AddNote(Player player, string message, string issuerID = "", string issuerName = "")
         {
-            AddNote(player.RawUserId, message, issuerID, issuerName);
+            AddNote(player.RawUserId, player.Nickname, message, issuerID, issuerName);
         }
 
         /// <summary>
         /// Warn a player.
         /// </summary>
         /// <param name="userID">The user ID of the player who will have a note added to them.</param>
+        /// <param name="userName">The username of the player who will have a note added to them.</param>
         /// <param name="message">The note message.</param>
         /// <param name="issuerID">The user ID of the issuer of the note, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
-        public static void AddNote(string userID, string message, string issuerID = "", string issuerName = "")
+        public static void AddNote(string userID, string userName, string message, string issuerID = "", string issuerName = "")
         {
-            AddWarningWithType(5, userID, message, issuerID, issuerName);
+            AddWarningWithType(5, userID, userName, message, issuerID, issuerName);
         }
         
-        private static void AddWarningWithType(int type, string userID, string message, string issuerID = "", string issuerName = "", bool silent = false)
+        private static void AddWarningWithType(int type, string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + Helper.HandleId(userID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + Helper.HandleId(issuerID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + Helper.HandleId(userID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + userName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + Helper.HandleId(issuerID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
         }
         
         /// <summary>

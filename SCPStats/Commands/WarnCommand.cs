@@ -97,10 +97,10 @@ namespace SCPStats.Commands
                 switch (type)
                 {
                     case 0:
-                        API.API.AddWarning(userId, message, issuerID, issuerName, !displayed);
+                        API.API.AddWarning(userId, "", message, issuerID, issuerName, !displayed);
                         break;
                     case 5:
-                        API.API.AddNote(userId, message, issuerID, issuerName);
+                        API.API.AddNote(userId, "", message, issuerID, issuerName);
                         break;
                 }
             }
