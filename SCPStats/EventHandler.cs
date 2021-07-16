@@ -22,7 +22,7 @@ using Object = UnityEngine.Object;
 namespace SCPStats
 {
 #pragma warning disable 4014
-    internal class EventHandler
+    public class EventHandler
     {
         private static bool DidRoundEnd = false;
         private static bool Restarting = false;
