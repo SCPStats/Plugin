@@ -12,24 +12,86 @@ using UnityEngine;
 
 namespace SCPStats.Websocket.Data
 {
+    /// <summary>
+    /// Contains all of the information about a user that SCPStats will use to do certain actions when they join.
+    /// </summary>
     public class UserInfoData
     {
         private static readonly CultureInfo UsCulture = new CultureInfo("en-US");
 
+        /// <summary>
+        /// Is this user a nitro booster on any discord servers linked to this server?
+        /// </summary>
         public bool IsBooster { get; }
+
+        /// <summary>
+        /// Is this user in discord servers linked to this server?
+        /// </summary>
         public bool IsDiscordMember { get; }
+
+        /// <summary>
+        /// An array of role IDs that this user has on any discord servers linked to this server.
+        /// </summary>
         public string[] DiscordRoles { get; }
+
+        /// <summary>
+        /// A string array of the position of this user in several of SCPStats' server-specific leaderboards.
+        /// </summary>
         public string[] Ranks { get; }
+
+        /// <summary>
+        /// A string array of the server-stats that this user has.
+        /// </summary>
         public string[] Stats { get; }
+
+        /// <summary>
+        /// Does this user have an SCPStats hat?
+        /// </summary>
         public bool HasHat { get; }
+
+        /// <summary>
+        /// The item ID of the hat that this user has, if they have one.
+        /// </summary>
         public string HatID { get; }
+
+        /// <summary>
+        /// Is this user banned?
+        /// </summary>
         public bool IsBanned { get; }
+
+        /// <summary>
+        /// The reason why this user was banned, if they are banned.
+        /// </summary>
         public string BanText { get; }
+
+        /// <summary>
+        /// The length (in seconds) of this user's ban, if they are banned.
+        /// </summary>
         public int BanLength { get; }
+
+        /// <summary>
+        /// The warning message that will be broadcast to this user when they join, if they have one waiting to be sent.
+        /// </summary>
         public string WarnMessage { get; }
+
+        /// <summary>
+        /// The scale of this user's hat.
+        /// </summary>
         public Vector3 HatScale { get; }
+
+        /// <summary>
+        /// The offset of this user's hat.
+        /// </summary>
         public Vector3 HatOffset { get; }
+
+        /// <summary>
+        /// The rotation of this user's hat.
+        /// </summary>
         public Quaternion HatRotation { get; }
+
+        /// <summary>
+        /// Is this user's hat custom (does it have a custom scale, offset, or rotation)?
+        /// </summary>
         public bool IsCustomHat { get; }
 
         public UserInfoData(string[] flags)
