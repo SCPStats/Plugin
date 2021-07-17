@@ -197,5 +197,69 @@ namespace SCPStats
 
             return "";
         }
+        
+        private static int Minutes = 60;
+        private static int Hours = Minutes * 60;
+        private static int Days = Hours * 24;
+        private static int Weeks = Days * 7;
+        private static int Months = Days * 30;
+        private static int Years = Days * 365;
+
+        internal static string SecondsToString(int seconds)
+        {
+            var years = 0;
+            var months = 0;
+            var weeks = 0;
+            var days = 0;
+            var hours = 0;
+            var minutes = 0;
+
+            if (seconds / Years >= 1)
+            {
+                years = seconds / Years;
+                seconds -= years * Years;
+            }
+
+            if (seconds / Months >= 1)
+            {
+                months = seconds / Months;
+                seconds -= months * Months;
+            }
+
+            if (seconds / Weeks >= 1)
+            {
+                weeks = seconds / Weeks;
+                seconds -= weeks * Months;
+            }
+
+            if (seconds / Days >= 1)
+            {
+                days = seconds / Days;
+                seconds -= days * Days;
+            }
+
+            if (seconds / Hours >= 1)
+            {
+                hours = seconds / Hours;
+                seconds -= hours * Hours;
+            }
+
+            if (seconds / Minutes >= 1)
+            {
+                minutes = seconds / Minutes;
+                seconds -= minutes * Minutes;
+            }
+
+            return String.Join(", ", new Tuple<int, string>[]
+            {
+                new Tuple<int, string>(years, SCPStats.Singleton?.Translation?.TimeYears ?? "year(s)"),
+                new Tuple<int, string>(weeks, SCPStats.Singleton?.Translation?.TimeWeeks ?? "week(s)"),
+                new Tuple<int, string>(months, SCPStats.Singleton?.Translation?.TimeMonths ?? "month(s)"),
+                new Tuple<int, string>(days, SCPStats.Singleton?.Translation?.TimeDays ?? "day(s)"),
+                new Tuple<int, string>(hours, SCPStats.Singleton?.Translation?.TimeHours ?? "hour(s)"),
+                new Tuple<int, string>(minutes, SCPStats.Singleton?.Translation?.TimeMinutes ?? "minute(s)"),
+                new Tuple<int, string>(seconds, SCPStats.Singleton?.Translation?.TimeSeconds ?? "second(s)")
+            }.Where(item => item.Item1 > 0).Select(item => item.Item1 + " " + item.Item2));
+        }
     }
 }

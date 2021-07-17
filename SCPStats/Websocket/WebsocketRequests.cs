@@ -203,7 +203,7 @@ namespace SCPStats.Websocket
         {
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
             Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-            ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.BannedKickMessage ?? "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!");
+            ServerConsole.Disconnect(player.GameObject, (SCPStats.Singleton?.Translation?.BannedMessage ?? "[SCPStats] You have been banned from this server:\nExpires in: {duration}.\nReason: {reason}.").Replace("{duration}", Helper.SecondsToString(data.BanLength)).Replace("{reason}", data.BanText));
             return true;
         }
 

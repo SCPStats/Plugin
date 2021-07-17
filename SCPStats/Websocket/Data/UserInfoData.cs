@@ -24,6 +24,8 @@ namespace SCPStats.Websocket.Data
         public bool HasHat { get; }
         public string HatID { get; }
         public bool IsBanned { get; }
+        public string BanText { get; }
+        public int BanLength { get; }
         public string WarnMessage { get; }
         public Vector3 HatScale { get; }
         public Vector3 HatOffset { get; }
@@ -61,6 +63,9 @@ namespace SCPStats.Websocket.Data
                 : Quaternion.identity;
 
             IsCustomHat = HatScale != Vector3.zero || HatOffset != Vector3.zero || !HatRotation.IsZero();
+
+            BanText = length > 18 ? flags[18] : "";
+            BanLength = length > 19 && int.TryParse(flags[19], out var banLength) ? banLength : 0;
         }
     }
 }

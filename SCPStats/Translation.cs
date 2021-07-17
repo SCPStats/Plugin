@@ -26,8 +26,8 @@ namespace SCPStats
         [Description("The kick message used when a player isn't whitelisted.")]
         public string WhitelistKickMessage { get; set; } = "[SCPStats] You are not whitelisted on this server!";
         
-        [Description("The kick message used when a player is banned.")]
-        public string BannedKickMessage { get; set; } = "[SCPStats] You have been banned from this server: You have a ban issued on another server linked to this one!";
+        [Description("The kick message used when a player is banned. Use \"{duration}\" for the amount of time left until the ban expires and \"{reason}\" for the ban reason.")]
+        public string BannedMessage { get; set; } = "[SCPStats] You have been banned from this server:\nExpires in: {duration}.\nReason: {reason}.";
 
         [Description("If RequireConfirmation is enabled, this message will be sent when an unconfirmed user joins.")]
         public string NotConfirmedKickMessage { get; set; } = "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.";
