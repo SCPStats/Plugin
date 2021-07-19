@@ -15,6 +15,7 @@ namespace SCPStats
     internal static class AutoUpdater
     {
         private const string Version = "1.3.0-6";
+        private const string Channel = "1";
 
         internal static async Task RunUpdater(int waitTime = 0)
         {
@@ -24,8 +25,8 @@ namespace SCPStats
             {
                 if (SCPStats.Singleton == null) return;
 
-                var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/version");
-                if (res == Version) return;
+                var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/" + Channel + "/version");
+                if (res == "-1" || res == Version) return;
 
                 var location = SCPStats.Singleton?.GetPath();
                 if (location == null)
@@ -34,7 +35,9 @@ namespace SCPStats
                     return;
                 }
                 
-                var githubVer = await client.DownloadStringTaskAsync("https://scpstats.com/update/github");
+                var githubVer = await client.DownloadStringTaskAsync("https://scpstats.com/update/" + Channel + "/github");
+                if (githubVer == "-1") return;
+
                 await client.DownloadFileTaskAsync("https://github.com/SCPStats/Plugin/releases/download/"+githubVer.Replace("/", "")+"/SCPStats.dll", location);
                 Log.Info("Updated SCPStats. Please restart your server to complete the update.");
             }
