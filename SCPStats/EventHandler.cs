@@ -354,7 +354,7 @@ namespace SCPStats
             
             if ((!Round.IsStarted && Players.Contains(ev.Player.UserId)) || playerInfo.PlayerID == null) return;
 
-            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+playerInfo.PlayerID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+playerInfo.PlayerID+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+"}");
             
             Players.Add(ev.Player.UserId);
         }
