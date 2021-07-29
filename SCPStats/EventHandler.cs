@@ -343,8 +343,7 @@ namespace SCPStats
 
             if (WebsocketRequests.RunUserInfo(ev.Player)) return;
 
-            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
-            if (!playerInfo.IsAllowed) return;
+            var id = Helper.HandleId(ev.Player);
 
             JustJoined.Add(ev.Player.UserId);
             Timing.CallDelayed(10f, () =>
@@ -352,27 +351,28 @@ namespace SCPStats
                 JustJoined.Remove(ev.Player.UserId);
             });
             
-            if ((!Round.IsStarted && Players.Contains(ev.Player.UserId)) || playerInfo.PlayerID == null) return;
+            if ((!Round.IsStarted && Players.Contains(ev.Player.UserId))) return;
 
-            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+playerInfo.PlayerID+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+"}");
+            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+"}");
             
             Players.Add(ev.Player.UserId);
         }
 
         internal static void OnLeave(DestroyingEventArgs ev)
         {
-            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
+            if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
+
+            if (ev.Player.GameObject != null && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
                 Object.Destroy(playerComponent.item.gameObject);
                 playerComponent.item = null;
             }
             
-            var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
-            if (!playerInfo.IsAllowed || ev.Player?.UserId == null) return;
+            var id = Helper.HandleId(ev.Player);
 
-            if (Restarting || playerInfo.PlayerID == null) return;
+            if (Restarting) return;
 
-            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+playerInfo.PlayerID+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\"}");
 
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
         }
