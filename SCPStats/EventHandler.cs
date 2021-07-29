@@ -276,11 +276,11 @@ namespace SCPStats
             {
                 Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
             }
-            
+
             var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);
             if (!playerInfo.IsAllowed) return;
 
-            if (Round.ElapsedTime.Seconds < 5 || !Helper.IsRoundRunning()) return;
+            if (Round.ElapsedTime.TotalSeconds < 5 || !Helper.IsRoundRunning()) return;
 
             if (ev.IsEscaped)
             {
@@ -291,12 +291,11 @@ namespace SCPStats
                     cuffer.PlayerID = null;
                     cuffer.PlayerRole = RoleType.None;
                 }
-
                 if(playerInfo.PlayerID != null || cuffer.PlayerID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+ev.OldRole.ToID()+"\",\"cufferid\":\""+cuffer.PlayerID+"\",\"cufferrole\":\""+cuffer.PlayerRole.ToID()+"\"}");
             }
 
             if (playerInfo.PlayerID == null) return;
-            
+
             WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+playerInfo.PlayerRole.ToID()+"\"}");
         }
 
