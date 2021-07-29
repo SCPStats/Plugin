@@ -1,0 +1,11 @@
+packages
+.idea
+SCPStats/bin
+SCPStats/obj
+SCPStats/lib
+SCPStats.sln.DotSettings.user
+SCPStats/FodyWeavers.xsd
+package.json
+package-lock.json
+node_modules
+SCPStats/et-lib
