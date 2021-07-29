@@ -350,11 +350,13 @@ namespace SCPStats
             {
                 JustJoined.Remove(ev.Player.UserId);
             });
-            
-            if ((!Round.IsStarted && Players.Contains(ev.Player.UserId))) return;
 
-            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+"}");
-            
+            var isInvalid = !Round.IsStarted && Players.Contains(ev.Player.UserId);
+
+            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+(isInvalid ? ",\"invalid\":true" : "")+"}");
+
+            if (isInvalid) return;
+
             Players.Add(ev.Player.UserId);
         }
 
