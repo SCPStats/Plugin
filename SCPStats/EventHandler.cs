@@ -270,7 +270,7 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\":\""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.ToID()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.ToID()+"\",\"damageType\":\""+ev.HitInformation.GetDamageType().ToID()+"\"}");
         }
 
-        internal static void OnRoleChanged(ChangedRoleEventArgs ev)
+        internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
             if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.Player.Role != RoleType.None && ev.Player.Role != RoleType.Spectator)
             {
@@ -284,19 +284,19 @@ namespace SCPStats
 
             if (ev.IsEscaped)
             {
-                var cuffer = ev.OldCufferId != -1 ? Helper.GetPlayerInfo(Player.Get(ev.OldCufferId)) : new PlayerInfo(null, RoleType.None, true);
+                var cuffer = (ev.Player?.IsCuffed ?? false) && ev.Player.Cuffer?.UserId != null ? Helper.GetPlayerInfo(ev.Player.Cuffer) : new PlayerInfo(null, RoleType.None, true);
 
                 if (!cuffer.IsAllowed || cuffer.PlayerID == playerInfo.PlayerID)
                 {
                     cuffer.PlayerID = null;
                     cuffer.PlayerRole = RoleType.None;
                 }
-                if(playerInfo.PlayerID != null || cuffer.PlayerID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+ev.OldRole.ToID()+"\",\"cufferid\":\""+cuffer.PlayerID+"\",\"cufferrole\":\""+cuffer.PlayerRole.ToID()+"\"}");
+                if(playerInfo.PlayerID != null || cuffer.PlayerID != null) WebsocketHandler.SendRequest(RequestType.Escape, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"role\":\""+playerInfo.PlayerRole.ToID()+"\",\"cufferid\":\""+cuffer.PlayerID+"\",\"cufferrole\":\""+cuffer.PlayerRole.ToID()+"\"}");
             }
 
             if (playerInfo.PlayerID == null) return;
 
-            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+playerInfo.PlayerRole.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+ev.NewRole.ToID()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
