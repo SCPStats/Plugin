@@ -18,15 +18,18 @@ namespace SCPStats
     // to be.
     internal static class IDs
     {
+        //Largest ID: 48
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
             {"None", -1},
             {"KeycardJanitor", 0},
             {"KeycardScientist", 1},
-            {"KeycardScientistMajor", 2},
+            {"KeycardResearchCoordinator", 36},
+            //{"KeycardScientistMajor", 2},
             {"KeycardZoneManager", 3},
             {"KeycardGuard", 4},
-            {"KeycardSeniorGuard", 5},
+            {"KeycardNTFOfficer", 37},
+            //{"KeycardSeniorGuard", 5},
             {"KeycardContainmentEngineer", 6},
             {"KeycardNTFLieutenant", 7},
             {"KeycardNTFCommander", 8},
@@ -40,23 +43,34 @@ namespace SCPStats
             {"MicroHID", 16},
             {"SCP500", 17},
             {"SCP207", 18},
-            {"WeaponManagerTablet", 19},
+            {"Ammo12gauge", 38},
+            //{"WeaponManagerTablet", 19},
             {"GunE11SR", 20},
-            {"GunProject90", 21},
-            {"Ammo556", 22},
-            {"GunMP7", 23},
+            //{"GunProject90", 21},
+            {"GunCrossvec", 39},
+            /* Ammo556 */ {"Ammo556x45", 22},
+            //{"GunMP7", 23},
+            {"GunFSP9", 40},
             {"GunLogicer", 24},
             {"GrenadeFrag", 25},
             {"GrenadeFlash", 26},
-            {"Disarmer", 27},
-            {"Ammo762", 28},
-            {"Ammo9mm", 29},
-            {"GunUSP", 30},
+            //{"Disarmer", 27},
+            {"Ammo44cal", 41},
+            /* Ammo762 */ {"Ammo762x39", 28},
+            /* Ammo9mm */ {"Ammo9x19", 29},
+            //{"GunUSP", 30},
+            {"GunCOM18", 42},
             {"SCP018", 31},
             {"SCP268", 32},
             {"Adrenaline", 33},
             {"Painkillers", 34},
-            {"Coin", 35}
+            {"Coin", 35},
+            {"ArmorLight", 43},
+            {"ArmorCombat", 44},
+            {"ArmorHeavy", 45},
+            {"GunRevolver", 46},
+            {"GunAK", 47},
+            {"GunShotgun", 48}
         };
 
         private static readonly Dictionary<string, string> GrenadeIDs = new Dictionary<string, string>()
@@ -66,6 +80,7 @@ namespace SCPStats
             {"Scp018", "SCP018"}
         };
 
+        //Largest ID: 31
         private static readonly Dictionary<DamageTypes.DamageType, int> DamageTypeIDs = new Dictionary<DamageTypes.DamageType, int>()
         {
             {DamageTypes.None, 0},
@@ -80,13 +95,14 @@ namespace SCPStats
             {DamageTypes.Contain, 9},
             {DamageTypes.Pocket, 10},
             {DamageTypes.RagdollLess, 11},
-            {DamageTypes.Com15, 12},
-            {DamageTypes.P90, 13},
-            {DamageTypes.E11StandardRifle, 14},
-            {DamageTypes.Mp7, 15},
-            {DamageTypes.Logicer, 16},
-            {DamageTypes.Usp, 17},
-            {DamageTypes.MicroHid, 18},
+            //{DamageTypes.Com15, 12},
+            //{DamageTypes.P90, 13},
+            //{DamageTypes.E11StandardRifle, 14},
+            //{DamageTypes.Mp7, 15},
+            //{DamageTypes.Logicer, 16},
+            //{DamageTypes.Usp, 17},
+            //{DamageTypes.MicroHid, 18},
+            {DamageTypes.Revolver, 31},
             {DamageTypes.Grenade, 19},
             {DamageTypes.Scp049, 20},
             {DamageTypes.Scp0492, 21},
@@ -101,6 +117,7 @@ namespace SCPStats
             {DamageTypes.Asphyxiation, 30}
         };
 
+        //Largest ID: 21
         private static readonly Dictionary<string, int> RoleIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -108,20 +125,24 @@ namespace SCPStats
             {"ClassD", 1},
             {"Spectator", 2},
             {"Scp106", 3},
-            {"NtfScientist", 4},
+            /* NtfScientist */ {"NtfSpecialist", 4},
             {"Scp049", 5},
             {"Scientist", 6},
             {"Scp079", 7},
-            {"ChaosInsurgency", 8},
+            //{"ChaosInsurgency", 8},
+            {"ChaosConscript", 18},
             {"Scp096", 9},
             {"Scp0492", 10},
-            {"NtfLieutenant", 11},
-            {"NtfCommander", 12},
-            {"NtfCadet", 13},
+            /* NtfLieutenant */ {"NtfSergeant", 11},
+            /* NtfCommander */ {"NtfCaptain", 12},
+            /* NtfCadet */ {"NtfPrivate", 13},
             {"Tutorial", 14},
             {"FacilityGuard", 15},
             {"Scp93953", 16},
             {"Scp93989", 17},
+            {"ChaosRifleman", 19},
+            {"ChaosRepressor", 20},
+            {"ChaosMarauder", 21}
         };
 
         internal static int ToID(this ItemType item)
