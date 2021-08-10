@@ -36,7 +36,7 @@ namespace SCPStats.API
             var rot = Quaternion.Euler(0, 0, 0);
             var item = hat.Item;
 
-            var gameObject = UnityEngine.Object.Instantiate<GameObject>(Server.Host.Inventory.pickupPrefab);
+            var gameObject = UnityEngine.Object.Instantiate<GameObject>(Server.Host.Inventory.pi);
             
             switch (item)
             {

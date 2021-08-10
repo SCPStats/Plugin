@@ -48,10 +48,6 @@ namespace SCPStats.Commands
             {"18", ItemType.SCP018},
             {"medkit", ItemType.Medkit},
             {"adrenaline", ItemType.Adrenaline},
-            {"tablet", ItemType.WeaponManagerTablet},
-            {"weapontablet", ItemType.WeaponManagerTablet},
-            {"weaponmanagertablet", ItemType.WeaponManagerTablet},
-            {"weaponmanager", ItemType.WeaponManagerTablet},
             {"soda", ItemType.SCP207},
             {"cola", ItemType.SCP207},
             {"coke", ItemType.SCP207},
@@ -137,7 +133,6 @@ namespace SCPStats.Commands
                                    "\nSCP-018" +
                                    "\nMedkit" +
                                    "\nAdrenaline" +
-                                   "\nWeaponManagerTablet" +
                                    "\nSCP-207";
                         return false;
                     }

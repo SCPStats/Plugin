@@ -39,6 +39,7 @@ namespace SCPStats.Hats
                     var player = Player.Get(gameObject);
                     var pickup = item.gameObject.GetComponent<Pickup>();
 
+                    ItemType
                     if (Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Scp268, out var effect) && effect.Enabled))
                     {
                         pickup.Networkposition = Vector3.one * 6000f;

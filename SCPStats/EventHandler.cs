@@ -301,9 +301,9 @@ namespace SCPStats
 
         internal static void OnPickup(PickingUpItemEventArgs ev)
         {
-            if (!ev.Pickup || !ev.Pickup.gameObject || !ev.IsAllowed || CustomItem.TryGet(ev.Pickup, out _)) return;
+            if (!ev.Pickup.Base || !ev.Pickup.Base.gameObject || !ev.IsAllowed || CustomItem.TryGet(ev.Pickup, out _)) return;
             
-            if (ev.Pickup.gameObject.TryGetComponent<HatItemComponent>(out var hat))
+            if (ev.Pickup.Base.gameObject.TryGetComponent<HatItemComponent>(out var hat))
             {
                 if (ev.Player?.UserId != null && !ev.Player.IsHost && ev.Player.IsVerified && ev.Player.IPAddress != "127.0.0.WAN" && ev.Player.IPAddress != "127.0.0.1" && (hat.player == null || hat.player.gameObject != ev.Player?.GameObject) && (SCPStats.Singleton?.Config.DisplayHatHint ?? true))
                 {
@@ -317,7 +317,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
-            WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Pickup.ItemId.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Pickup, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Pickup.Type.ToID()+"\"}");
         }
 
         internal static void OnDrop(DroppingItemEventArgs ev)
@@ -327,7 +327,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Item.id.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Item.Type.ToID()+"\"}");
         }
 
         internal static void OnJoin(VerifiedEventArgs ev)
@@ -378,12 +378,12 @@ namespace SCPStats
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
         }
 
-        internal static void OnUse(DequippedMedicalItemEventArgs ev)
+        internal static void OnUse(UsedItemEventArgs ev)
         {
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Item.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Item.Type.ToID()+"\"}");
         }
 
         internal static void OnThrow(ThrowingGrenadeEventArgs ev)
@@ -396,11 +396,10 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Type.ToID()+"\"}");
         }
 
-        internal static void OnUpgrade(UpgradingItemsEventArgs ev)
+        internal static void OnUpgrade(UpgradingItemEventArgs ev)
         {
             if (!ev.IsAllowed) return;
-            
-            ev.Items.RemoveAll(pickup => pickup.gameObject.TryGetComponent<HatItemComponent>(out _));
+            if (ev.Item.Base.gameObject.TryGetComponent<HatItemComponent>(out _)) ev.IsAllowed = false;
         }
 
         internal static void OnEnterPocketDimension(EnteringPocketDimensionEventArgs ev)
