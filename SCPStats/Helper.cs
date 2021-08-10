@@ -15,7 +15,6 @@ using Exiled.API.Features;
 using Exiled.Loader;
 using SCPStats.Websocket.Data;
 using UnityEngine;
-using Broadcast = Exiled.API.Features.Broadcast;
 
 namespace SCPStats
 {

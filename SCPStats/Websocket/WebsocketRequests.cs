@@ -17,7 +17,6 @@ using SCPStats.API.EventArgs;
 using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket.Data;
-using Broadcast = Exiled.API.Features.Broadcast;
 
 namespace SCPStats.Websocket
 {
