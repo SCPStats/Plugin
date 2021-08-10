@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
+using InventorySystem.Items.Pickups;
 using MEC;
 using Mirror;
 using UnityEngine;
@@ -37,14 +38,15 @@ namespace SCPStats.Hats
                     if (item == null || item.gameObject == null) continue;
                     
                     var player = Player.Get(gameObject);
-                    var pickup = item.gameObject.GetComponent<Pickup>();
+                    var pickup = item.gameObject.GetComponent<ItemPickupBase>();
+                    var pickupInfo = pickup.NetworkInfo;
 
-                    if (Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Scp268, out var effect) && effect.Enabled))
+                    if (Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Invisible, out var effect) && effect.Intensity != 0))
                     {
-                        pickup.Networkposition = Vector3.one * 6000f;
-                        pickup.position = Vector3.one * 6000f;
+                        pickupInfo.Position = Vector3.one * 6000f;
                         pickup.transform.position = Vector3.one * 6000f;
-                        pickup.UpdatePosition();
+
+                        pickup.NetworkInfo = pickupInfo;
 
                         continue;
                     }
@@ -61,10 +63,14 @@ namespace SCPStats.Hats
                     var pos = (player.Role != RoleType.Scp079 ? rotation * (item.pos+item.itemOffset) : (item.pos+item.itemOffset)) + camera.position;
 
                     transform1.rotation = rot;
-                    pickup.Networkrotation = rot;
+                    pickupInfo.Rotation = new LowPrecisionQuaternion(rot);
 
-                    pickup.position = pos;
                     transform1.position = pos;
+                    pickupInfo.Position = pos;
+
+                    var fakePickupInfo = pickup.NetworkInfo;
+                    fakePickupInfo.Position = Vector3.zero;
+                    fakePickupInfo.Rotation = new LowPrecisionQuaternion(Quaternion.identity);
 
                     foreach (var player1 in Player.List)
                     {
@@ -72,7 +78,7 @@ namespace SCPStats.Hats
                         
                         if (player1.Team == player.Team || player1 == player)
                         {
-                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", pickupInfo);
                         }
                         else
                             switch (player1.Role)
@@ -80,25 +86,22 @@ namespace SCPStats.Hats
                                 case RoleType.Scp93953:
                                 case RoleType.Scp93989:
                                 {
-                                    if (!player.GameObject.GetComponent<Scp939_VisionController>().CanSee(player1.ReferenceHub.characterClassManager.Scp939))
+                                    if (!player.ReferenceHub.scp939visionController.CanSee(player1.ReferenceHub.scp939visionController._myVisuals939))
                                     {
-                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", Vector3.one * 6000f);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", fakePickupInfo);
                                     }
                                     else
                                     {
-                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", pickupInfo);
                                     }
 
                                     break;
                                 }
-                                case RoleType.Scp096 when player1.CurrentScp != null && player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", Vector3.one * 6000f);
-                                    break;
-                                case RoleType.Scp096:
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                                case RoleType.Scp096 when player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", fakePickupInfo);
                                     break;
                                 default:
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", pickupInfo);
                                     break;
                             }
                     }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Exiled.API.Features;
+using Exiled.API.Features.Items;
 using Mirror;
 using SCPStats.Hats;
 using SCPStats.Websocket;
@@ -36,48 +37,27 @@ namespace SCPStats.API
             var rot = Quaternion.Euler(0, 0, 0);
             var item = hat.Item;
 
-            var gameObject = UnityEngine.Object.Instantiate<GameObject>(Server.Host.Inventory.pi);
-            
+            var itemObj = new Item(item);
+
             switch (item)
             {
                 case ItemType.KeycardScientist:
-                    gameObject.transform.localScale += new Vector3(1.5f, 20f, 1.5f);
+                    itemObj.Scale += new Vector3(1.5f, 20f, 1.5f);
                     rot = Quaternion.Euler(0, 90, 0);
                     itemOffset = new Vector3(0, .1f, 0);
                     break;
                 
                 case ItemType.KeycardNTFCommander:
-                    gameObject.transform.localScale += new Vector3(1.5f, 200f, 1.5f);
+                    itemObj.Scale += new Vector3(1.5f, 200f, 1.5f);
                     rot = Quaternion.Euler(0, 90, 0);
                     itemOffset = new Vector3(0, .9f, 0);
                     break;
                 
                 case ItemType.SCP268:
-                    gameObject.transform.localScale += new Vector3(-.1f, -.1f, -.1f);
+                    itemObj.Scale += new Vector3(-.1f, -.1f, -.1f);
                     rot = Quaternion.Euler(-90, 0, 90);
                     break;
-                
-                case ItemType.Ammo556:
-                    gameObject.transform.localScale += new Vector3(-.03f, -.03f, -.03f);
-                    var position2 = gameObject.transform.position;
-                    gameObject.transform.position = new Vector3(position2.x, position2.y, position2.z);
-                    rot = Quaternion.Euler(-90, 0, 90);
-                    item = ItemType.SCP268;
-                    break;
-                
-                case ItemType.Ammo762:
-                    gameObject.transform.localScale += new Vector3(-.1f, 10f, -.1f);
-                    rot = Quaternion.Euler(-90, 0, 90);
-                    item = ItemType.SCP268;
-                    break;
-                
-                case ItemType.Ammo9mm:
-                    gameObject.transform.localScale += new Vector3(-.1f, -.1f, 5f);
-                    rot = Quaternion.Euler(-90, 0, -90);
-                    itemOffset = new Vector3(0, -.15f, .1f);
-                    item = ItemType.SCP268;
-                    break;
-                
+
                 case ItemType.Adrenaline:
                 case ItemType.Medkit:
                 case ItemType.Coin:
@@ -94,15 +74,12 @@ namespace SCPStats.API
                     break;
             }
 
-            gameObject.transform.localScale = hat.Scale == Vector3.zero ? gameObject.transform.localScale : hat.Scale;
-            itemOffset = hat.Position == Vector3.zero ? itemOffset : hat.Position;
-            rot = hat.Rotation.IsZero() ? rot : hat.Rotation;
-            item = hat.Scale == Vector3.zero && hat.Position == Vector3.zero && hat.Rotation.IsZero() ? item : hat.Item;
+            if(hat.Scale != Vector3.zero) itemObj.Scale = hat.Scale;
+            if(hat.Position != Vector3.zero) itemOffset = hat.Position;
+            if(!hat.Rotation.IsZero()) rot = hat.Rotation;
+            if(hat.Scale != Vector3.zero || hat.Position != Vector3.zero || !hat.Rotation.IsZero()) item = hat.Item;
 
-            NetworkServer.Spawn(gameObject);
-
-            var pickup = gameObject.GetComponent<Pickup>();
-            pickup.SetupPickup(item, 0, Server.Host.Inventory.gameObject, new Pickup.WeaponModifiers(true, 0, 0, 0), player.CameraTransform.position+pos, player.CameraTransform.rotation * rot);
+            var pickup = itemObj.Spawn(Vector3.zero, Quaternion.identity);
             SpawnHat(player, pickup, itemOffset, rot);
         }
         
@@ -128,14 +105,14 @@ namespace SCPStats.API
                 playerComponent.item = null;
             }
             
-            var rigidbody = pickup.gameObject.GetComponent<Rigidbody>();
+            var rigidbody = pickup.Base.gameObject.GetComponent<Rigidbody>();
             rigidbody.useGravity = false;
             rigidbody.isKinematic = true;
 
-            var collider = pickup.gameObject.GetComponent<Collider>();
+            var collider = pickup.Base.gameObject.GetComponent<Collider>();
             collider.enabled = false;
 
-            playerComponent.item = pickup.gameObject.AddComponent<HatItemComponent>();
+            playerComponent.item = pickup.Base.gameObject.AddComponent<HatItemComponent>();
             playerComponent.item.player = playerComponent;
             playerComponent.item.pos = Hats.Hats.GetHatPosForRole(player.Role);
             playerComponent.item.itemOffset = posOffset;
