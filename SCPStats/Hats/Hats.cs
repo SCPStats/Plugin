@@ -17,7 +17,7 @@ namespace SCPStats.Hats
         {
             if (!HatCommand.HatPlayers.ContainsKey(p.UserId)) return;
 
-            p.SpawnHat(HatCommand.HatPlayers[p.UserId]);
+            p.SpawnHat(HatCommand.HatPlayers[p.UserId].Item1);
         }
         
         internal static void SpawnHat(this Player p, HatInfo hat)

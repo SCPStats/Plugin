@@ -188,7 +188,7 @@ namespace SCPStats
         public string HatDescription { get; set; } = "Change your hat ingame. This only applies to the current round.";
 
         [Description("The message sent when a user uses the hat command incorrectly.")]
-        public string HatUsage { get; set; } = "Usage: .hat <on/off/toggle/item>";
+        public string HatUsage { get; set; } = "Usage: .hat <on/off/toggle/default/item>";
         
         [Description("The message sent when a user puts on their hat.")]
         public string HatEnabled { get; set; } = "You put on your hat.";
@@ -207,6 +207,9 @@ namespace SCPStats
 
         [Description("The message sent when a user changes their hat.")]
         public string HatChanged { get; set; } = "Your hat has been changed.";
+
+        [Description("The message sent when a user changes their hat back to their default hat.")]
+        public string HatDefault { get; set; } = "Your hat has been changed back to your default hat.";
 
         [Description("The hint shown when a person tries to pick up someone else's hat.")]
         public string HatHint { get; set; } = "You can get a hat like this at patreon.com/SCPStats.";
