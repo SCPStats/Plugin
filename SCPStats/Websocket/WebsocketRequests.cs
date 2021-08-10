@@ -212,8 +212,8 @@ namespace SCPStats.Websocket
             if (!data.HasHat) return;
 
             Log.Debug("User has hat. Giving permissions!", SCPStats.Singleton?.Config?.Debug ?? false);
-            
-            var item = (ItemType) Convert.ToInt32(data.HatID);
+
+            var item = IDs.ItemIDToType(Convert.ToInt32(data.HatID));
 
             if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo>(new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation), new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation));
             else HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo>(new HatInfo(ItemType.SCP268), new HatInfo(ItemType.SCP268));

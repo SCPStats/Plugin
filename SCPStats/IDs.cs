@@ -5,7 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Exiled.API.Enums;
 
 namespace SCPStats
@@ -72,6 +74,8 @@ namespace SCPStats
             {"GunAK", 47},
             {"GunShotgun", 48}
         };
+
+        private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
         private static readonly Dictionary<string, string> GrenadeIDs = new Dictionary<string, string>()
         {
@@ -149,6 +153,12 @@ namespace SCPStats
         {
             if (ItemIDs.TryGetValue(item.ToString(), out var id)) return id;
             return -1;
+        }
+
+        internal static ItemType ItemIDToType(int id)
+        {
+            if (ItemIDsReverse.TryGetValue(id, out var typeStr) && Enum.TryParse<ItemType>(typeStr, out var type)) return type;
+            return ItemType.None;
         }
         
         internal static int ToID(this GrenadeType grenade)
