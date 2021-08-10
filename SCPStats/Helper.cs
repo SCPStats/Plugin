@@ -15,6 +15,7 @@ using Exiled.API.Features;
 using Exiled.Loader;
 using SCPStats.Websocket.Data;
 using UnityEngine;
+using Broadcast = Exiled.API.Features.Broadcast;
 
 namespace SCPStats
 {
@@ -172,7 +173,7 @@ namespace SCPStats
         }
         
         internal static void SendWarningMessage(Player p, string reason){
-            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none" && SCPStats.Singleton.Config.WarningMessageDuration > 0) p.Broadcast(SCPStats.Singleton.Config.WarningMessageDuration, SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason));
+            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none" && SCPStats.Singleton.Config.WarningMessageDuration > 0) p.Broadcast(new Exiled.API.Features.Broadcast(SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason), SCPStats.Singleton.Config.WarningMessageDuration), true);
         }
 
         internal static bool IsZero(this Quaternion rot) => rot.x == 0 && rot.y == 0 && rot.z == 0;

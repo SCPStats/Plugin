@@ -93,7 +93,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Verified += EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying += EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.UsingItem += EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.ItemUsed += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs += LoadConfigs;
@@ -173,11 +173,11 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
             Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying -= EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemDequipped -= EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.ItemUsed -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= LoadConfigs;
-            Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
+            Exiled.Events.Handlers.Scp914.UpgradingItem -= EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.EscapingPocketDimension -= EventHandler.OnEscapingPocketDimension;
             Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;

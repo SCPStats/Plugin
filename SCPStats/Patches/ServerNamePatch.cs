@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
 using HarmonyLib;
 
 namespace SCPStats.Patches
@@ -14,7 +15,7 @@ namespace SCPStats.Patches
     {
         private static void Postfix()
         {
-            if(!(SCPStats.Singleton?.ID ?? "").Equals("")) ServerConsole._serverName += "<color=#00000000><size=1>"+SCPStats.Singleton.ID+"</size></color>";
+            if(!string.IsNullOrEmpty(SCPStats.Singleton?.ID ?? "")) ServerConsole._serverName += "<color=#00000000><size=1>"+SCPStats.Singleton.ID+"</size></color>";
         }
     }
 }

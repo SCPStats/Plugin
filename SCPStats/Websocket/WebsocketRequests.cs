@@ -17,6 +17,7 @@ using SCPStats.API.EventArgs;
 using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket.Data;
+using Broadcast = Exiled.API.Features.Broadcast;
 
 namespace SCPStats.Websocket
 {
@@ -411,7 +412,7 @@ namespace SCPStats.Websocket
             
             foreach (var player in Player.List)
             {
-                if(broadcast.Replace("\n", "") != "") player.Broadcast(SCPStats.Singleton.Config.RoundSummaryBroadcastDuration, broadcast);
+                if(broadcast.Replace("\n", "") != "") player.Broadcast(new Exiled.API.Features.Broadcast(broadcast, SCPStats.Singleton.Config.RoundSummaryBroadcastDuration), false);
                 if(consoleMessage.Replace("\n", "") != "") player.SendConsoleMessage(consoleMessage, SCPStats.Singleton.Config.RoundSummaryConsoleMessageColor);
             }
         }
