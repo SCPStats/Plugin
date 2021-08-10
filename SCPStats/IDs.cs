@@ -85,40 +85,40 @@ namespace SCPStats
         };
 
         //Largest ID: 31
-        private static readonly Dictionary<DamageTypes.DamageType, int> DamageTypeIDs = new Dictionary<DamageTypes.DamageType, int>()
+        private static readonly Dictionary<string, int> DamageTypeIDs = new Dictionary<string, int>()
         {
-            {DamageTypes.None, 0},
-            {DamageTypes.Lure, 1},
-            {DamageTypes.Nuke, 2},
-            {DamageTypes.Wall, 3},
-            {DamageTypes.Decont, 4},
-            {DamageTypes.Tesla, 5},
-            {DamageTypes.Falldown, 6},
-            {DamageTypes.Flying, 7},
-            {DamageTypes.FriendlyFireDetector, 8},
-            {DamageTypes.Contain, 9},
-            {DamageTypes.Pocket, 10},
-            {DamageTypes.RagdollLess, 11},
+            {"NONE", 0},
+            {"LURE", 1},
+            {"NUKE", 2},
+            {"WALL", 3},
+            {"DECONT", 4},
+            {"TESLA", 5},
+            {"FALLDOWN", 6},
+            {"Flying detection", 7},
+            {"Friendly fire detector", 8},
+            {"CONTAIN", 9},
+            {"POCKET", 10},
+            {"RAGDOLL-LESS", 11},
             //{DamageTypes.Com15, 12},
             //{DamageTypes.P90, 13},
             //{DamageTypes.E11StandardRifle, 14},
             //{DamageTypes.Mp7, 15},
             //{DamageTypes.Logicer, 16},
             //{DamageTypes.Usp, 17},
-            //{DamageTypes.MicroHid, 18},
-            {DamageTypes.Revolver, 31},
-            {DamageTypes.Grenade, 19},
-            {DamageTypes.Scp049, 20},
-            {DamageTypes.Scp0492, 21},
-            {DamageTypes.Scp096, 22},
-            {DamageTypes.Scp106, 23},
-            {DamageTypes.Scp173, 24},
-            {DamageTypes.Scp939, 25},
-            {DamageTypes.Scp207, 26},
-            {DamageTypes.Recontainment, 27},
-            {DamageTypes.Bleeding, 28},
-            {DamageTypes.Poison, 29},
-            {DamageTypes.Asphyxiation, 30}
+            {"MICROHID", 18},
+            {"REVOLVER", 31},
+            {"GRENADE", 19},
+            {"SCP-049", 20},
+            {"SCP-049-2", 21},
+            {"SCP-096", 22},
+            {"SCP-106", 23},
+            {"SCP-173", 24},
+            {"SCP-939", 25},
+            {"SCP-207", 26},
+            {"RECONTAINMENT", 27},
+            {"BLEEDING", 28},
+            {"POISONED", 29},
+            {"ASPHYXIATION", 30}
         };
 
         //Largest ID: 21
@@ -169,7 +169,7 @@ namespace SCPStats
 
         internal static int ToID(this DamageTypes.DamageType damageType)
         {
-            if (DamageTypeIDs.TryGetValue(damageType, out var id)) return id;
+            if (DamageTypeIDs.TryGetValue(damageType.Name, out var id)) return id;
             return -1;
         }
 
