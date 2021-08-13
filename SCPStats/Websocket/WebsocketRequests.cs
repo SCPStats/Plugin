@@ -503,9 +503,22 @@ namespace SCPStats.Websocket
             {
                 return defaultVal;
             }
-            
-            if (!isNum) return player.Nickname;
-            return roundStats.PlayerStats.TryGetValue(player, out var stats) ? ((int) (typeof(Stats).GetField(metric)?.GetValue(stats) ?? 0)).ToString() : defaultVal;
+
+            switch (isNum)
+            {
+                //Return the default if this is not a num and the num metric for this one is zero.
+                case false when GetRoundSummaryVariable(roundStats, "0", metric, type, pos, true) == "0":
+                    return defaultVal;
+                //Return the name if this is not a num.
+                case false:
+                    return player.Nickname;
+                //Return the number if this is a num.
+                default:
+                    //Return the default if it's 0, otherwise return the value.
+                    if (!roundStats.PlayerStats.TryGetValue(player, out var stats)) return defaultVal;
+                    var ret = ((int) (typeof(Stats).GetField(metric)?.GetValue(stats) ?? 0)).ToString();
+                    return ret == "0" ? defaultVal : ret;
+            }
         }
     }
 }
