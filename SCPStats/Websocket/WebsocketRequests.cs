@@ -396,24 +396,39 @@ namespace SCPStats.Websocket
 
             var stats = new RoundStatsData(info);
 
-            var broadcast = "";
-            var consoleMessage = "";
+            var broadcast = Array.Empty<string>();
+            var consoleMessage = Array.Empty<string>();
             
             if (SCPStats.Singleton.Config.RoundSummaryBroadcastEnabled)
             {
-                broadcast = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryBroadcast.Replace("\\n", "\n"), match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2))).Split(new string[] {"|end|"}, StringSplitOptions.None)[0];
+                broadcast = CreateRoundSummaryMessage(SCPStats.Singleton.Config.RoundSummaryBroadcast, stats);
             }
             
             if (SCPStats.Singleton.Config.RoundSummaryConsoleMessageEnabled)
             {
-                consoleMessage = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryConsoleMessage.Replace("\\n", "\n"), match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2))).Split(new string[] {"|end|"}, StringSplitOptions.None)[0];
+                consoleMessage = CreateRoundSummaryMessage(SCPStats.Singleton.Config.RoundSummaryConsoleMessage, stats);
             }
-            
+
+            var broadcastLength = (ushort) (broadcast.Length > 0 ? SCPStats.Singleton.Config.RoundSummaryBroadcastDuration / broadcast.Length : 0);
+
             foreach (var player in Player.List)
             {
-                if(broadcast.Replace("\n", "") != "") player.Broadcast(new Exiled.API.Features.Broadcast(broadcast, SCPStats.Singleton.Config.RoundSummaryBroadcastDuration), false);
-                if(consoleMessage.Replace("\n", "") != "") player.SendConsoleMessage(consoleMessage, SCPStats.Singleton.Config.RoundSummaryConsoleMessageColor);
+                foreach (var msg in broadcast)
+                {
+                    player.Broadcast(new Exiled.API.Features.Broadcast(msg, broadcastLength), false);
+                }
+                
+                foreach (var msg in consoleMessage)
+                {
+                    player.SendConsoleMessage(msg, SCPStats.Singleton.Config.RoundSummaryConsoleMessageColor);
+                }
             }
+        }
+
+        private static string[] CreateRoundSummaryMessage(string input, RoundStatsData stats)
+        {
+            var msg = RoundSummaryVariable.Replace(input.Replace("\\n", "\n"), match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2))).Split(new string[] {"|end|"}, StringSplitOptions.None)[0];
+            return msg.Split(new string[] {"|page|"}, StringSplitOptions.None).Select(page => page.Split(new string[] {"|pageend|"}, StringSplitOptions.None)[0]).Where(part => part.Replace("\n", "") != "").ToArray();
         }
 
         private static List<string> BlacklistedOrderMetrics = new List<string>()
