@@ -39,7 +39,8 @@ namespace SCPStats
 
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
-        
+
+        //Tuple<PreauthFlags, UserInfo, RunImmediately (this will be false when requested on preauth and true when requested after the player has joined)>.
         internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>>();
 
         internal static void Reset()
@@ -495,9 +496,27 @@ namespace SCPStats
 
             var id = Helper.HandleId(ev.UserId);
 
-            if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-            UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
-            WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+            if (ev.ServerFull && !ev.IsAllowed)
+            {
+                if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue && WebsocketRequests.HandleReservedSlots(userInfo.Item2, userInfo.Item1.Value))
+                {
+                    ev.IsAllowed = true;
+                }
+                else
+                {
+                    if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
+                    UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
+                    WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+
+                    ev.Delay(3, false);
+                }
+            }
+            else
+            {
+                if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
+                UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
+                WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+            }
         }
     }
 }

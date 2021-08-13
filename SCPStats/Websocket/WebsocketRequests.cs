@@ -199,6 +199,30 @@ namespace SCPStats.Websocket
             return true;
         }
 
+        internal static bool HandleReservedSlots(UserInfoData data, CentralAuthPreauthFlags flags)
+        {
+            if (flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot)) return true;
+            if (SCPStats.Singleton?.Config?.ReservedSlots == null || SCPStats.Singleton.Config.ReservedSlots.Count(req => req != "DiscordRoleID") < 1) return false;
+
+            var passed = false;
+            
+            foreach (var req in SCPStats.Singleton.Config.ReservedSlots)
+            {
+                if (!CheckRequirements(req, data, "reserved slots", req))
+                {
+                    if (!SCPStats.Singleton.Config.ReservedSlotsRequireAll) continue;
+
+                    passed = false;
+                    break;
+                }
+
+                passed = true;
+                if (!SCPStats.Singleton.Config.ReservedSlotsRequireAll) break;
+            }
+
+            return passed;
+        }
+
         private static bool HandleBans(Player player, UserInfoData data)
         {
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;

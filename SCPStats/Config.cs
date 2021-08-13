@@ -41,6 +41,15 @@ namespace SCPStats
         [Description("By default, the whitelist will allow a person in if they match any of the conditions. Setting this value to true will mean that a person will only be let in if every condition matches.")]
         public bool WhitelistRequireAll { get; set; } = false;
 
+        [Description("Reserved slots will allow a player to join a full server, but only if they meet certain conditions. See the below options for how to change the reserved slots list' behavior. The reserved slots list is just a list of the same conditions used in rolesync (so only the left side, without the : ), with the addition of \"discordmember\" and \"booster\" being valid conditions.")]
+        public List<string> ReservedSlots { get; set; } = new List<string>()
+        {
+            "DiscordRoleID"
+        };
+
+        [Description("By default, a player will have a reserved slot if they match any of the conditions. Setting this value to true will mean that a person will only be let in if every condition matches.")]
+        public bool ReservedSlotsRequireAll { get; set; } = false;
+
         [Description("SCPStats includes hats to give perks to its donators. If you want to reward your own donators with hats, you can give them the scpstats.hats permission.")]
         public bool EnableHats { get; set; } = true;
 
