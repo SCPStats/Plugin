@@ -58,9 +58,9 @@ namespace SCPStats.Websocket.Data
         Warning = 0,
         Ban = 1,
         Kick = 2,
-        [Obsolete("This warning type no longer exists.", true)]
+        [Obsolete("This warning type no longer exists.", false)]
         Mute = 3,
-        [Obsolete("This warning type no longer exists.", true)]
+        [Obsolete("This warning type no longer exists.", false)]
         IntercomMute = 4,
         Note = 5
     }
