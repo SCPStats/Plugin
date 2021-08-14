@@ -189,10 +189,6 @@ namespace SCPStats
                     return SCPStats.Singleton?.Translation?.WarningsTypeBan ?? "Ban";
                 case WarningType.Kick:
                     return SCPStats.Singleton?.Translation?.WarningsTypeKick ?? "Kick";
-                case WarningType.Mute:
-                    return SCPStats.Singleton?.Translation?.WarningsTypeMute ?? "Mute";
-                case WarningType.IntercomMute:
-                    return SCPStats.Singleton?.Translation?.WarningsTypeIntercomMutes ?? "Intercom Mute";
             }
 
             return "";
