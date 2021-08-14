@@ -139,6 +139,8 @@ namespace SCPStats.Commands
             WarningType.Note,
             WarningType.Ban,
             WarningType.Kick,
+            WarningType.Mute,
+            WarningType.IntercomMute
         };
 
         private static List<WarningSection> WarningsDisplayedSections { get; set; } = new List<WarningSection>()
