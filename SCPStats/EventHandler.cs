@@ -60,7 +60,7 @@ namespace SCPStats
 
         internal static void ClearUserInfo()
         {
-            var ids = Player.UserIdsCache.Keys;
+            var ids = Player.List.Select(Helper.HandleId);
             UserInfo = UserInfo.Where((kvp) => ids.Contains(kvp.Key)).ToDictionary((kvp) => kvp.Key, (kvp) => kvp.Value);
         }
 
@@ -372,9 +372,6 @@ namespace SCPStats
         {
             if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
 
-            var id = Helper.HandleId(ev.Player);
-            if (UserInfo.ContainsKey(id)) UserInfo.Remove(id);
-
             if (ev.Player.GameObject != null && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
                 Object.Destroy(playerComponent.item.gameObject);
@@ -383,6 +380,9 @@ namespace SCPStats
 
             if (Restarting) return;
 
+            var id = Helper.HandleId(ev.Player);
+
+            if (UserInfo.ContainsKey(id)) UserInfo.Remove(id);
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
 
             if (ev.Player.DoNotTrack) return;
