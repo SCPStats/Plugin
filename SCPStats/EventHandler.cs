@@ -360,7 +360,7 @@ namespace SCPStats
 
             var isInvalid = !Round.IsStarted && Players.Contains(ev.Player.UserId);
 
-            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+(isInvalid ? ",\"invalid\":true" : "")+"}");
+            if(!ev.Player.DoNotTrack) WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+(isInvalid ? ",\"invalid\":true" : "")+"}");
 
             if (isInvalid) return;
 
@@ -380,9 +380,12 @@ namespace SCPStats
                 playerComponent.item = null;
             }
 
-            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\"}");
+            if (Restarting) return;
 
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
+
+            if (ev.Player.DoNotTrack) return;
+            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\"}");
         }
 
         internal static void OnUse(DequippedMedicalItemEventArgs ev)
