@@ -58,6 +58,12 @@ namespace SCPStats
             PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
         }
 
+        internal static void ClearUserInfo()
+        {
+            var ids = Player.UserIdsCache.Keys;
+            UserInfo = UserInfo.Where((kvp) => ids.Contains(kvp.Key)).ToDictionary((kvp) => kvp.Key, (kvp) => kvp.Value);
+        }
+
         internal static void Start()
         {
             firstJoin = true;
@@ -88,6 +94,8 @@ namespace SCPStats
         private static IEnumerator<float> RAReloaded()
         {
             yield return Timing.WaitForSeconds(1.5f);
+
+            ClearUserInfo();
 
             var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select Helper.HandleId(player)).ToList();
 
@@ -187,10 +195,12 @@ namespace SCPStats
 
             Timing.KillCoroutines(coroutines.ToArray());
             coroutines.Clear();
-            
+
             SpawnsDone.Clear();
             PocketPlayers.Clear();
             JustJoined.Clear();
+
+            ClearUserInfo();
         }
 
         private static IEnumerator<float> SendWinsLose(string leadingTeam)
@@ -244,8 +254,6 @@ namespace SCPStats
             Restarting = false;
             DidRoundEnd = false;
             PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
-            
-            UserInfo.Clear();
         }
         
         internal static void OnKill(DyingEventArgs ev)
@@ -364,15 +372,14 @@ namespace SCPStats
         {
             if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
 
+            var id = Helper.HandleId(ev.Player);
+            if (UserInfo.ContainsKey(id)) UserInfo.Remove(id);
+
             if (ev.Player.GameObject != null && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
                 Object.Destroy(playerComponent.item.gameObject);
                 playerComponent.item = null;
             }
-            
-            var id = Helper.HandleId(ev.Player);
-
-            if (Restarting) return;
 
             WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\"}");
 
