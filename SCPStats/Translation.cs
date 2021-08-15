@@ -80,6 +80,12 @@ namespace SCPStats
         [Description("The name used for kicks in the warnings command.")]
         public string WarningsTypeKick { get; set; } = "Kick";
 
+        [Description("The name used for mutes in the warnings command.")]
+        public string WarningsTypeMute { get; set; } = "Mute";
+
+        [Description("The name used for warnings in the warnings command.")]
+        public string WarningsTypeIntercomMutes { get; set; } = "Intercom Mute";
+
         [Description("The types of warnings that will be displayed by the warnings command. Possible options are: \"Warning\", \"Note\", \"Ban\", \"Kick\", \"Mute\", and \"IntercomMute\".")]
         public List<WarningType> WarningsDisplayedTypes { get; set; } = new List<WarningType>()
         {
