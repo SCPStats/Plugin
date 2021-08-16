@@ -42,6 +42,7 @@ namespace SCPStats
 
         //Tuple<PreauthFlags, UserInfo, RunImmediately (this will be false when requested on preauth and true when requested after the player has joined)>.
         internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>>();
+        private static List<string> PreRequestedIDs = new List<string>();
 
         internal static void Reset()
         {
@@ -55,6 +56,9 @@ namespace SCPStats
             PocketPlayers.Clear();
             JustJoined.Clear();
 
+            UserInfo.Clear();
+            PreRequestedIDs.Clear();
+
             PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
         }
 
@@ -67,8 +71,10 @@ namespace SCPStats
         internal static void Start()
         {
             firstJoin = true;
-            
+
             WebsocketHandler.Start();
+
+            OnRAReload();
         }
 
         private static IEnumerator<float> ClearPlayers()
@@ -140,6 +146,8 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.RoundStart);
 
             Timing.RunCoroutine(SendStart());
+
+            PreRequestedIDs.Clear();
         }
 
         private static IEnumerator<float> SendStart()
@@ -201,6 +209,22 @@ namespace SCPStats
             JustJoined.Clear();
 
             ClearUserInfo();
+            Timing.RunCoroutine(GetRoundEndUsers());
+        }
+
+        private static IEnumerator<float> GetRoundEndUsers()
+        {
+            PreRequestedIDs = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select Helper.HandleId(player)).ToList();
+
+            foreach (var id in PreRequestedIDs)
+            {
+                if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
+                UserInfo[id] = UserInfo.TryGetValue(id, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, false) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, false);
+
+                WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+
+                yield return Timing.WaitForSeconds(.1f);
+            }
         }
 
         private static IEnumerator<float> SendWinsLose(string leadingTeam)
@@ -500,14 +524,17 @@ namespace SCPStats
                 }
                 else
                 {
-                    if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-                    UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
-                    WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+                    if (!PreRequestedIDs.Contains(id))
+                    {
+                        if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
+                        UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
+                        WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+                    }
 
                     ev.Delay(3, false);
                 }
             }
-            else
+            else if(!PreRequestedIDs.Contains(id))
             {
                 if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
                 UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
