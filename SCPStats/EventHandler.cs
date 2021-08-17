@@ -330,7 +330,7 @@ namespace SCPStats
 
             if (playerInfo.PlayerID == null) return;
 
-            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+ev.NewRole.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"spawnrole\":\""+ev.NewRole.ToID()+"\",\"reason\":\""+ev.Reason.ToID()+"\"}");
         }
 
         internal static void OnPickup(PickingUpItemEventArgs ev)

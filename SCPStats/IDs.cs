@@ -153,6 +153,20 @@ namespace SCPStats
             {"ChaosMarauder", 21}
         };
 
+        //Largest ID: 8
+        private static readonly Dictionary<string, int> SpawnReasonIDs = new Dictionary<string, int>()
+        {
+            {"None", 0},
+            {"RoundStart", 1},
+            {"LateJoin", 2},
+            {"Respawn", 3},
+            {"Died", 4},
+            {"Escaped", 5},
+            {"Revived", 6},
+            {"ForceClass", 7},
+            {"Overwatch", 8}
+        };
+
         internal static int ToID(this ItemType item)
         {
             if (ItemIDs.TryGetValue(item.ToString(), out var id)) return id;
@@ -180,6 +194,12 @@ namespace SCPStats
         internal static int ToID(this RoleType roleType)
         {
             if (RoleIDs.TryGetValue(roleType.ToString(), out var id)) return id;
+            return -1;
+        }
+
+        internal static int ToID(this SpawnReason spawnReason)
+        {
+            if (SpawnReasonIDs.TryGetValue(spawnReason.ToString(), out var id)) return id;
             return -1;
         }
     }
