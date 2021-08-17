@@ -52,7 +52,7 @@ namespace SCPStats
             //{"GunMP7", 23},
             {"GunFSP9", 40},
             {"GunLogicer", 24},
-            {"GrenadeFrag", 25},
+            /* GrenadeFrag */ {"GrenadeHE", 25},
             {"GrenadeFlash", 26},
             //{"Disarmer", 27},
             {"Ammo44cal", 41},
@@ -82,7 +82,7 @@ namespace SCPStats
             {"Scp018", "SCP018"}
         };
 
-        //Largest ID: 31
+        //Largest ID: 38
         private static readonly Dictionary<string, int> DamageTypeIDs = new Dictionary<string, int>()
         {
             {"NONE", 0},
@@ -97,12 +97,18 @@ namespace SCPStats
             {"CONTAIN", 9},
             {"POCKET", 10},
             {"RAGDOLL-LESS", 11},
-            //{DamageTypes.Com15, 12},
+            {"COM15", 12},
             //{DamageTypes.P90, 13},
             //{DamageTypes.E11StandardRifle, 14},
             //{DamageTypes.Mp7, 15},
-            //{DamageTypes.Logicer, 16},
+            {"LOGICER", 16},
             //{DamageTypes.Usp, 17},
+            {"COM18", 32},
+            // NW did a dumb thing and named AK damage COM15. This is reserved for that. ID: 33
+            {"SHOTGUN", 34},
+            {"CROSSVEC", 35},
+            {"FSP9", 36},
+            {"E11SR", 37},
             {"MICROHID", 18},
             {"REVOLVER", 31},
             {"GRENADE", 19},
@@ -113,6 +119,7 @@ namespace SCPStats
             {"SCP-173", 24},
             {"SCP-939", 25},
             {"SCP-207", 26},
+            {"SCP-018", 38},
             {"RECONTAINMENT", 27},
             {"BLEEDING", 28},
             {"POISONED", 29},
