@@ -239,6 +239,7 @@
     <Compile Include="Patches\BanFilePatch.cs" />
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\ServerNamePatch.cs" />
+    <Compile Include="Patches\SetTextPatch.cs" />
     <Compile Include="Patches\UnbanPatch.cs" />
     <Compile Include="PlayerInfo.cs" />
     <Compile Include="RequestType.cs" />

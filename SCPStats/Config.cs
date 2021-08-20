@@ -31,6 +31,12 @@ namespace SCPStats
             "DiscordRoleID:IngameRoleName",
             "playtime_20:IngameRoleName"
         };
+
+        [Description("Allows you to modify the name of a role, per-person. For example, you could modify a role's name to include the xp and level of of the person who has it. The key (left value) is the name of the role (not what's displayed ingame, but what's used in the remote admin configs). The value (right value) is the new name for the role. Inside of it, you can place metrics, surrounded by a \"{\" and \"}\" on either side. For example, \"{xp} XP\"")]
+        public Dictionary<string, string> RoleNames { get; set; } = new Dictionary<string, string>()
+        {
+            {"ExampleXPRole", "{xp} XP | Level {level}"}
+        };
         
         [Description("The whitelist will only allow a player to join the server if they meet certain conditions. See the below options for how to change the whitelist's behavior. The whitelist is just a list of the same conditions used in rolesync (so only the left side, without the : ), with the addition of \"discordmember\" and \"booster\" being valid conditions.")]
         public List<string> Whitelist { get; set; } = new List<string>()
