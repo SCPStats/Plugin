@@ -75,13 +75,6 @@ namespace SCPStats
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-        private static readonly Dictionary<string, string> GrenadeIDs = new Dictionary<string, string>()
-        {
-            {"FragGrenade", "GrenadeFrag"},
-            {"Flashbang", "GrenadeFlash"},
-            {"Scp018", "SCP018"}
-        };
-
         //Largest ID: 38
         private static readonly Dictionary<string, int> DamageTypeIDs = new Dictionary<string, int>()
         {
@@ -177,12 +170,6 @@ namespace SCPStats
         {
             if (ItemIDsReverse.TryGetValue(id, out var typeStr) && Enum.TryParse<ItemType>(typeStr, out var type)) return type;
             return ItemType.None;
-        }
-        
-        internal static int ToID(this GrenadeType grenade)
-        {
-            if (GrenadeIDs.TryGetValue(grenade.ToString(), out var id) && ItemIDs.TryGetValue(id, out var id2)) return id2;
-            return -1;
         }
 
         internal static int ToID(this DamageTypes.DamageType damageType)

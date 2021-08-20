@@ -422,14 +422,14 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Item.Type.ToID()+"\"}");
         }
 
-        internal static void OnThrow(ThrowingGrenadeEventArgs ev)
+        internal static void OnThrow(ThrowingItemEventArgs ev)
         {
             if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Type.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Item.Type.ToID()+"\"}");
         }
 
         internal static void OnUpgrade(UpgradingItemEventArgs ev)
