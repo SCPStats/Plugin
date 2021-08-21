@@ -356,7 +356,7 @@ namespace SCPStats
 
         internal static void OnDrop(DroppingItemEventArgs ev)
         {
-            if (!ev.IsAllowed || CustomItem.TryGet(ev.Item, out _) || !Helper.IsRoundRunning()) return;
+            if (!ev.IsAllowed || ev.Item?.Base == null || CustomItem.TryGet(ev.Item, out _) || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
@@ -416,6 +416,8 @@ namespace SCPStats
 
         internal static void OnUse(UsedItemEventArgs ev)
         {
+            if (ev.Item?.Base == null) return;
+
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
@@ -424,7 +426,7 @@ namespace SCPStats
 
         internal static void OnThrow(ThrowingItemEventArgs ev)
         {
-            if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
+            if (!ev.IsAllowed || ev.Item?.Base == null || !Helper.IsRoundRunning()) return;
             
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
@@ -434,7 +436,7 @@ namespace SCPStats
 
         internal static void OnUpgrade(UpgradingItemEventArgs ev)
         {
-            if (!ev.IsAllowed) return;
+            if (!ev.IsAllowed || ev.Item?.Base == null || ev.Item.Base.gameObject == null) return;
             if (ev.Item.Base.gameObject.TryGetComponent<HatItemComponent>(out _)) ev.IsAllowed = false;
         }
 
