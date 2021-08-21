@@ -89,7 +89,7 @@ namespace SCPStats.API
         /// <param name="player">The <see cref="Player"/> who should wear the hat.</param>
         /// <param name="pickup">The <see cref="Pickup"/> that should be worn.</param>
         /// <param name="posOffset">A <see cref="Vector3"/> that will be added to the hat's position each time it is updated.</param>
-        /// <param name="rotOffset">A <see cref="Vector3"/> that will be added to the hat's position each time it is updated.</param>
+        /// <param name="rotOffset">A <see cref="Quaternion"/> that will be added to the hat's rotation each time it is updated.</param>
         public static void SpawnHat(Player player, Pickup pickup, Vector3 posOffset, Quaternion rotOffset)
         {
             HatPlayerComponent playerComponent;
