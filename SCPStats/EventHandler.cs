@@ -306,7 +306,7 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.Player.Role != RoleType.None && ev.Player.Role != RoleType.Spectator)
+            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
             {
                 Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
             }
