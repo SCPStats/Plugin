@@ -97,7 +97,7 @@ namespace SCPStats
             {"LOGICER", 16},
             //{DamageTypes.Usp, 17},
             {"COM18", 32},
-            // NW did a dumb thing and named AK damage COM15. This is reserved for that. ID: 33
+            {"AK", 33},
             {"SHOTGUN", 34},
             {"CROSSVEC", 35},
             {"FSP9", 36},
