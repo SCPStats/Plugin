@@ -504,8 +504,8 @@ namespace SCPStats
         {
             if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
             
-            var playerInfo = Helper.GetPlayerInfo(ev.Target);
-            var scp049Info = Helper.GetPlayerInfo(ev.Scp049, false, false);
+            var playerInfo = Helper.GetPlayerInfo(ev.Target, true, false);
+            var scp049Info = Helper.GetPlayerInfo(ev.Scp049, true, false);
 
             if (playerInfo.PlayerID == scp049Info.PlayerID) scp049Info.PlayerID = null;
             if (playerInfo.PlayerID == null && scp049Info.PlayerID == null) return;
