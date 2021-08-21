@@ -71,6 +71,7 @@ namespace SCPStats.API
                 
                 case ItemType.SCP207:
                     itemOffset = new Vector3(0, .225f, 0);
+                    rot = Quaternion.Euler(-90, 0, 0);
                     break;
             }
 
@@ -104,13 +105,10 @@ namespace SCPStats.API
                 Object.Destroy(playerComponent.item.gameObject);
                 playerComponent.item = null;
             }
-            
+
             var rigidbody = pickup.Base.gameObject.GetComponent<Rigidbody>();
             rigidbody.useGravity = false;
             rigidbody.isKinematic = true;
-
-            var collider = pickup.Base.gameObject.GetComponent<Collider>();
-            collider.enabled = false;
 
             playerComponent.item = pickup.Base.gameObject.AddComponent<HatItemComponent>();
             playerComponent.item.player = playerComponent;
