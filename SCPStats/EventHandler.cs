@@ -306,9 +306,16 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost && ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
+            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost)
             {
-                Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
+                if (ev.NewRole != RoleType.None && ev.NewRole != RoleType.Spectator)
+                {
+                    Timing.CallDelayed(.5f, () => ev.Player.SpawnCurrentHat());
+                } 
+                else if (ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var hatPlayerComponent) && hatPlayerComponent.item != null && hatPlayerComponent.item.gameObject != null)
+                {
+                    Timing.CallDelayed(.5f, () => UnityEngine.Object.Destroy(hatPlayerComponent.item.gameObject));
+                }
             }
 
             var playerInfo = Helper.GetPlayerInfo(ev.Player, false, false);

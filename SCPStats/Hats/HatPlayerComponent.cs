@@ -112,5 +112,13 @@ namespace SCPStats.Hats
                 }
             }
         }
+
+        private void OnDestroy()
+        {
+            if (item != null && item.gameObject != null)
+            {
+                UnityEngine.Object.Destroy(item.gameObject);
+            }
+        }
     }
 }
