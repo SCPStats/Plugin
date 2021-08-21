@@ -118,10 +118,17 @@ namespace SCPStats
             {"leaderboards", 9},
             {"xp", 9},
             {"xps", 9},
+            {"exp", 9},
+            {"exps", 9},
             {"fastestescape", 10},
             {"fastescape", 10},
             {"quickestescape", 10},
-            {"quickescape", 10}
+            {"quickescape", 10},
+            {"level", 11},
+            {"levels", 11},
+            {"rank", 11},
+            {"ranks", 11},
+            {"lvl", 11}
         };
 
         internal static bool IsPlayerTutorial(Player p)
