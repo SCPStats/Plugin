@@ -1,8 +1,14 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="SetTextPatch.cs" company="SCPStats.com">
+// Copyright (c) SCPStats.com. All rights reserved.
+// Licensed under the Apache v2 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Exiled.API.Extensions;
 using Exiled.API.Features;
 using HarmonyLib;
 using Mirror;
