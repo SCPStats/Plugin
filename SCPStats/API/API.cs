@@ -37,7 +37,7 @@ namespace SCPStats.API
             var rot = Quaternion.Euler(0, 0, 0);
             var item = hat.Item;
 
-            var itemObj = new Item(item);
+            var itemObj = new Item(Server.Host.Inventory.CreateItemInstance(item, false));
 
             switch (item)
             {
