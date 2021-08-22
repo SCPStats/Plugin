@@ -8,8 +8,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Exiled.API.Enums;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
 using HarmonyLib;
 using MEC;
@@ -54,7 +56,12 @@ namespace SCPStats
 
                 return;
             }
-            
+
+            if (!MirrorExtensions.SyncVarDirtyBits.Any(x => x.Key.Contains(":")))
+            {
+                Config.EnableHats = false;
+            }
+
             harmony = new Harmony($"SCPStats-{Version}-{DateTime.Now.Ticks}");
             harmony.PatchAll();
             
