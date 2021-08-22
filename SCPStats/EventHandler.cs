@@ -522,15 +522,18 @@ namespace SCPStats
 
         internal static void OnPreauth(PreAuthenticatingEventArgs ev)
         {
-            if (!ev.IsAllowed || ev.UserId == null) return;
+            if (ev.UserId == null) return;
 
             var id = Helper.HandleId(ev.UserId);
 
             if (ev.ServerFull && !ev.IsAllowed)
             {
-                if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue && WebsocketRequests.HandleReservedSlots(userInfo.Item2, userInfo.Item1.Value))
+                if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue)
                 {
-                    ev.IsAllowed = true;
+                    if (WebsocketRequests.HandleReservedSlots(userInfo.Item2, userInfo.Item1.Value))
+                    {
+                        ev.IsAllowed = true;
+                    }
                 }
                 else
                 {
@@ -541,7 +544,8 @@ namespace SCPStats
                         WebsocketHandler.SendRequest(RequestType.UserInfo, id);
                     }
 
-                    ev.Delay(3, false);
+                    ev.IsAllowed = true;
+                    ev.Delay(4, true);
                 }
             }
             else if(!PreRequestedIDs.Contains(id))
