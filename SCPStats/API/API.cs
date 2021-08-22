@@ -55,6 +55,7 @@ namespace SCPStats.API
                 case ItemType.SCP268:
                     scale += new Vector3(-.1f, -.1f, -.1f);
                     rot = Quaternion.Euler(-90, 0, 90);
+                    itemOffset = new Vector3(0, 0, .1f);
                     break;
 
                 case ItemType.Adrenaline:
