@@ -82,6 +82,7 @@ namespace SCPStats.API
             var itemObj = new Item(Server.Host.Inventory.CreateItemInstance(item, false)) {Scale = scale};
 
             var pickup = itemObj.Spawn(Vector3.zero, Quaternion.identity);
+
             SpawnHat(player, pickup, itemOffset, rot);
         }
         

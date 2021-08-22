@@ -38,7 +38,7 @@ namespace SCPStats.Hats
                     if (item == null || item.gameObject == null) continue;
                     
                     var player = Player.Get(gameObject);
-                    var pickup = item.gameObject.GetComponent<ItemPickupBase>();
+                    var pickup = item.gameObject.GetComponent<CollisionDetectionPickup>();
                     var pickupInfo = pickup.NetworkInfo;
 
                     if (Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Invisible, out var effect) && effect.Intensity != 0))
@@ -78,7 +78,7 @@ namespace SCPStats.Hats
                         
                         if (player1.Team == player.Team || player1 == player)
                         {
-                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", pickupInfo);
+                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(CollisionDetectionPickup), "NetworkInfo", pickupInfo);
                         }
                         else
                             switch (player1.Role)
@@ -88,20 +88,20 @@ namespace SCPStats.Hats
                                 {
                                     if (!player.ReferenceHub.scp939visionController.CanSee(player1.ReferenceHub.scp939visionController._myVisuals939))
                                     {
-                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", fakePickupInfo);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(CollisionDetectionPickup), "NetworkInfo", fakePickupInfo);
                                     }
                                     else
                                     {
-                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", pickupInfo);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(CollisionDetectionPickup), "NetworkInfo", pickupInfo);
                                     }
 
                                     break;
                                 }
                                 case RoleType.Scp096 when player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", fakePickupInfo);
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(CollisionDetectionPickup), "NetworkInfo", fakePickupInfo);
                                     break;
                                 default:
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(ItemPickupBase), "NetworkInfo", pickupInfo);
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(CollisionDetectionPickup), "NetworkInfo", pickupInfo);
                                     break;
                             }
                     }
