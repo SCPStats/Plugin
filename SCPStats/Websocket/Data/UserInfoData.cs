@@ -112,7 +112,7 @@ namespace SCPStats.Websocket.Data
                        && !string.IsNullOrEmpty(flags[9]) && !string.IsNullOrEmpty(flags[10]) && !string.IsNullOrEmpty(flags[11])
                        && float.TryParse(flags[9], NumberStyles.Float, UsCulture, out var hatScaleX) && float.TryParse(flags[10], NumberStyles.Float, UsCulture, out var hatScaleY) && float.TryParse(flags[11], NumberStyles.Float, UsCulture, out var hatScaleZ)
                 ? new Vector3(hatScaleX, hatScaleY, hatScaleZ) 
-                : Vector3.zero;
+                : Vector3.one;
             HatOffset = length > 14
                        && !string.IsNullOrEmpty(flags[12]) && !string.IsNullOrEmpty(flags[13]) && !string.IsNullOrEmpty(flags[14])
                        && float.TryParse(flags[12], NumberStyles.Float, UsCulture, out var hatOffsetX) && float.TryParse(flags[13], NumberStyles.Float, UsCulture, out var hatOffsetY) && float.TryParse(flags[14], NumberStyles.Float, UsCulture, out var hatOffsetZ)
@@ -124,7 +124,7 @@ namespace SCPStats.Websocket.Data
                 ? Quaternion.Euler(hatRotationX, hatRotationY, hatRotationZ) 
                 : Quaternion.identity;
 
-            IsCustomHat = HatScale != Vector3.zero || HatOffset != Vector3.zero || !HatRotation.IsZero();
+            IsCustomHat = HatScale != Vector3.one || HatOffset != Vector3.zero || !HatRotation.IsZero();
 
             BanText = length > 18 ? flags[18] : "";
             BanLength = length > 19 && int.TryParse(flags[19], out var banLength) ? banLength : 0;

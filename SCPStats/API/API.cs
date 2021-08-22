@@ -35,26 +35,25 @@ namespace SCPStats.API
             var pos = Hats.Hats.GetHatPosForRole(player.Role);
             var itemOffset = Vector3.zero;
             var rot = Quaternion.Euler(0, 0, 0);
+            var scale = Vector3.one;
             var item = hat.Item;
-
-            var itemObj = new Item(Server.Host.Inventory.CreateItemInstance(item, false));
 
             switch (item)
             {
                 case ItemType.KeycardScientist:
-                    itemObj.Scale += new Vector3(1.5f, 20f, 1.5f);
+                    scale += new Vector3(1.5f, 20f, 1.5f);
                     rot = Quaternion.Euler(0, 90, 0);
                     itemOffset = new Vector3(0, .1f, 0);
                     break;
                 
                 case ItemType.KeycardNTFCommander:
-                    itemObj.Scale += new Vector3(1.5f, 200f, 1.5f);
+                    scale += new Vector3(1.5f, 200f, 1.5f);
                     rot = Quaternion.Euler(0, 90, 0);
                     itemOffset = new Vector3(0, .9f, 0);
                     break;
                 
                 case ItemType.SCP268:
-                    itemObj.Scale += new Vector3(-.1f, -.1f, -.1f);
+                    scale += new Vector3(-.1f, -.1f, -.1f);
                     rot = Quaternion.Euler(-90, 0, 90);
                     break;
 
@@ -75,10 +74,12 @@ namespace SCPStats.API
                     break;
             }
 
-            if(hat.Scale != Vector3.zero) itemObj.Scale = hat.Scale;
+            if(hat.Scale != Vector3.one) scale = hat.Scale;
             if(hat.Position != Vector3.zero) itemOffset = hat.Position;
             if(!hat.Rotation.IsZero()) rot = hat.Rotation;
-            if(hat.Scale != Vector3.zero || hat.Position != Vector3.zero || !hat.Rotation.IsZero()) item = hat.Item;
+            if(hat.Scale != Vector3.one || hat.Position != Vector3.zero || !hat.Rotation.IsZero()) item = hat.Item;
+
+            var itemObj = new Item(Server.Host.Inventory.CreateItemInstance(item, false)) {Scale = scale};
 
             var pickup = itemObj.Spawn(Vector3.zero, Quaternion.identity);
             SpawnHat(player, pickup, itemOffset, rot);

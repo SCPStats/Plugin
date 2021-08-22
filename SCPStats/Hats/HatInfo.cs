@@ -19,7 +19,7 @@ namespace SCPStats.Hats
         public HatInfo(ItemType item, Vector3 scale = default, Vector3 position = default, Quaternion rotation = default)
         {
             Item = item;
-            Scale = scale == default ? Vector3.zero : scale;
+            Scale = scale == default ? Vector3.one : scale;
             Position = position == default ? Vector3.zero : position;
             Rotation = rotation == default ? Quaternion.identity : rotation;
         }
