@@ -38,7 +38,23 @@ namespace SCPStats.Patches
                 var statKey = match.Groups[1].Value;
                 if (!Helper.Rankings.TryGetValue(statKey, out var idx)) return match.Value;
 
-                return stats.Length < idx ? "0" : stats[idx];
+                var output = stats.Length < idx ? "0" : stats[idx];
+
+                if (!int.TryParse(output, out var seconds)) return output;
+
+                switch (idx)
+                {
+                    //Playtime
+                    case 3:
+                        output = Helper.SecondsToHours(seconds);
+                        break;
+                    //Escape time
+                    case 10:
+                        output = Helper.SecondsToString(seconds);
+                        break;
+                }
+
+                return output;
             });
 
             if (NetworkServer.active)

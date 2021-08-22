@@ -268,5 +268,10 @@ namespace SCPStats
                 new Tuple<int, string>(seconds, SCPStats.Singleton?.Translation?.TimeSeconds ?? "second(s)")
             }.Where(item => item.Item1 > 0).Select(item => item.Item1 + " " + item.Item2));
         }
+
+        internal static string SecondsToHours(int seconds)
+        {
+            return Math.Round((decimal) seconds / Hours, 2).ToString("0.##") + " " + (SCPStats.Singleton?.Translation?.TimeHours ?? "hour(s)");
+        }
     }
 }
