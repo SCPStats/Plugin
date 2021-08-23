@@ -27,7 +27,7 @@ namespace SCPStats.Websocket
         
         internal static void Stop()
         {
-            wss.Abort();
+            wss?.Abort();
         }
         
         internal static void SendRequest(RequestType type, string data = "")
