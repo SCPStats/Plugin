@@ -42,7 +42,7 @@ namespace SCPStats.Hats
                     var pickupInfo = pickup.NetworkInfo;
                     var pickupType = pickup.GetType();
 
-                    if (Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Invisible, out var effect) && effect.Intensity != 0))
+                    if (player.Role == RoleType.None || player.Role == RoleType.Spectator || Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Invisible, out var effect) && effect.Intensity != 0))
                     {
                         pickupInfo.Position = Vector3.one * 6000f;
                         pickup.transform.position = Vector3.one * 6000f;
