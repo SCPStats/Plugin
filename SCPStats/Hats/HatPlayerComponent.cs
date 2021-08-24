@@ -38,7 +38,7 @@ namespace SCPStats.Hats
                     if (item == null || item.gameObject == null) continue;
                     
                     var player = Player.Get(gameObject);
-                    var pickup = item.gameObject.GetComponent<ItemPickupBase>();
+                    var pickup = item.item;
                     var pickupInfo = pickup.NetworkInfo;
                     var pickupType = pickup.GetType();
 

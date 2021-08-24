@@ -114,6 +114,7 @@ namespace SCPStats.API
             rigidbody.isKinematic = true;
 
             playerComponent.item = pickup.Base.gameObject.AddComponent<HatItemComponent>();
+            playerComponent.item.item = pickup.Base;
             playerComponent.item.player = playerComponent;
             playerComponent.item.pos = Hats.Hats.GetHatPosForRole(player.Role);
             playerComponent.item.itemOffset = posOffset;
