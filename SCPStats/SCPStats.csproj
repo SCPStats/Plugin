@@ -222,6 +222,7 @@
     <Compile Include="AutoUpdater.cs" />
     <Compile Include="Commands\DeleteWarningCommand.cs" />
     <Compile Include="Commands\HatCommand.cs" />
+    <Compile Include="Commands\IPBanCommand.cs" />
     <Compile Include="Commands\NoteCommand.cs" />
     <Compile Include="Commands\PauseStatsCommand.cs" />
     <Compile Include="Commands\SilentWarnCommand.cs" />

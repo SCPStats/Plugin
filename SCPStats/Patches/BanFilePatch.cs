@@ -14,7 +14,7 @@ namespace SCPStats.Patches
     {
         public static bool Prefix(string data, string path, bool newLine = true)
         {
-            if ((SCPStats.Singleton?.Config?.DisableBasegameBans ?? false) && path == BanHandler.GetPath(BanHandler.BanType.UserId)) return false;
+            if (SCPStats.Singleton?.Config?.DisableBasegameBans ?? false) return false;
             return true;
         }
     }

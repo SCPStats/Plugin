@@ -32,6 +32,27 @@ namespace SCPStats
         [Description("If RequireConfirmation is enabled, this message will be sent when an unconfirmed user joins.")]
         public string NotConfirmedKickMessage { get; set; } = "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.";
 
+        [Description("Used to change the ip ban command.")]
+        public string IpBanCommand { get; set; } = "ipban";
+
+        [Description("Used to change the ip ban command aliases.")]
+        public List<string> IpBanCommandAliases { get; set; } = new List<string>() {"banip"};
+
+        [Description("The description of the ip ban command.")]
+        public string IpBanDescription { get; set; } = "Ban an IP.";
+
+        [Description("The message sent when a user uses the ip ban command incorrectly.")]
+        public string IpBanUsage { get; set; } = "Usage: ipban <id> <duration> [reason]";
+
+        [Description("The message sent when a user enters an invalid ip.")]
+        public string IpBanInvalidIp { get; set; } = "Please enter a valid IP (for example, 1.1.1.1)!";
+
+        [Description("The message sent when a user is not allowed to ban a specific ip.")]
+        public string IpBanCantBan { get; set; } = "You cannot ban this IP!";
+
+        [Description("The message sent when an ip is successfully banned.")]
+        public string IpBanSuccess { get; set; } = "Successfully banned IP!";
+
         [Description("Used to change the delete warning command.")]
         public string DeleteWarningCommand { get; set; } = "deletewarning";
 
