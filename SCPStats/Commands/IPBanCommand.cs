@@ -102,6 +102,12 @@ namespace SCPStats.Commands
             CommandSender commandSender1;
             var allowCheck = (commandSender1 = (sender as CommandSender)) != null && !commandSender1.FullPermissions;
 
+            var message = "";
+            if (arguments.Array.Length > 3)
+            {
+                message = string.Join(" ", arguments.Array.Skip(3));
+            }
+
             foreach (var player in Player.List)
             {
                 if (player.IPAddress.Trim().ToLower() != ip) continue;
@@ -121,16 +127,22 @@ namespace SCPStats.Commands
                 return false;
             }
 
-            var message = "";
-            if (arguments.Array.Length > 3)
+            foreach (var player in Player.List)
             {
-                message = string.Join(" ", arguments.Array.Skip(3));
+                if (player.IPAddress.Trim().ToLower() != ip) continue;
+
+                KickPlayer(player, duration, message);
             }
-            
+
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"6\",\"playerId\":\""+ip+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+duration+",\"playerName\":\"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");
-            
+
             response = SCPStats.Singleton?.Translation?.IpBanSuccess ?? "Successfully banned IP!";
             return true;
+        }
+
+        private static void KickPlayer(Player p, long duration, string message)
+        {
+            ServerConsole.Disconnect(p.GameObject, (SCPStats.Singleton?.Translation?.BannedMessage ?? "[SCPStats] You have been banned from this server:\nExpires in: {duration}.\nReason: {reason}.").Replace("{duration}", Helper.SecondsToString((int) duration)).Replace("{reason}", message));
         }
     }
 }
