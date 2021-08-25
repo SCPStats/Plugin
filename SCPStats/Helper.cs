@@ -168,6 +168,11 @@ namespace SCPStats
             return HandleId(player?.UserId);
         }
 
+        internal static string UserInfoData(string id, string ip)
+        {
+            return id + ((SCPStats.Singleton?.Config?.SyncBans ?? false) ? "|" + ip : "");
+        }
+
         internal static bool IsPlayerGhost(Player p)
         {
             return (bool) (Integrations.IsGhost?.Invoke(null, new object[] {p}) ?? false);

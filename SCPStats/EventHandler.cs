@@ -104,14 +104,14 @@ namespace SCPStats
 
             ClearUserInfo();
 
-            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select Helper.HandleId(player)).ToList();
+            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select new Tuple<string, string>(Helper.HandleId(player), player.IPAddress.Trim().ToLower())).ToList();
 
-            foreach (var id in ids)
+            foreach (var (id, ip) in ids)
             {
                 if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
                 UserInfo[id] = UserInfo.TryGetValue(id, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
 
-                WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+                WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
 
                 yield return Timing.WaitForSeconds(.1f);
             }
@@ -215,14 +215,15 @@ namespace SCPStats
 
         private static IEnumerator<float> GetRoundEndUsers()
         {
-            PreRequestedIDs = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select Helper.HandleId(player)).ToList();
+            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select new Tuple<string, string>(Helper.HandleId(player), player.IPAddress.Trim().ToLower())).ToList();
+            PreRequestedIDs = ids.Select(tuple => tuple.Item1).ToList();
 
-            foreach (var id in PreRequestedIDs)
+            foreach (var (id, ip) in ids)
             {
                 if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
                 UserInfo[id] = UserInfo.TryGetValue(id, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, false) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, false);
 
-                WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+                WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
 
                 yield return Timing.WaitForSeconds(.1f);
             }
@@ -541,7 +542,7 @@ namespace SCPStats
                     {
                         if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
                         UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
-                        WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+                        WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ev.Request.RemoteEndPoint.Address.ToString().Trim().ToLower()));
                     }
 
                     ev.IsAllowed = true;
@@ -552,7 +553,7 @@ namespace SCPStats
             {
                 if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
                 UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
-                WebsocketHandler.SendRequest(RequestType.UserInfo, id);
+                WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ev.Request.RemoteEndPoint.Address.ToString().Trim().ToLower()));
             }
         }
     }

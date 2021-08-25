@@ -123,7 +123,7 @@ namespace SCPStats.Websocket
                 if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
                 EventHandler.UserInfo[playerId] = EventHandler.UserInfo.TryGetValue(playerId, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
                 
-                WebsocketHandler.SendRequest(RequestType.UserInfo, playerId);
+                WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(playerId, player.IPAddress.Trim().ToLower()));
 
                 return false;
             }
