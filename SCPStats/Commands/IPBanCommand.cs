@@ -98,15 +98,15 @@ namespace SCPStats.Commands
             {
                 return false;
             }
-            
-            CommandSender commandSender1;
-            var allowCheck = (commandSender1 = (sender as CommandSender)) != null && !commandSender1.FullPermissions;
 
             var message = "";
             if (arguments.Array.Length > 3)
             {
                 message = string.Join(" ", arguments.Array.Skip(3));
             }
+
+            CommandSender commandSender1;
+            var allowCheck = (commandSender1 = (sender as CommandSender)) != null && !commandSender1.FullPermissions;
 
             foreach (var player in Player.List)
             {
