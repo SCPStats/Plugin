@@ -22,6 +22,8 @@ namespace SCPStats.Hats
     {
         internal HatItemComponent item;
 
+        private bool _threw = false;
+
         private void Start()
         {
             Timing.RunCoroutine(MoveHat().CancelWith(this).CancelWith(gameObject));
@@ -109,7 +111,11 @@ namespace SCPStats.Hats
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e);
+                    if (!_threw)
+                    {
+                        Log.Error(e);
+                        _threw = true;
+                    }
                 }
             }
         }
