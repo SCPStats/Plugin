@@ -60,11 +60,6 @@ namespace SCPStats
                 return;
             }
 
-            if (!MirrorExtensions.SyncVarDirtyBits.Any(x => x.Key.Contains(":")))
-            {
-                Config.EnableHats = false;
-            }
-
             harmony = new Harmony($"SCPStats-{Version}-{DateTime.Now.Ticks}");
             harmony.PatchAll();
             

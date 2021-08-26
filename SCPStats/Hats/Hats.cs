@@ -22,7 +22,7 @@ namespace SCPStats.Hats
         
         internal static void SpawnHat(this Player p, HatInfo hat)
         {
-            if (!SCPStats.Singleton?.Config.EnableHats ?? true) return;
+            if (!(SCPStats.Singleton?.Config.EnableHats ?? true)) return;
             
             API.API.SpawnHat(p, hat);
         }
