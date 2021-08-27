@@ -25,6 +25,9 @@ namespace SCPStats
         [Description("If you enable this, bans will only be saved to SCPStats and will not be saved to the bans file. This fixes a bug where players must be unbanned on the server they were banned on, or else they will be unbanned on every server but that one. This does not affect already existing bans.")]
         public bool DisableBasegameBans { get; set; } = false;
 
+        [Description("By default, SCPStats does not require confirmation that a user is not banned (and will only kick them if it confirms that they are banned). This is fine, but makes it possible to bypass bans with a DDOS attack. Turning this on will kick players if they are not confirmed to not be banned.")]
+        public bool RequireConfirmation { get; set; } = false;
+
         [Description("The role that should be given to nitro boosters. Your server must be linked to your discord server to do this.")]
         public string BoosterRole { get; set; } = "none";
 
@@ -67,9 +70,6 @@ namespace SCPStats
 
         [Description("SCPStats will send a message to players attempting to pick up hats informing them where they can go to get one themselves.")]
         public bool DisplayHatHint { get; set; } = true;
-
-        [Description("By default, SCPStats does not require confirmation that a user is not banned (and will only kick them if it confirms that they are banned). This is fine, but makes it possible to bypass bans with a DDOS attack. Turning this on will kick players if they are not confirmed to not be banned.")]
-        public bool RequireConfirmation { get; set; } = false;
 
         [Description("Display a broadcast at the end of the round. You must be an SCPStats patreon supporter to use this feature. More information is available below.")]
         public bool RoundSummaryBroadcastEnabled { get; set; } = false;
