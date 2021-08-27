@@ -114,6 +114,11 @@ namespace SCPStats.Websocket
 
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
 
+            if (EventHandler.DelayedIDs.Contains(playerId))
+            {
+                EventHandler.DelayedIDs.Remove(playerId);
+            }
+
             if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData))
             {
                 if (HandleUnconfirmedUser(player)) return true;

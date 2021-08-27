@@ -28,6 +28,9 @@ namespace SCPStats
         [Description("By default, SCPStats does not require confirmation that a user is not banned (and will only kick them if it confirms that they are banned). This is fine, but makes it possible to bypass bans with a DDOS attack. Turning this on will kick players if they are not confirmed to not be banned.")]
         public bool RequireConfirmation { get; set; } = false;
 
+        [Description("The delay (in seconds) for preauth requests on the first round of the game.")]
+        public byte FirstRoundPreauthDelay { get; set; } = 4;
+
         [Description("The role that should be given to nitro boosters. Your server must be linked to your discord server to do this.")]
         public string BoosterRole { get; set; } = "none";
 

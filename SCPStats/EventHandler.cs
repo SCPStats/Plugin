@@ -30,6 +30,7 @@ namespace SCPStats
         private static List<string> Players = new List<string>();
 
         private static bool firstJoin = true;
+        private static bool firstRound = true;
 
         private static Dictionary<string, string> PocketPlayers = new Dictionary<string, string>();
         private static List<string> JustJoined = new List<string>();
@@ -44,6 +45,7 @@ namespace SCPStats
         //Tuple<PreauthFlags, UserInfo, RunImmediately (this will be false when requested on preauth and true when requested after the player has joined)>.
         internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>>();
         private static List<string> PreRequestedIDs = new List<string>();
+        internal static List<string> DelayedIDs = new List<string>();
 
         internal static void Reset()
         {
@@ -59,6 +61,7 @@ namespace SCPStats
 
             UserInfo.Clear();
             PreRequestedIDs.Clear();
+            DelayedIDs.Clear();
 
             PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
         }
@@ -149,6 +152,9 @@ namespace SCPStats
             Timing.RunCoroutine(SendStart());
 
             PreRequestedIDs.Clear();
+            DelayedIDs.Clear();
+
+            firstRound = false;
         }
 
         private static IEnumerator<float> SendStart()
@@ -553,6 +559,12 @@ namespace SCPStats
             }
             else if(!PreRequestedIDs.Contains(id))
             {
+                if (!DelayedIDs.Contains(id) && firstRound)
+                {
+                    DelayedIDs.Add(id);
+                    ev.Delay(SCPStats.Singleton?.Config?.FirstRoundPreauthDelay ?? 4, true);
+                } else if (DelayedIDs.Contains(id)) return;
+
                 if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
                 UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ev.Request.RemoteEndPoint.Address.ToString().Trim().ToLower()));
