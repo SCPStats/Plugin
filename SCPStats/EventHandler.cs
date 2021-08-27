@@ -559,7 +559,7 @@ namespace SCPStats
             }
             else if(!PreRequestedIDs.Contains(id))
             {
-                if (!DelayedIDs.Contains(id) && firstRound)
+                if (!DelayedIDs.Contains(id) && firstRound && (SCPStats.Singleton?.Config?.RequireConfirmation ?? false) && (int) SCPStats.Singleton?.Config?.FirstRoundPreauthDelay > 0)
                 {
                     DelayedIDs.Add(id);
                     ev.Delay(SCPStats.Singleton?.Config?.FirstRoundPreauthDelay ?? 4, true);
