@@ -17,11 +17,13 @@ using Object = UnityEngine.Object;
 namespace SCPStats.Commands
 {
     [CommandHandler(typeof(ClientCommandHandler))]
-    public class HatCommand: ICommand
+    public class HatCommand: ICommand, IUsageProvider
     {
         public string Command => SCPStats.Singleton?.Translation?.HatCommand ?? "hat";
         public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.HatCommandAliases?.ToArray() ?? new string[] { "hats" };
         public string Description => SCPStats.Singleton?.Translation?.HatDescription ?? "Change your hat ingame. This only applies to the current round.";
+        public string[] Usage => SCPStats.Singleton?.Translation?.HatUsages ?? new string[] {"on/off/toggle/default/item"};
+        
         
         internal static Dictionary<string, Tuple<HatInfo, HatInfo>> HatPlayers = new Dictionary<string, Tuple<HatInfo, HatInfo>>();
 

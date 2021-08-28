@@ -17,12 +17,13 @@ using SCPStats.Websocket;
 namespace SCPStats.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class WarnCommand : ICommand
+    public class WarnCommand : ICommand, IUsageProvider
     {
         public string Command => SCPStats.Singleton?.Translation?.WarnCommand ?? "warn";
         public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.WarnCommandAliases?.ToArray() ?? Array.Empty<string>();
         public string Description => SCPStats.Singleton?.Translation?.WarnDescription ?? "Warn a player.";
-        
+        public string[] Usage => SCPStats.Singleton?.Translation?.WarnUsages ?? new string[] {"id", "reason"};
+
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             return ExecuteCustomDisplay(arguments, sender, out response, true, SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]", SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.");
