@@ -27,7 +27,7 @@ namespace SCPStats.Commands
         public string Command => SCPStats.Singleton?.Translation?.WarningsCommand ?? "warnings";
         public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.WarningsCommandAliases?.ToArray() ?? new string[] {"warning", "warns", "getwarns", "getwarnings"};
         public string Description => SCPStats.Singleton?.Translation?.WarningsDescription ?? "View warnings on a specific player.";
-        public string[] Usage => SCPStats.Singleton?.Translation?.WarningsUsages ?? new string[] {"id"};
+        public string[] Usage => SCPStats.Singleton?.Translation?.WarningsUsagesList ?? new string[] {"id"};
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
@@ -51,20 +51,40 @@ namespace SCPStats.Commands
                 return false;
             }
 
-            var arg = arguments.Array[1].Trim().ToLower();
+            string userId;
 
-            var player = Player.Get(arg);
+            var selectedPlayers = Utils.RAUtils.ProcessPlayerIdOrNamesList(arguments, 0, out _);
 
-            if (player == null && int.TryParse(arg, out var id))
+            if (selectedPlayers.Count > 0)
             {
-                player = Player.Get(id);
+                var player = Player.Get(selectedPlayers.First());
+                if (player?.UserId != null)
+                {
+                    userId = Helper.HandleId(player);
+                }
+                else
+                {
+                    response = SCPStats.Singleton?.Translation?.WarningsUsage ?? "Usage: warnings <id>";
+                    return false;
+                }
             }
-
-            var userId = Helper.HandleId(arg);
-
-            if (player?.UserId != null)
+            else
             {
-                userId = Helper.HandleId(player);
+                var arg = arguments.Array[1].Trim().ToLower();
+
+                var player = Player.Get(arg);
+
+                if (player == null && int.TryParse(arg, out var id))
+                {
+                    player = Player.Get(id);
+                }
+
+                userId = Helper.HandleId(arg);
+
+                if (player?.UserId != null)
+                {
+                    userId = Helper.HandleId(player);
+                }
             }
 
             Task.Run(async () =>
