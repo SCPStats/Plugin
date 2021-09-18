@@ -10,7 +10,7 @@ SCPStats includes the following features:
 * Hats, which monetize SCPStats but can also be given as a permission node (``scpstats.hat``).
 
 ## Getting Started
-SCPStats includes a detailed setup guide, which explains both the basic setup as well as rolesync. It is available at htps://scpstats.com/guides/server.
+SCPStats includes a detailed setup guide, which explains both the basic setup as well as rolesync. It is available at https://scpstats.com/guides/server.
 
 ## Commands
 SCPStats has the following commands:
