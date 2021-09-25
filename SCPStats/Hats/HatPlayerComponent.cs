@@ -75,18 +75,11 @@ namespace SCPStats.Hats
                     fakePickupInfo.Position = Vector3.zero;
                     fakePickupInfo.Rotation = new LowPrecisionQuaternion(Quaternion.identity);
 
-                    var lockedPickupInfo = pickup.NetworkInfo;
-                    lockedPickupInfo.Locked = true;
-
                     foreach (var player1 in Player.List)
                     {
                         if (player1?.UserId == null || player1.IsHost || !player1.IsVerified || Helper.IsPlayerNPC(player1)) continue;
-
-                        if (player1 == player)
-                        {
-                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", lockedPickupInfo);
-                        }
-                        else if (player1.Team == player.Team)
+                        
+                        if (player1.Team == player.Team || player1 == player)
                         {
                             MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                         }
