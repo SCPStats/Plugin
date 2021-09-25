@@ -90,7 +90,7 @@ namespace SCPStats
         public string WarningsUsage { get; set; } = "Usage: warnings <id>";
 
         [Description("Autocomplete usage for the warnings command.")]
-        public string[] WarningsUsages { get; set; } = new string[] {"id"};
+        public string[] WarningsUsagesList { get; set; } = new string[] {"%player%"};
 
         [Description("The message sent when the warnings command is executed successfully.")]
         public string WarningsSuccess { get; set; } = "Requesting warnings...";
@@ -155,7 +155,7 @@ namespace SCPStats
         public string WarnUsage { get; set; } = "Usage: warn <id> [reason]";
 
         [Description("Autocomplete usage for the warn command.")]
-        public string[] WarnUsages { get; set; } = new string[] {"id", "reason"};
+        public string[] WarnUsagesList { get; set; } = new string[] {"%player%", "reason"};
 
         [Description("The message sent when a user inputs an invalid ID in the owarn command.")]
         public string WarnInvalidId { get; set; } = "Please enter a valid user id (for example, ID@steam)!";
@@ -182,7 +182,7 @@ namespace SCPStats
         public string SilentWarnUsage { get; set; } = "Usage: swarn <id> [reason]";
         
         [Description("Autocomplete usage for the silent warn command.")]
-        public string[] SilentWarnUsages { get; set; } = new string[] {"id", "reason"};
+        public string[] SilentWarnUsagesList { get; set; } = new string[] {"%player%", "reason"};
 
         [Description("The message sent when the warn command is executed successfully.")]
         public string SilentWarnSuccess { get; set; } = "Added warning.";
@@ -200,7 +200,7 @@ namespace SCPStats
         public string NoteUsage { get; set; } = "Usage: note <id> [message]";
         
         [Description("Autocomplete usage for the note command.")]
-        public string[] NoteUsages { get; set; } = new string[] {"id", "message"};
+        public string[] NoteUsagesList { get; set; } = new string[] {"%player%", "message"};
 
         [Description("The message sent when the note is executed successfully.")]
         public string NoteSuccess { get; set; } = "Added note.";

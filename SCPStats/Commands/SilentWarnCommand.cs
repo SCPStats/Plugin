@@ -16,7 +16,7 @@ namespace SCPStats.Commands
         public string Command => SCPStats.Singleton?.Translation?.SilentWarnCommand ?? "swarn";
         public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.SilentWarnCommandAliases?.ToArray() ?? new string[] {"silentwarn"};
         public string Description => SCPStats.Singleton?.Translation?.SilentWarnDescription ?? "Silently warn a player (without showing a message on their screen).";
-        public string[] Usage => SCPStats.Singleton?.Translation?.SilentWarnUsages ?? new string[] {"id", "reason"};
+        public string[] Usage => SCPStats.Singleton?.Translation?.SilentWarnUsagesList ?? new string[] {"id", "reason"};
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
