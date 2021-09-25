@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Exiled.API.Interfaces;
 using Exiled.Events.EventArgs;
+using SCPStats.Hats;
+using UnityEngine;
 
 namespace SCPStats
 {
@@ -121,7 +123,34 @@ namespace SCPStats
         [Description("Should player names be sent on join? Enabling this will make server status messages display player names.")]
         public bool SendPlayerNames { get; set; } = false;
 
+        [Description("Should each default hat require a separate permission to use? If this is enabled, the permission to give a hat is \"scpstats.hat.\" plus the lowercase name displayed in the command with all dashes removes (ex. SCP-268 -> scpstats.hat.scp268).")]
+        public bool PerHatPermissions { get; set; } = false;
+        
+        [Description("Create custom hats which can be used in the .hat command. You can modify the item, scale, rotation, and offset of the hat, and define a permission that's required to use it. Supplying \"none\" for the permission means that it is usable by everyone.")]
+        public Dictionary<string, CustomHat> Hats { get; set; } = new Dictionary<string, CustomHat>()
+        {
+            {"Example Hat", new CustomHat()
+            {
+                Item = ItemType.SCP268,
+                Scale = Vector3.one,
+                Offset = Vector3.zero,
+                Rotation = Vector3.zero,
+                Permission = "scpstats.hat.example"
+            }}
+        };
+
         [Description("This can help solve problems, but will spam your console.")]
         public bool Debug { get; set; } = false;
+    }
+
+    public struct CustomHat
+    {
+        public ItemType Item { get; set; }
+        public Vector3 Scale { get; set; }
+        public Vector3 Offset { get; set; }
+        public Vector3 Rotation { get; set; }
+        public string Permission { get; set; }
+
+        public HatInfo Info() => new HatInfo(Item, Scale, Offset, Quaternion.Euler(Rotation));
     }
 }
