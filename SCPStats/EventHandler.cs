@@ -378,6 +378,18 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.Drop, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Item.Base.ItemTypeId.ToID()+"\"}");
         }
 
+        internal static void OnPickupAmmo(PickingUpAmmoEventArgs ev)
+        {
+            if (!ev.Pickup.Base || !ev.Pickup.Base.gameObject || !ev.IsAllowed || CustomItem.TryGet(ev.Pickup, out _) || !ev.Pickup.Base.gameObject.TryGetComponent<HatItemComponent>(out var hat)) return;
+
+            if (ev.Player?.UserId != null && !ev.Player.IsHost && ev.Player.IsVerified && ev.Player.IPAddress != "127.0.0.WAN" && ev.Player.IPAddress != "127.0.0.1" && (hat.player == null || hat.player.gameObject != ev.Player?.GameObject) && (SCPStats.Singleton?.Config.DisplayHatHint ?? true))
+            {
+                ev.Player.ShowHint(SCPStats.Singleton?.Translation?.HatHint ?? "You can get a hat like this at patreon.com/SCPStats.", 2f);
+            }
+                
+            ev.IsAllowed = false;
+        }
+
         internal static void OnJoin(VerifiedEventArgs ev)
         {
             if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
