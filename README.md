@@ -4,9 +4,9 @@ SCPStats is a stat tracking plugin for SCP: Secret Laboratory that allows player
 ## Features
 SCPStats includes the following features:
 * Detailed global and per-server stat tracking.
-* Leaderboards and rankings accessible through the website or the SCPStats bot.
+* A ban sync and management system, available at https://bans.scpstats.com.
 * Rolesync, allowing you to give roles to players based on their discord roles or place in the leaderboards.
-* Bansync, which allows you to sync bans across your servers (for example, a player banned on server #1 will also be banned on #2).
+* Leaderboards and rankings accessible through the website or the SCPStats bot.
 * Hats, which monetize SCPStats but can also be given as a permission node (``scpstats.hat``).
 
 ## Getting Started
