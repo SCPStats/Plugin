@@ -16,7 +16,8 @@ SCPStats includes a detailed setup guide, which explains both the basic setup as
 SCPStats has the following commands:
 
 * `warn <id> [message]` - `scpstats.warn` - Warn a person (with an optional message)
-* `owarn <id> [message]` - `scpstats.warn` - Warn an offline person by their ID (for example, ID@steam))
+* `swarn <id> [message]` - `scpstats.warn` - Silently warn a person (without telling them that they've been warned)
+* `note <id> [message]` - `scpstats.warn` - Add a note to a player
 * `warnings <id>` - `scpstats.warnings` - View all of a person's warnings
 * `deletewarning <id>` - `scpstats.deletewarning` - Delete a specific warning by its Warning ID (you can view the warn ID with the `warnings` command)
 
