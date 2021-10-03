@@ -128,7 +128,10 @@ namespace SCPStats
             {"levels", 11},
             {"rank", 11},
             {"ranks", 11},
-            {"lvl", 11}
+            {"lvl", 11},
+            {"playtime30", 12},
+            {"playtime7", 13},
+            {"playtime1", 14}
         };
 
         internal static bool IsPlayerTutorial(Player p)
