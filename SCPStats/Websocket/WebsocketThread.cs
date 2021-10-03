@@ -20,6 +20,7 @@ namespace SCPStats.Websocket
     {
         internal static readonly ConcurrentQueue<string> Queue = new ConcurrentQueue<string>();
         internal static readonly AutoResetEvent Signal = new AutoResetEvent(false);
+        internal static string Nonce { get; private set; } = "";
         
         internal static readonly ConcurrentQueue<string> WebsocketRequests = new ConcurrentQueue<string>();
         
@@ -71,13 +72,6 @@ namespace SCPStats.Websocket
 
                 Signal.Reset();
             }
-        }
-
-        private static string HmacSha256Digest(string secret, string message)
-        {
-            var encoding = new ASCIIEncoding();
-            
-            return BitConverter.ToString(new HMACSHA256(encoding.GetBytes(secret)).ComputeHash(encoding.GetBytes(message))).Replace("-", "").ToLower();
         }
 
         private static async Task CreateConnection(int delay = 0)
@@ -180,7 +174,7 @@ namespace SCPStats.Websocket
         {
             try
             {
-                if (!e.IsText || !ws.IsAlive) return;
+                if (!e.IsText || !ws.IsAlive || e.Data == null) return;
 
                 switch (e.Data)
                 {
@@ -204,7 +198,11 @@ namespace SCPStats.Websocket
                         return;
                 }
 
-                if (e.Data == null) return;
+                if (e.Data.StartsWith("n"))
+                {
+                    Nonce = e.Data.Substring(1);
+                    return;
+                }
 
                 Log.Debug("<"+e.Data, SCPStats.Singleton?.Config?.Debug ?? false);
                 
