@@ -6,7 +6,8 @@ on:
   push:
     branches:
       - master
-      - Synapse
+env:
+  EXILED_REFERENCES_PATH: ${{ github.workspace }}/SCPStats/lib
 
 jobs:
   build:
@@ -27,7 +28,7 @@ jobs:
     - name: Download references
       uses: carlosperate/download-file-action@v1.0.3
       with:
-        file-url: 'https://www.exiled.host/build_deps/References.zip'
+        file-url: 'https://www.exiled.host/build_deps/Dev.zip'
         file-name: 'References.zip'
       
     - uses: carlosperate/download-file-action@v1.0.3
