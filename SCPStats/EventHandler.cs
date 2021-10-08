@@ -155,6 +155,7 @@ namespace SCPStats
             DelayedIDs.Clear();
 
             firstRound = false;
+
         }
 
         private static IEnumerator<float> SendStart()
