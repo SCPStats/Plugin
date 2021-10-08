@@ -5,6 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using InventorySystem.Items.Pickups;
 using UnityEngine;
 
 namespace SCPStats.Hats
@@ -15,5 +16,6 @@ namespace SCPStats.Hats
         internal Vector3 pos;
         internal Vector3 itemOffset;
         internal Quaternion rot;
+        internal ItemPickupBase item;
     }
 }

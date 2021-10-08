@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Exiled.API.Enums;
 using Exiled.API.Extensions;
 using Exiled.API.Features;
+using InventorySystem.Items.Pickups;
 using MEC;
 using Mirror;
 using UnityEngine;
@@ -20,6 +21,8 @@ namespace SCPStats.Hats
     public class HatPlayerComponent : MonoBehaviour
     {
         internal HatItemComponent item;
+
+        private bool _threw = false;
 
         private void Start()
         {
@@ -37,14 +40,16 @@ namespace SCPStats.Hats
                     if (item == null || item.gameObject == null) continue;
                     
                     var player = Player.Get(gameObject);
-                    var pickup = item.gameObject.GetComponent<Pickup>();
+                    var pickup = item.item;
+                    var pickupInfo = pickup.NetworkInfo;
+                    var pickupType = pickup.GetType();
 
-                    if (Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Scp268, out var effect) && effect.Enabled))
+                    if (player.Role == RoleType.None || player.Role == RoleType.Spectator || Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Invisible, out var effect) && effect.Intensity != 0))
                     {
-                        pickup.Networkposition = Vector3.one * 6000f;
-                        pickup.position = Vector3.one * 6000f;
+                        pickupInfo.Position = Vector3.one * 6000f;
                         pickup.transform.position = Vector3.one * 6000f;
-                        pickup.UpdatePosition();
+
+                        pickup.NetworkInfo = pickupInfo;
 
                         continue;
                     }
@@ -61,18 +66,29 @@ namespace SCPStats.Hats
                     var pos = (player.Role != RoleType.Scp079 ? rotation * (item.pos+item.itemOffset) : (item.pos+item.itemOffset)) + camera.position;
 
                     transform1.rotation = rot;
-                    pickup.Networkrotation = rot;
+                    pickupInfo.Rotation = new LowPrecisionQuaternion(rot);
 
-                    pickup.position = pos;
                     transform1.position = pos;
+                    pickupInfo.Position = pos;
+
+                    var fakePickupInfo = pickup.NetworkInfo;
+                    fakePickupInfo.Position = Vector3.zero;
+                    fakePickupInfo.Rotation = new LowPrecisionQuaternion(Quaternion.identity);
+
+                    var lockedPickupInfo = pickupInfo;
+                    lockedPickupInfo.Locked = true;
 
                     foreach (var player1 in Player.List)
                     {
                         if (player1?.UserId == null || player1.IsHost || !player1.IsVerified || Helper.IsPlayerNPC(player1)) continue;
-                        
-                        if (player1.Team == player.Team || player1 == player)
+
+                        if (player1 == player)
                         {
-                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", lockedPickupInfo);
+                        }
+                        else if (player1.Team == player.Team)
+                        {
+                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                         }
                         else
                             switch (player1.Role)
@@ -80,33 +96,42 @@ namespace SCPStats.Hats
                                 case RoleType.Scp93953:
                                 case RoleType.Scp93989:
                                 {
-                                    if (!player.GameObject.GetComponent<Scp939_VisionController>().CanSee(player1.ReferenceHub.characterClassManager.Scp939))
+                                    if (!player.ReferenceHub.scp939visionController.CanSee(player1.ReferenceHub.scp939visionController._myVisuals939))
                                     {
-                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", Vector3.one * 6000f);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", fakePickupInfo);
                                     }
                                     else
                                     {
-                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                                     }
 
                                     break;
                                 }
-                                case RoleType.Scp096 when player1.CurrentScp != null && player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", Vector3.one * 6000f);
-                                    break;
-                                case RoleType.Scp096:
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                                case RoleType.Scp096 when player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", fakePickupInfo);
                                     break;
                                 default:
-                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, typeof(Pickup), "Networkposition", pos);
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                                     break;
                             }
                     }
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e);
+                    if (!_threw)
+                    {
+                        Log.Error(e);
+                        _threw = true;
+                    }
                 }
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (item != null && item.gameObject != null)
+            {
+                UnityEngine.Object.Destroy(item.gameObject);
             }
         }
     }

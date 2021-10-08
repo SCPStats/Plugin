@@ -17,12 +17,12 @@ namespace SCPStats.Hats
         {
             if (!HatCommand.HatPlayers.ContainsKey(p.UserId)) return;
 
-            p.SpawnHat(HatCommand.HatPlayers[p.UserId]);
+            p.SpawnHat(HatCommand.HatPlayers[p.UserId].Item1);
         }
         
         internal static void SpawnHat(this Player p, HatInfo hat)
         {
-            if (!SCPStats.Singleton?.Config.EnableHats ?? true) return;
+            if (!(SCPStats.Singleton?.Config.EnableHats ?? true)) return;
             
             API.API.SpawnHat(p, hat);
         }
@@ -32,11 +32,11 @@ namespace SCPStats.Hats
             switch (role)
             {
                 case RoleType.Scp173:
-                    return new Vector3(0, .7f, -.05f);
+                    return new Vector3(0, .55f, -.05f);
                 case RoleType.Scp106:
-                    return new Vector3(0, .45f, .13f);
+                    return new Vector3(0, .45f, .18f);
                 case RoleType.Scp096:
-                    return new Vector3(.15f, .45f, .225f);
+                    return new Vector3(.15f, .425f, .325f);
                 case RoleType.Scp93953:
                     return new Vector3(0, -.5f, 1.125f);
                 case RoleType.Scp93989:
@@ -48,7 +48,7 @@ namespace SCPStats.Hats
                 case RoleType.Spectator:
                     return new Vector3(-1000, -1000, -1000);
                 case RoleType.Scp0492:
-                    return new Vector3(0, 0f, -.06f);
+                    return new Vector3(0, .1f, -.16f);
                 default:
                     return new Vector3(0, .15f, -.07f);
             }

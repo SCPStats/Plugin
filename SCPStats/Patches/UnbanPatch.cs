@@ -17,7 +17,7 @@ namespace SCPStats.Patches
 
         public static bool Prefix(string id, BanHandler.BanType banType)
         {
-            if (banType != BanHandler.BanType.UserId) return true;
+            if (banType != BanHandler.BanType.UserId && banType != BanHandler.BanType.IP) return true;
 
             if (LastId == id)
             {

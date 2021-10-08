@@ -118,10 +118,20 @@ namespace SCPStats
             {"leaderboards", 9},
             {"xp", 9},
             {"xps", 9},
+            {"exp", 9},
+            {"exps", 9},
             {"fastestescape", 10},
             {"fastescape", 10},
             {"quickestescape", 10},
-            {"quickescape", 10}
+            {"quickescape", 10},
+            {"level", 11},
+            {"levels", 11},
+            {"rank", 11},
+            {"ranks", 11},
+            {"lvl", 11},
+            {"playtime30", 12},
+            {"playtime7", 13},
+            {"playtime1", 14}
         };
 
         internal static bool IsPlayerTutorial(Player p)
@@ -161,6 +171,11 @@ namespace SCPStats
             return HandleId(player?.UserId);
         }
 
+        internal static string UserInfoData(string id, string ip)
+        {
+            return id + ((SCPStats.Singleton?.Config?.SyncBans ?? false) ? "|" + ip : "");
+        }
+
         internal static bool IsPlayerGhost(Player p)
         {
             return (bool) (Integrations.IsGhost?.Invoke(null, new object[] {p}) ?? false);
@@ -172,7 +187,7 @@ namespace SCPStats
         }
         
         internal static void SendWarningMessage(Player p, string reason){
-            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none" && SCPStats.Singleton.Config.WarningMessageDuration > 0) p.Broadcast(SCPStats.Singleton.Config.WarningMessageDuration, SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason));
+            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none" && SCPStats.Singleton.Config.WarningMessageDuration > 0) p.Broadcast(new Exiled.API.Features.Broadcast(SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason), SCPStats.Singleton.Config.WarningMessageDuration), true);
         }
 
         internal static bool IsZero(this Quaternion rot) => rot.x == 0 && rot.y == 0 && rot.z == 0;
@@ -260,6 +275,11 @@ namespace SCPStats
                 new Tuple<int, string>(minutes, SCPStats.Singleton?.Translation?.TimeMinutes ?? "minute(s)"),
                 new Tuple<int, string>(seconds, SCPStats.Singleton?.Translation?.TimeSeconds ?? "second(s)")
             }.Where(item => item.Item1 > 0).Select(item => item.Item1 + " " + item.Item2));
+        }
+
+        internal static string SecondsToHours(int seconds)
+        {
+            return Math.Round((decimal) seconds / Hours, 2).ToString("0.##") + " " + (SCPStats.Singleton?.Translation?.TimeHours ?? "hour(s)");
         }
     }
 }

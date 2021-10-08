@@ -27,7 +27,7 @@ namespace SCPStats.Websocket
         
         internal static void Stop()
         {
-            wss.Abort();
+            wss?.Abort();
         }
         
         internal static void SendRequest(RequestType type, string data = "")
@@ -40,7 +40,7 @@ namespace SCPStats.Websocket
             }
             
             var str = ((int) type).ToString().PadLeft(2, '0')+data;
-            var message = "p" + SCPStats.ServerID + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Secret, str);
+            var message = "p" + SCPStats.ServerID + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Secret, str + WebsocketThread.Nonce);
             
             Log.Debug(">" + "p" + SCPStats.ServerID + str.Length + " " + str, SCPStats.Singleton?.Config?.Debug ?? false);
 

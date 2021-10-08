@@ -16,12 +16,13 @@ using SCPStats.Websocket;
 namespace SCPStats.Commands
 {
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class DeleteWarningCommand : ICommand
+    public class DeleteWarningCommand : ICommand, IUsageProvider
     {
         public string Command => SCPStats.Singleton?.Translation?.DeleteWarningCommand ?? "deletewarning";
         public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.DeleteWarningCommandAliases?.ToArray() ?? new string[] {"deletewarnings", "delwarning", "delwarnings", "delwarn", "deletewarns", "deletewarn", "delwarns"};
         public string Description => SCPStats.Singleton?.Translation?.DeleteWarningDescription ?? "Delete a warning.";
-        
+        public string[] Usage => SCPStats.Singleton?.Translation?.DeleteWarningUsages ?? new string[] {"id"};
+
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (sender is PlayerCommandSender commandSender)

@@ -8,8 +8,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Exiled.API.Enums;
+using Exiled.API.Extensions;
 using Exiled.API.Features;
 using HarmonyLib;
 using MEC;
@@ -22,8 +24,8 @@ namespace SCPStats
     {
         public override string Name { get; } = "SCPStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 3, 0);
-        public override Version RequiredExiledVersion { get; } = new Version(2, 11, 1);
+        public override Version Version { get; } = new Version(1, 4, 2);
+        public override Version RequiredExiledVersion { get; } = new Version(3, 0, 0);
         public override PluginPriority Priority { get; } = PluginPriority.Last;
         public override string Prefix { get; } = "scp_stats";
 
@@ -47,14 +49,17 @@ namespace SCPStats
 
             if (Secret == "fill this" || ServerID == "fill this")
             {
-                Log.Warn("Config for SCPStats has not been filled out correctly. Disabling!");
+                for (var i = 0; i < 10; i++)
+                {
+                    Log.Error("Config for SCPStats has not been filled out correctly. Disabling!");
+                }
 
                 this.OnDisabled();
                 Timing.CallDelayed(1f, this.OnUnregisteringCommands);
 
                 return;
             }
-            
+
             harmony = new Harmony($"SCPStats-{Version}-{DateTime.Now.Ticks}");
             harmony.PatchAll();
             
@@ -88,16 +93,17 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RestartingRound += EventHandler.OnRoundRestart;
             Exiled.Events.Handlers.Server.WaitingForPlayers += EventHandler.Waiting;
             Exiled.Events.Handlers.Player.Dying += EventHandler.OnKill;
-            Exiled.Events.Handlers.Player.ChangedRole += EventHandler.OnRoleChanged;
+            Exiled.Events.Handlers.Player.ChangingRole += EventHandler.OnRoleChanged;
             Exiled.Events.Handlers.Player.PickingUpItem += EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem += EventHandler.OnDrop;
+            Exiled.Events.Handlers.Player.PickingUpAmmo += EventHandler.OnPickupAmmo;
             Exiled.Events.Handlers.Player.Verified += EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying += EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemDequipped += EventHandler.OnUse;
-            Exiled.Events.Handlers.Player.ThrowingGrenade += EventHandler.OnThrow;
+            Exiled.Events.Handlers.Player.ItemUsed += EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.ThrowingItem += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs += LoadConfigs;
-            Exiled.Events.Handlers.Scp914.UpgradingItems += EventHandler.OnUpgrade;
+            Exiled.Events.Handlers.Scp914.UpgradingItem += EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.EscapingPocketDimension += EventHandler.OnEscapingPocketDimension;
             Exiled.Events.Handlers.Player.Banned += EventHandler.OnBan;
@@ -166,16 +172,17 @@ namespace SCPStats
             Exiled.Events.Handlers.Server.RestartingRound -= EventHandler.OnRoundRestart;
             Exiled.Events.Handlers.Server.WaitingForPlayers -= EventHandler.Waiting;
             Exiled.Events.Handlers.Player.Dying -= EventHandler.OnKill;
-            Exiled.Events.Handlers.Player.ChangedRole -= EventHandler.OnRoleChanged;
+            Exiled.Events.Handlers.Player.ChangingRole -= EventHandler.OnRoleChanged;
             Exiled.Events.Handlers.Player.PickingUpItem -= EventHandler.OnPickup;
             Exiled.Events.Handlers.Player.DroppingItem -= EventHandler.OnDrop;
+            Exiled.Events.Handlers.Player.PickingUpAmmo -= EventHandler.OnPickupAmmo;
             Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying -= EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.MedicalItemDequipped -= EventHandler.OnUse;
-            Exiled.Events.Handlers.Player.ThrowingGrenade -= EventHandler.OnThrow;
+            Exiled.Events.Handlers.Player.ItemUsed -= EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.ThrowingItem -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= LoadConfigs;
-            Exiled.Events.Handlers.Scp914.UpgradingItems -= EventHandler.OnUpgrade;
+            Exiled.Events.Handlers.Scp914.UpgradingItem -= EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.EscapingPocketDimension -= EventHandler.OnEscapingPocketDimension;
             Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;

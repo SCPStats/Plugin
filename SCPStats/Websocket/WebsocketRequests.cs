@@ -114,6 +114,11 @@ namespace SCPStats.Websocket
 
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
 
+            if (EventHandler.DelayedIDs.Contains(playerId))
+            {
+                EventHandler.DelayedIDs.Remove(playerId);
+            }
+
             if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData))
             {
                 if (HandleUnconfirmedUser(player)) return true;
@@ -123,7 +128,7 @@ namespace SCPStats.Websocket
                 if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
                 EventHandler.UserInfo[playerId] = EventHandler.UserInfo.TryGetValue(playerId, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
                 
-                WebsocketHandler.SendRequest(RequestType.UserInfo, playerId);
+                WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(playerId, player.IPAddress.Trim().ToLower()));
 
                 return false;
             }
@@ -199,6 +204,30 @@ namespace SCPStats.Websocket
             return true;
         }
 
+        internal static bool HandleReservedSlots(UserInfoData data, CentralAuthPreauthFlags flags)
+        {
+            if (flags.HasFlagFast(CentralAuthPreauthFlags.ReservedSlot)) return true;
+            if (SCPStats.Singleton?.Config?.ReservedSlots == null || SCPStats.Singleton.Config.ReservedSlots.Count(req => req != "DiscordRoleID") < 1) return false;
+
+            var passed = false;
+            
+            foreach (var req in SCPStats.Singleton.Config.ReservedSlots)
+            {
+                if (!CheckRequirements(req, data, "reserved slots", req))
+                {
+                    if (!SCPStats.Singleton.Config.ReservedSlotsRequireAll) continue;
+
+                    passed = false;
+                    break;
+                }
+
+                passed = true;
+                if (!SCPStats.Singleton.Config.ReservedSlotsRequireAll) break;
+            }
+
+            return passed;
+        }
+
         private static bool HandleBans(Player player, UserInfoData data)
         {
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
@@ -212,11 +241,11 @@ namespace SCPStats.Websocket
             if (!data.HasHat) return;
 
             Log.Debug("User has hat. Giving permissions!", SCPStats.Singleton?.Config?.Debug ?? false);
-            
-            var item = (ItemType) Convert.ToInt32(data.HatID);
 
-            if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation);
-            else HatCommand.HatPlayers[player.UserId] = new HatInfo(ItemType.SCP268);
+            var item = IDs.ItemIDToType(Convert.ToInt32(data.HatID));
+
+            if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool>(new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation), new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation), true);
+            else HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool>(new HatInfo(ItemType.SCP268), new HatInfo(ItemType.SCP268), true);
 
             if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
             {
@@ -396,24 +425,39 @@ namespace SCPStats.Websocket
 
             var stats = new RoundStatsData(info);
 
-            var broadcast = "";
-            var consoleMessage = "";
+            var broadcast = Array.Empty<string>();
+            var consoleMessage = Array.Empty<string>();
             
             if (SCPStats.Singleton.Config.RoundSummaryBroadcastEnabled)
             {
-                broadcast = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryBroadcast.Replace("\\n", "\n"), match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2))).Split(new string[] {"|end|"}, StringSplitOptions.None)[0];
+                broadcast = CreateRoundSummaryMessage(SCPStats.Singleton.Config.RoundSummaryBroadcast, stats);
             }
             
             if (SCPStats.Singleton.Config.RoundSummaryConsoleMessageEnabled)
             {
-                consoleMessage = RoundSummaryVariable.Replace(SCPStats.Singleton.Config.RoundSummaryConsoleMessage.Replace("\\n", "\n"), match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2))).Split(new string[] {"|end|"}, StringSplitOptions.None)[0];
+                consoleMessage = CreateRoundSummaryMessage(SCPStats.Singleton.Config.RoundSummaryConsoleMessage, stats);
             }
-            
+
+            var broadcastLength = (ushort) (broadcast.Length > 0 ? SCPStats.Singleton.Config.RoundSummaryBroadcastDuration / broadcast.Length : 0);
+
             foreach (var player in Player.List)
             {
-                if(broadcast.Replace("\n", "") != "") player.Broadcast(SCPStats.Singleton.Config.RoundSummaryBroadcastDuration, broadcast);
-                if(consoleMessage.Replace("\n", "") != "") player.SendConsoleMessage(consoleMessage, SCPStats.Singleton.Config.RoundSummaryConsoleMessageColor);
+                foreach (var msg in broadcast)
+                {
+                    player.Broadcast(new Exiled.API.Features.Broadcast(msg, broadcastLength), false);
+                }
+                
+                foreach (var msg in consoleMessage)
+                {
+                    player.SendConsoleMessage(msg, SCPStats.Singleton.Config.RoundSummaryConsoleMessageColor);
+                }
             }
+        }
+
+        private static string[] CreateRoundSummaryMessage(string input, RoundStatsData stats)
+        {
+            var msg = RoundSummaryVariable.Replace(input.Replace("\\n", "\n"), match => HandleRoundSummaryVariable(stats, match.Groups[1].Value.Substring(1, match.Groups[1].Value.Length - 2))).Split(new string[] {"|end|"}, StringSplitOptions.None)[0];
+            return msg.Split(new string[] {"|page|"}, StringSplitOptions.None).Select(page => page.Split(new string[] {"|pageend|"}, StringSplitOptions.None)[0]).Where(part => part.Replace("\n", "") != "").ToArray();
         }
 
         private static List<string> BlacklistedOrderMetrics = new List<string>()
@@ -503,9 +547,22 @@ namespace SCPStats.Websocket
             {
                 return defaultVal;
             }
-            
-            if (!isNum) return player.Nickname;
-            return roundStats.PlayerStats.TryGetValue(player, out var stats) ? ((int) (typeof(Stats).GetField(metric)?.GetValue(stats) ?? 0)).ToString() : defaultVal;
+
+            switch (isNum)
+            {
+                //Return the default if this is not a num and the num metric for this one is zero.
+                case false when GetRoundSummaryVariable(roundStats, "0", metric, type, pos, true) == "0":
+                    return defaultVal;
+                //Return the name if this is not a num.
+                case false:
+                    return player.Nickname;
+                //Return the number if this is a num.
+                default:
+                    //Return the default if it's 0, otherwise return the value.
+                    if (!roundStats.PlayerStats.TryGetValue(player, out var stats)) return defaultVal;
+                    var ret = ((int) (typeof(Stats).GetField(metric)?.GetValue(stats) ?? 0)).ToString();
+                    return ret == "0" ? defaultVal : ret;
+            }
         }
     }
 }
