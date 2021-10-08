@@ -7,7 +7,7 @@ on:
     branches:
       - master
 env:
-  EXILED_REFERENCES_PATH: ${{ github.workspace }}/SCPStats/lib
+  EXILED_REFERENCES: ${{ github.workspace }}/SCPStats/lib
 
 jobs:
   build:
