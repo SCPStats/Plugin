@@ -183,7 +183,7 @@ namespace SCPStats
 
         internal static bool IsPlayerNPC(Player p)
         {
-            return (bool) (Integrations.IsNpc?.Invoke(null, new object[] {p}) ?? false) || p.Id == 9999 || p.IPAddress == "127.0.0.WAN" || p.NetworkIdentity.connectionToClient == null;
+            return p.Id == 9999 || p.NetworkIdentity.connectionToClient == null || p.IPAddress == "127.0.0.WAN" || (bool) (Integrations.IsNpc?.Invoke(null, new object[] {p}) ?? false);
         }
         
         internal static void SendWarningMessage(Player p, string reason){
