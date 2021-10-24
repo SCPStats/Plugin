@@ -20,7 +20,7 @@ namespace SCPStats
     // to be.
     internal static class IDs
     {
-        //Largest ID: 48
+        //Largest ID: 51
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -70,7 +70,10 @@ namespace SCPStats
             {"ArmorHeavy", 45},
             {"GunRevolver", 46},
             {"GunAK", 47},
-            {"GunShotgun", 48}
+            {"GunShotgun", 48},
+            {"SCP330", 49},
+            {"MutantHands", 50},
+            {"SCP2176", 51}
         };
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
@@ -115,7 +118,9 @@ namespace SCPStats
             {"RECONTAINMENT", 27},
             {"BLEEDING", 28},
             {"POISONED", 29},
-            {"ASPHYXIATION", 30}
+            {"ASPHYXIATION", 30},
+            {"SCP-096 CHARGE", 39},
+            {"SCP-096 PRY", 40}
         };
 
         //Largest ID: 21
