@@ -44,6 +44,8 @@ namespace SCPStats.Hats
                     var pickupInfo = pickup.NetworkInfo;
                     var pickupType = pickup.GetType();
 
+                    pickupInfo.Locked = true;
+
                     if (player.Role == RoleType.None || player.Role == RoleType.Spectator || Helper.IsPlayerGhost(player) || (player.TryGetEffect(EffectType.Invisible, out var effect) && effect.Intensity != 0))
                     {
                         pickupInfo.Position = Vector3.one * 6000f;
@@ -74,6 +76,7 @@ namespace SCPStats.Hats
                     var fakePickupInfo = pickup.NetworkInfo;
                     fakePickupInfo.Position = Vector3.zero;
                     fakePickupInfo.Rotation = new LowPrecisionQuaternion(Quaternion.identity);
+                    fakePickupInfo.Locked = true;
 
                     var lockedPickupInfo = pickupInfo;
                     lockedPickupInfo.Locked = true;
