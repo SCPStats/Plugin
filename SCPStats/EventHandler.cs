@@ -238,8 +238,6 @@ namespace SCPStats
 
         private static IEnumerator<float> SendWinsLose(string leadingTeam)
         {
-            if (PauseRound) yield break;
-            
             var winLose = new Dictionary<string, Tuple<bool, bool, RoleType>>();
 
             foreach (var player in Player.List)
@@ -247,7 +245,7 @@ namespace SCPStats
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
                 if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
 
-                if (Helper.IsPlayerTutorial(player) || player.IsOverwatchEnabled)
+                if (PauseRound || Helper.IsPlayerTutorial(player) || player.IsOverwatchEnabled)
                 {
                     winLose[playerInfo.PlayerID] = new Tuple<bool, bool, RoleType>(false, true, playerInfo.PlayerRole);
                 }
