@@ -78,8 +78,13 @@ namespace SCPStats.Hats
                     fakePickupInfo.Rotation = new LowPrecisionQuaternion(Quaternion.identity);
                     fakePickupInfo.Locked = true;
 
-                    var lockedPickupInfo = pickupInfo;
-                    lockedPickupInfo.Locked = true;
+                    var ownerPickupInfo = pickupInfo;
+                    ownerPickupInfo.Locked = true;
+                    if (item.hideHat)
+                    {
+                        ownerPickupInfo.Position = Vector3.zero;
+                        ownerPickupInfo.Rotation = new LowPrecisionQuaternion(Quaternion.identity);
+                    }
 
                     foreach (var player1 in Player.List)
                     {
@@ -87,7 +92,7 @@ namespace SCPStats.Hats
 
                         if (player1 == player)
                         {
-                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", lockedPickupInfo);
+                            MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", ownerPickupInfo);
                         }
                         else if (player1.Team == player.Team)
                         {

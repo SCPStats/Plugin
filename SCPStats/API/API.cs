@@ -84,7 +84,7 @@ namespace SCPStats.API
 
             var pickup = itemObj.Spawn(Vector3.zero, Quaternion.identity);
 
-            SpawnHat(player, pickup, itemOffset, rot);
+            SpawnHat(player, pickup, itemOffset, rot, hat.HideHat);
         }
         
         /// <summary>
@@ -94,7 +94,8 @@ namespace SCPStats.API
         /// <param name="pickup">The <see cref="Pickup"/> that should be worn.</param>
         /// <param name="posOffset">A <see cref="Vector3"/> that will be added to the hat's position each time it is updated.</param>
         /// <param name="rotOffset">A <see cref="Quaternion"/> that will be added to the hat's rotation each time it is updated.</param>
-        public static void SpawnHat(Player player, Pickup pickup, Vector3 posOffset, Quaternion rotOffset)
+        /// <param name="hideHat">A <see cref="bool"/> indicating if the hat should be hidden from its owner.</param>
+        public static void SpawnHat(Player player, Pickup pickup, Vector3 posOffset, Quaternion rotOffset, bool hideHat = false)
         {
             HatPlayerComponent playerComponent;
             
@@ -119,6 +120,7 @@ namespace SCPStats.API
             playerComponent.item.pos = Hats.Hats.GetHatPosForRole(player.Role);
             playerComponent.item.itemOffset = posOffset;
             playerComponent.item.rot = rotOffset;
+            playerComponent.item.hideHat = hideHat;
         }
 
         /// <summary>

@@ -93,6 +93,11 @@ namespace SCPStats.Websocket.Data
         /// Is this user's hat custom (does it have a custom scale, offset, or rotation)?
         /// </summary>
         public bool IsCustomHat { get; }
+        
+        /// <summary>
+        /// Is this user's hat hidden from them (but visible to everyone else)?
+        /// </summary>
+        public bool HideHat { get; }
 
         public UserInfoData(string[] flags)
         {
@@ -128,6 +133,8 @@ namespace SCPStats.Websocket.Data
 
             BanText = length > 18 ? flags[18] : "";
             BanLength = length > 19 && int.TryParse(flags[19], out var banLength) ? banLength : 0;
+
+            HideHat = length > 20 && flags[20] == "1";
         }
     }
 }
