@@ -106,7 +106,7 @@ namespace SCPStats.Commands
                 {
                     var arg = arguments.Array[1].Trim().ToLower();
 
-                    if (!arg.Contains("@"))
+                    if (!(SCPStats.Singleton?.Config?.DisableIdAuthCheck ?? false) && !arg.Contains("@"))
                     {
                         response = SCPStats.Singleton?.Translation?.WarnInvalidId ?? "Please enter a valid user id (for example, ID@steam)!";
                         return false;

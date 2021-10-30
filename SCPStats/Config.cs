@@ -120,6 +120,9 @@ namespace SCPStats
         [Description("Should SCPStats record stats? It is recommened to disable stat tracking on event/gamemode servers.")]
         public bool DisableRecordingStats { get; set; } = false;
 
+        [Description("If enabled, IDs typed into commands will no longer be required to end with @steam/@discord/@northwood.")]
+        public bool DisableIdAuthCheck { get; set; } = false;
+
         [Description("Should player names be sent on join? Enabling this will make server status messages display player names.")]
         public bool SendPlayerNames { get; set; } = false;
 
