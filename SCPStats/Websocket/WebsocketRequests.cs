@@ -254,7 +254,7 @@ namespace SCPStats.Websocket
 
             if (data.HatID != -1 && (SCPStats.Singleton?.Config?.EnableHats ?? true))
             {
-                player.SendConsoleMessage(SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.", "blue");
+                player.SendConsoleMessage(SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.", "yellow");
             }
         }
 
