@@ -242,7 +242,7 @@ namespace SCPStats.Websocket
 
             Log.Debug("User has hat. Giving permissions!", SCPStats.Singleton?.Config?.Debug ?? false);
 
-            var item = IDs.ItemIDToType(Convert.ToInt32(data.HatID));
+            var item = IDs.ItemIDToType(data.HatID);
 
             if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool>(new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation, data.HideHat), new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation, data.HideHat), true);
             else HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool>(new HatInfo(ItemType.SCP268), new HatInfo(ItemType.SCP268), true);
@@ -250,6 +250,11 @@ namespace SCPStats.Websocket
             if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
             {
                 player.SpawnCurrentHat();
+            }
+
+            if (data.HatID != -1 && (SCPStats.Singleton?.Config?.EnableHats ?? true))
+            {
+                player.SendConsoleMessage(SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.", "blue");
             }
         }
 
