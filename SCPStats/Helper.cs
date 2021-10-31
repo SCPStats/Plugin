@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -183,7 +184,10 @@ namespace SCPStats
 
         internal static bool IsPlayerNPC(Player p)
         {
-            return p.Id == 9999 || p.NetworkIdentity.connectionToClient == null || p.IPAddress == "127.0.0.WAN" || (bool) (Integrations.IsNpc?.Invoke(null, new object[] {p}) ?? false);
+            return p.Id == 9999 || p.NetworkIdentity.connectionToClient == null || p.IPAddress == "127.0.0.WAN" || (bool) (Integrations.IsNpc?.Invoke(null, new object[]
+                {
+                    p
+                }) ?? false);
         }
         
         internal static void SendWarningMessage(Player p, string reason){
@@ -281,5 +285,7 @@ namespace SCPStats
         {
             return Math.Round((decimal) seconds / Hours, 2).ToString("0.##") + " " + (SCPStats.Singleton?.Translation?.TimeHours ?? "hour(s)");
         }
+
+        internal static readonly CultureInfo UsCulture = new CultureInfo("en-US");
     }
 }

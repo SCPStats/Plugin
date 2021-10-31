@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Exiled.API.Features;
 
@@ -101,7 +102,7 @@ namespace SCPStats.Websocket.Data
             var user = parts[0];
             if(!playersDict.TryGetValue(user, out var player)) return null;
             
-            var score = int.Parse(parts[1]);
+            var score = int.Parse(parts[1], NumberStyles.Integer, Helper.UsCulture);
             
             if(!PlayerStats.ContainsKey(player)) PlayerStats[player] = new Stats();
             typeof(Stats).GetField(propName)?.SetValue(PlayerStats[player], score);

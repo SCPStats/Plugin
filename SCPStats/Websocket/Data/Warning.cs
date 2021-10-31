@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 
 namespace SCPStats.Websocket.Data
 {
@@ -43,11 +44,11 @@ namespace SCPStats.Websocket.Data
 
         public Warning(string[] data)
         {
-            if (data.Length > 0 && int.TryParse(data[0], out var id)) ID = id;
-            if (data.Length > 1 && int.TryParse(data[1], out var type)) Type = (WarningType) type;
+            if (data.Length > 0 && int.TryParse(data[0], NumberStyles.Integer, Helper.UsCulture, out var id)) ID = id;
+            if (data.Length > 1 && int.TryParse(data[1], NumberStyles.Integer, Helper.UsCulture, out var type)) Type = (WarningType) type;
             if (data.Length > 2) Message = data[2];
             if (data.Length > 3) Server = data[3];
-            if (data.Length > 4 && int.TryParse(data[4], out var length)) Length = length;
+            if (data.Length > 4 && int.TryParse(data[4], NumberStyles.Integer, Helper.UsCulture, out var length)) Length = length;
             if (data.Length > 5) Issuer = data[5];
         }
     }

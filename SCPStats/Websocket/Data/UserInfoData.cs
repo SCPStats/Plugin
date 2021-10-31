@@ -17,8 +17,6 @@ namespace SCPStats.Websocket.Data
     /// </summary>
     public class UserInfoData
     {
-        private static readonly CultureInfo UsCulture = new CultureInfo("en-US");
-
         /// <summary>
         /// Is this user a nitro booster on any discord servers linked to this server?
         /// </summary>
@@ -115,24 +113,24 @@ namespace SCPStats.Websocket.Data
 
             HatScale = length > 11
                        && !string.IsNullOrEmpty(flags[9]) && !string.IsNullOrEmpty(flags[10]) && !string.IsNullOrEmpty(flags[11])
-                       && float.TryParse(flags[9], NumberStyles.Float, UsCulture, out var hatScaleX) && float.TryParse(flags[10], NumberStyles.Float, UsCulture, out var hatScaleY) && float.TryParse(flags[11], NumberStyles.Float, UsCulture, out var hatScaleZ)
+                       && float.TryParse(flags[9], NumberStyles.Float, Helper.UsCulture, out var hatScaleX) && float.TryParse(flags[10], NumberStyles.Float, Helper.UsCulture, out var hatScaleY) && float.TryParse(flags[11], NumberStyles.Float, Helper.UsCulture, out var hatScaleZ)
                 ? new Vector3(hatScaleX, hatScaleY, hatScaleZ) 
                 : Vector3.one;
             HatOffset = length > 14
                        && !string.IsNullOrEmpty(flags[12]) && !string.IsNullOrEmpty(flags[13]) && !string.IsNullOrEmpty(flags[14])
-                       && float.TryParse(flags[12], NumberStyles.Float, UsCulture, out var hatOffsetX) && float.TryParse(flags[13], NumberStyles.Float, UsCulture, out var hatOffsetY) && float.TryParse(flags[14], NumberStyles.Float, UsCulture, out var hatOffsetZ)
+                       && float.TryParse(flags[12], NumberStyles.Float, Helper.UsCulture, out var hatOffsetX) && float.TryParse(flags[13], NumberStyles.Float, Helper.UsCulture, out var hatOffsetY) && float.TryParse(flags[14], NumberStyles.Float, Helper.UsCulture, out var hatOffsetZ)
                 ? new Vector3(hatOffsetX, hatOffsetY, hatOffsetZ) 
                 : Vector3.zero;
             HatRotation = length > 17
                         && !string.IsNullOrEmpty(flags[15]) && !string.IsNullOrEmpty(flags[16]) && !string.IsNullOrEmpty(flags[17])
-                        && float.TryParse(flags[15], NumberStyles.Float, UsCulture, out var hatRotationX) && float.TryParse(flags[16], NumberStyles.Float, UsCulture, out var hatRotationY) && float.TryParse(flags[17], NumberStyles.Float, UsCulture, out var hatRotationZ)
+                        && float.TryParse(flags[15], NumberStyles.Float, Helper.UsCulture, out var hatRotationX) && float.TryParse(flags[16], NumberStyles.Float, Helper.UsCulture, out var hatRotationY) && float.TryParse(flags[17], NumberStyles.Float, Helper.UsCulture, out var hatRotationZ)
                 ? Quaternion.Euler(hatRotationX, hatRotationY, hatRotationZ) 
                 : Quaternion.identity;
 
             IsCustomHat = HatScale != Vector3.one || HatOffset != Vector3.zero || !HatRotation.IsZero();
 
             BanText = length > 18 ? flags[18] : "";
-            BanLength = length > 19 && int.TryParse(flags[19], out var banLength) ? banLength : 0;
+            BanLength = length > 19 && int.TryParse(flags[19], NumberStyles.Integer, Helper.UsCulture, out var banLength) ? banLength : 0;
 
             HideHat = length > 20 && flags[20] == "1";
         }
