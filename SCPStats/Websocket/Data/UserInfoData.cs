@@ -50,7 +50,7 @@ namespace SCPStats.Websocket.Data
         /// <summary>
         /// The item ID of the hat that this user has, if they have one.
         /// </summary>
-        public string HatID { get; }
+        public int HatID { get; }
 
         /// <summary>
         /// Is this user banned?
@@ -105,7 +105,7 @@ namespace SCPStats.Websocket.Data
             IsDiscordMember = length > 1 && flags[1] == "1";
             DiscordRoles = length > 2 && flags[2] != "0" ? flags[2].Split('|') : new string[]{};
             HasHat = length > 3 && flags[3] == "1";
-            HatID = length > 4 ? flags[4] : "-1";
+            HatID = length > 4 && int.TryParse(flags[4], NumberStyles.Integer, Helper.UsCulture, out var hatID) ? hatID : -1;
             Ranks = length > 5 && flags[5] != "0" ? flags[5].Split('|') : new string[]{};
             Stats = length > 6 && flags[6] != "0" ? flags[6].Split('|') : new string[]{};
             IsBanned = length > 7 && flags[7] == "1";
