@@ -183,7 +183,8 @@ namespace SCPStats.Commands
             new Tuple<string, string, ItemType>("SCP-018", "scpstats.hat.scp018", ItemType.SCP018),
             new Tuple<string, string, ItemType>("Medkit", "scpstats.hat.medkit", ItemType.Medkit),
             new Tuple<string, string, ItemType>("Adrenaline", "scpstats.hat.adrenaline", ItemType.Adrenaline),
-            new Tuple<string, string, ItemType>("SCP-207", "scpstats.hat.scp207", ItemType.SCP207)
+            new Tuple<string, string, ItemType>("SCP-207", "scpstats.hat.scp207", ItemType.SCP207),
+            new Tuple<string, string, ItemType>("Butter", "scpstats.hat.butter", ItemType.KeycardScientist)
         }; 
         
         private static string GetHelpMessage(Player p, bool hasHatPerms, Dictionary<string, CustomHat> customHats, bool perHatPermissions)
