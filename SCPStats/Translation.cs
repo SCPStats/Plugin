@@ -32,6 +32,9 @@ namespace SCPStats
         [Description("If RequireConfirmation is enabled, this message will be sent when an unconfirmed user joins.")]
         public string NotConfirmedKickMessage { get; set; } = "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.";
 
+        [Description("The message sent as an initial command response for commands that need to interact with SCPStats (warn, warnings, etc).")]
+        public string PleaseWait { get; set; } = "Please wait...";
+        
         [Description("Used to change the ip ban command.")]
         public string IpBanCommand { get; set; } = "ipban";
 
@@ -91,9 +94,6 @@ namespace SCPStats
 
         [Description("Autocomplete usage for the warnings command.")]
         public string[] WarningsUsagesList { get; set; } = new string[] {"%player%"};
-
-        [Description("The message sent when the warnings command is executed successfully.")]
-        public string WarningsSuccess { get; set; } = "Requesting warnings...";
 
         [Description("The message sent when the list of warnings is received.")]
         public string Warnings { get; set; } = "\nID | Type | Message | Ban Length\n\n";

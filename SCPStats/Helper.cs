@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Loader;
 using SCPStats.Websocket.Data;
@@ -287,5 +288,34 @@ namespace SCPStats
         }
 
         internal static readonly CultureInfo UsCulture = new CultureInfo("en-US");
+
+        internal static void SendMessage(Player p, string message, string command, bool success = true)
+        {
+            if (p != null)
+            {
+                p.RemoteAdminMessage(message, success, command);
+            }
+            else
+            {
+                ServerConsole.AddLog(message);
+            }
+        }
+
+        internal static void HandleBooleanTask(Player p, string message, string command, Task<bool> task)
+        {
+            Task.Run(async () =>
+            {
+                var res = await task;
+
+                if (res)
+                {
+                    SendMessage(p, message, command);
+                }
+                else
+                {
+                    SendMessage(p, SCPStats.Singleton?.Translation?.ErrorMessage ?? "An error occured. Please try again.", command, false);
+                }
+            });
+        }
     }
 }

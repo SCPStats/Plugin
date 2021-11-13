@@ -43,6 +43,14 @@ namespace SCPStats.Websocket
                         else if (info.StartsWith("rs"))
                         {
                             HandleRoundSummary(info.Substring(2));
+                        } 
+                        else if (info.StartsWith("wa"))
+                        {
+                            HandleWarn(info.Substring(2));
+                        }
+                        else if (info.StartsWith("wd"))
+                        {
+                            HandleDelwarn(info.Substring(2));
                         }
                     }
                     catch (Exception e)
@@ -55,19 +63,61 @@ namespace SCPStats.Websocket
 
         private static void HandleWarnings(string info)
         {
-            var warnings = info.Substring(4).Split('`');
             var msgId = info.Substring(0, 4);
+            var intMsgId = int.Parse(msgId);
+            
+            if (info == "E")
+            {
+                if (MessageIDsStore.WarningsDict.TryGetValue(intMsgId, out var promise1))
+                {
+                    MessageIDsStore.WarningsDict.Remove(intMsgId);
+                }
+            
+                promise1?.SetResult(null);
+
+                return;
+            }
+            
+            var warnings = info.Substring(4).Split('`');
 
             var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).ToList();
 
-            var intMsgId = int.Parse(msgId);
-            
             if (MessageIDsStore.WarningsDict.TryGetValue(intMsgId, out var promise))
             {
                 MessageIDsStore.WarningsDict.Remove(intMsgId);
             }
             
             promise?.SetResult(warningsList);
+        }
+        
+        private static void HandleWarn(string info)
+        {
+            var res = info.Substring(4);
+
+            var msgId = info.Substring(0, 4);
+            var intMsgId = int.Parse(msgId);
+            
+            if (MessageIDsStore.WarnDict.TryGetValue(intMsgId, out var promise))
+            {
+                MessageIDsStore.WarnDict.Remove(intMsgId);
+            }
+            
+            promise?.SetResult(res == "S");
+        }
+        
+        private static void HandleDelwarn(string info)
+        {
+            var res = info.Substring(4);
+
+            var msgId = info.Substring(0, 4);
+            var intMsgId = int.Parse(msgId);
+            
+            if (MessageIDsStore.DelwarnDict.TryGetValue(intMsgId, out var promise))
+            {
+                MessageIDsStore.DelwarnDict.Remove(intMsgId);
+            }
+            
+            promise?.SetResult(res == "S");
         }
 
         private static void HandleUserInfo(string info)

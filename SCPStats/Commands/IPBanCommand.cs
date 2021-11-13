@@ -8,6 +8,7 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
@@ -30,10 +31,11 @@ namespace SCPStats.Commands
         {
             var issuerID = "";
             var issuerName = "";
+            Player p = null;
 
             if (sender is PlayerCommandSender commandSender)
             {
-                var p = Player.Get(commandSender.ReferenceHub);
+                p = Player.Get(commandSender.ReferenceHub);
 
                 issuerID = Helper.HandleId(p);
                 issuerName = p.Nickname;
@@ -142,9 +144,9 @@ namespace SCPStats.Commands
                 KickPlayer(player, duration, message);
             }
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"6\",\"playerId\":\""+ip+"\",\"message\":\""+message.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+duration+",\"playerName\":\"\",\"issuer\":\""+issuerID+"\",\"issuerName\":\""+issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"}");
+            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.IpBanSuccess ?? "Successfully banned IP!", SCPStats.Singleton?.Translation?.IpBanCommand?.ToUpper() ?? "IPBAN", API.API.AddWarningWithType(6, ip, "", message, issuerID, issuerName));
 
-            response = SCPStats.Singleton?.Translation?.IpBanSuccess ?? "Successfully banned IP!";
+            response = SCPStats.Singleton?.Translation?.PleaseWait ?? "Please wait...";
             return true;
         }
 

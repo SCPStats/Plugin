@@ -7,6 +7,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CommandSystem;
 using Exiled.API.Features;
 using Exiled.Permissions.Extensions;
@@ -25,9 +26,10 @@ namespace SCPStats.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            Player p = null;
             if (sender is PlayerCommandSender commandSender)
             {
-                var p = Player.Get(commandSender.ReferenceHub);
+                p = Player.Get(commandSender.ReferenceHub);
                 if (!p.CheckPermission("scpstats.deletewarning"))
                 {
                     response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
@@ -47,9 +49,9 @@ namespace SCPStats.Commands
                 return false;
             }
 
-            API.API.DeleteWarning(id);
+            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!", SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING", API.API.DeleteWarning(id));
 
-            response = SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!";
+            response = SCPStats.Singleton?.Translation?.PleaseWait ?? "Please wait...";
             return true;
         }
     }

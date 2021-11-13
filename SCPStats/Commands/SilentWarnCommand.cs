@@ -20,7 +20,7 @@ namespace SCPStats.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            return WarnCommand.ExecuteCustomDisplay(arguments, sender, out response, false, SCPStats.Singleton?.Translation?.SilentWarnUsage ?? "Usage: swarn <id> [reason]", SCPStats.Singleton?.Translation?.SilentWarnSuccess ?? "Added warning.");
+            return WarnCommand.ExecuteCustomDisplay(arguments, sender, out response, false, SCPStats.Singleton?.Translation?.SilentWarnUsage ?? "Usage: swarn <id> [reason]", SCPStats.Singleton?.Translation?.SilentWarnSuccess ?? "Added warning.", SCPStats.Singleton?.Translation?.SilentWarnCommand?.ToUpper() ?? "SILENTWARN");
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
+using JetBrains.Annotations;
 using Mirror;
 using SCPStats.Hats;
 using SCPStats.Websocket;
@@ -137,7 +138,8 @@ namespace SCPStats.API
         /// Gets the warnings that a specific player has.
         /// </summary>
         /// <param name="userID">The user ID of the player whose warnings will be retrieved.</param>
-        /// <returns>A list of all the warnings that the specified player has.</returns>
+        /// <returns>A list of all the warnings that the specified player has, or null if an error occured.</returns>
+        [CanBeNull]
         public static async Task<List<Warning>> GetWarnings(string userID)
         {
             var promise = new TaskCompletionSource<List<Warning>>();
@@ -150,7 +152,7 @@ namespace SCPStats.API
             if (task == promise.Task) return await promise.Task;
 
             if (MessageIDsStore.WarningsDict.ContainsKey(msgId)) MessageIDsStore.WarningsDict.Remove(msgId);
-            return new List<Warning>();
+            return null;
         }
 
         /// <summary>
@@ -161,14 +163,15 @@ namespace SCPStats.API
         /// <param name="issuerID">The user ID of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="silent">Should the warn be displayed to the player via broadcast.</param>
-        public static void AddWarning(Player player, string message, string issuerID = "", string issuerName = "", bool silent = false)
+        /// <returns>If the warning was added successfully.</returns>
+        public static async Task<bool> AddWarning(Player player, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
             if (!silent)
             {
                 Helper.SendWarningMessage(player, message);
             }
 
-            AddWarning(player.RawUserId, player.Nickname, message, issuerID, issuerName, true);
+            return await AddWarning(Helper.HandleId(player), player.Nickname, message, issuerID, issuerName, true);
         }
 
         /// <summary>
@@ -180,9 +183,10 @@ namespace SCPStats.API
         /// <param name="issuerID">The user ID of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the warning, or an empty string if there is none.</param>
         /// <param name="silent">Should the warn be displayed to the player via broadcast. This will only take effect on the player's next join.</param>
-        public static void AddWarning(string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
+        /// <returns>If the warning was added successfully.</returns>
+        public static async Task<bool> AddWarning(string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            AddWarningWithType(0, userID, userName, message, issuerID, issuerName, silent);
+            return await AddWarningWithType(0, Helper.HandleId(userID), userName, message, issuerID, issuerName, silent);
         }
         
         /// <summary>
@@ -192,9 +196,10 @@ namespace SCPStats.API
         /// <param name="message">The note message.</param>
         /// <param name="issuerID">The user ID of the issuer of the note, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
-        public static void AddNote(Player player, string message, string issuerID = "", string issuerName = "")
+        /// <returns>If the note was added successfully.</returns>
+        public static async Task<bool> AddNote(Player player, string message, string issuerID = "", string issuerName = "")
         {
-            AddNote(player.RawUserId, player.Nickname, message, issuerID, issuerName);
+            return await AddNote(Helper.HandleId(player), player.Nickname, message, issuerID, issuerName);
         }
 
         /// <summary>
@@ -205,23 +210,45 @@ namespace SCPStats.API
         /// <param name="message">The note message.</param>
         /// <param name="issuerID">The user ID of the issuer of the note, or an empty string if there is none.</param>
         /// <param name="issuerName">The username of the issuer of the note, or an empty string if there is none.</param>
-        public static void AddNote(string userID, string userName, string message, string issuerID = "", string issuerName = "")
+        /// <returns>If the note was added successfully.</returns>
+        public static async Task<bool> AddNote(string userID, string userName, string message, string issuerID = "", string issuerName = "")
         {
-            AddWarningWithType(5, userID, userName, message, issuerID, issuerName);
+            return await AddWarningWithType(5, Helper.HandleId(userID), userName, message, issuerID, issuerName);
         }
         
-        private static void AddWarningWithType(int type, string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
+        internal static async Task<bool> AddWarningWithType(int type, string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + Helper.HandleId(userID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + userName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + Helper.HandleId(issuerID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + "}");
+            var promise = new TaskCompletionSource<bool>();
+
+            var msgId = MessageIDsStore.IncrementWarnCounter();
+            MessageIDsStore.WarnDict[msgId] = promise;
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + userName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + Helper.HandleId(issuerID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + ",\"res\":" + msgId + "}");
+
+            var task = await Task.WhenAny(promise.Task, Task.Delay(5000));
+            if (task == promise.Task) return await promise.Task;
+
+            if (MessageIDsStore.WarnDict.ContainsKey(msgId)) MessageIDsStore.WarnDict.Remove(msgId);
+            return false;
         }
         
         /// <summary>
         /// Removes a warning by its ID.
         /// </summary>
         /// <param name="id">The ID of the warning.</param>
-        public static void DeleteWarning(int id)
+        /// <returns>If the warning was deleted successfully.</returns>
+        public static async Task<bool> DeleteWarning(int id)
         {
-            WebsocketHandler.SendRequest(RequestType.DeleteWarnings, "1000"+id);
+            var promise = new TaskCompletionSource<bool>();
+
+            var msgId = MessageIDsStore.IncrementDelWarnCounter();
+            MessageIDsStore.DelwarnDict[msgId] = promise;
+            WebsocketHandler.SendRequest(RequestType.DeleteWarnings, msgId+id.ToString());
+
+            var task = await Task.WhenAny(promise.Task, Task.Delay(5000));
+            if (task == promise.Task) return await promise.Task;
+
+            if (MessageIDsStore.DelwarnDict.ContainsKey(msgId)) MessageIDsStore.DelwarnDict.Remove(msgId);
+            return false;
         }
     }
 }
