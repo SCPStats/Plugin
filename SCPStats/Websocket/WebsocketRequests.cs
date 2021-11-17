@@ -356,6 +356,7 @@ namespace SCPStats.Websocket
         private static bool CheckRequirements(string req, UserInfoData data, string configType, string fullEntry)
         {
             if (req == "DiscordRoleID") return false;
+            if (req.Contains(",")) return req.Split(',').All(subReq => CheckRequirements(subReq, data, configType, fullEntry));
 
             if (req.Contains("_"))
             {
@@ -389,14 +390,10 @@ namespace SCPStats.Websocket
 
                 var rank = int.Parse(offset == 0 ? (data.Ranks.Length > Helper.Rankings[type] ? data.Ranks[Helper.Rankings[type]] : "-1") : (data.Stats.Length > Helper.Rankings[type] ? data.Stats[Helper.Rankings[type]] : "-1"));
 
-                if (rank == -1 || offset == 0 && rank >= max || offset == 1 && (!reverse && rank < max || reverse && rank >= max)) return false;
-            }
-            else if (!req.Split(',').All(subReq => CheckSingle(subReq, data)))
-            {
-                return false;
+                return rank != -1 && (offset != 0 || rank < max) && (offset != 1 || ((reverse || rank >= max) && (!reverse || rank < max)));
             }
 
-            return true;
+            return CheckSingle(req, data);
         }
 
         private static bool CheckSingle(string req, UserInfoData data)
