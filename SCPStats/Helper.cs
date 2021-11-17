@@ -133,7 +133,14 @@ namespace SCPStats
             {"lvl", 11},
             {"playtime30", 12},
             {"playtime7", 13},
-            {"playtime1", 14}
+            {"playtime1", 14},
+            {"wins", 15},
+            {"win", 15},
+            {"loses", 16},
+            {"losses", 16},
+            {"lose", 16},
+            {"pocketescapes", 17},
+            {"pocketescape", 17}
         };
 
         internal static bool IsPlayerTutorial(Player p)

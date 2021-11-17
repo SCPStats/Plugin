@@ -384,7 +384,7 @@ namespace SCPStats.Websocket
                 var type = parts[0 + offset].Trim().ToLower();
                 if (!Helper.Rankings.ContainsKey(type))
                 {
-                    Log.Error("Error parsing "+configType+" config \"" + fullEntry + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"xp\", \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", and \"adrenaline\".");
+                    Log.Error("Error parsing "+configType+" config \"" + fullEntry + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"xp\", \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", \"adrenaline\", \"escapes\", \"xp\", \"fastestescape\", \"level\", \"playtime30\", \"playtime7\", \"playtime1\", \"wins\", \"loses\", and \"pocketescapes\".");
                     return false;
                 }
 
