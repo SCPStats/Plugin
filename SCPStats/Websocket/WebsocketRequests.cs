@@ -43,6 +43,14 @@ namespace SCPStats.Websocket
                         else if (info.StartsWith("rs"))
                         {
                             HandleRoundSummary(info.Substring(2));
+                        } 
+                        else if (info.StartsWith("wa"))
+                        {
+                            HandleWarn(info.Substring(2));
+                        }
+                        else if (info.StartsWith("wd"))
+                        {
+                            HandleDelwarn(info.Substring(2));
                         }
                     }
                     catch (Exception e)
@@ -55,19 +63,61 @@ namespace SCPStats.Websocket
 
         private static void HandleWarnings(string info)
         {
-            var warnings = info.Substring(4).Split('`');
             var msgId = info.Substring(0, 4);
+            var intMsgId = int.Parse(msgId);
+            
+            if (info == "E")
+            {
+                if (MessageIDsStore.WarningsDict.TryGetValue(intMsgId, out var promise1))
+                {
+                    MessageIDsStore.WarningsDict.Remove(intMsgId);
+                }
+            
+                promise1?.SetResult(null);
+
+                return;
+            }
+            
+            var warnings = info.Substring(4).Split('`');
 
             var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).ToList();
 
-            var intMsgId = int.Parse(msgId);
-            
             if (MessageIDsStore.WarningsDict.TryGetValue(intMsgId, out var promise))
             {
                 MessageIDsStore.WarningsDict.Remove(intMsgId);
             }
             
             promise?.SetResult(warningsList);
+        }
+        
+        private static void HandleWarn(string info)
+        {
+            var res = info.Substring(4);
+
+            var msgId = info.Substring(0, 4);
+            var intMsgId = int.Parse(msgId);
+            
+            if (MessageIDsStore.WarnDict.TryGetValue(intMsgId, out var promise))
+            {
+                MessageIDsStore.WarnDict.Remove(intMsgId);
+            }
+            
+            promise?.SetResult(res == "S");
+        }
+        
+        private static void HandleDelwarn(string info)
+        {
+            var res = info.Substring(4);
+
+            var msgId = info.Substring(0, 4);
+            var intMsgId = int.Parse(msgId);
+            
+            if (MessageIDsStore.DelwarnDict.TryGetValue(intMsgId, out var promise))
+            {
+                MessageIDsStore.DelwarnDict.Remove(intMsgId);
+            }
+            
+            promise?.SetResult(res == "S");
         }
 
         private static void HandleUserInfo(string info)
@@ -306,6 +356,7 @@ namespace SCPStats.Websocket
         private static bool CheckRequirements(string req, UserInfoData data, string configType, string fullEntry)
         {
             if (req == "DiscordRoleID") return false;
+            if (req.Contains(",")) return req.Split(',').All(subReq => CheckRequirements(subReq, data, configType, fullEntry));
 
             if (req.Contains("_"))
             {
@@ -333,20 +384,16 @@ namespace SCPStats.Websocket
                 var type = parts[0 + offset].Trim().ToLower();
                 if (!Helper.Rankings.ContainsKey(type))
                 {
-                    Log.Error("Error parsing "+configType+" config \"" + fullEntry + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"xp\", \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", and \"adrenaline\".");
+                    Log.Error("Error parsing "+configType+" config \"" + fullEntry + "\". The given metric (\"" + type + "\" is not valid). Valid metrics are: \"xp\", \"kills\", \"deaths\", \"rounds\", \"playtime\", \"sodas\", \"medkits\", \"balls\", \"adrenaline\", \"escapes\", \"xp\", \"fastestescape\", \"level\", \"playtime30\", \"playtime7\", \"playtime1\", \"wins\", \"loses\", and \"pocketescapes\".");
                     return false;
                 }
 
                 var rank = int.Parse(offset == 0 ? (data.Ranks.Length > Helper.Rankings[type] ? data.Ranks[Helper.Rankings[type]] : "-1") : (data.Stats.Length > Helper.Rankings[type] ? data.Stats[Helper.Rankings[type]] : "-1"));
 
-                if (rank == -1 || offset == 0 && rank >= max || offset == 1 && (!reverse && rank < max || reverse && rank >= max)) return false;
-            }
-            else if (!req.Split(',').All(subReq => CheckSingle(subReq, data)))
-            {
-                return false;
+                return rank != -1 && (offset != 0 || rank < max) && (offset != 1 || ((reverse || rank >= max) && (!reverse || rank < max)));
             }
 
-            return true;
+            return CheckSingle(req, data);
         }
 
         private static bool CheckSingle(string req, UserInfoData data)

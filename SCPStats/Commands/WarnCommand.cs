@@ -26,17 +26,18 @@ namespace SCPStats.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            return ExecuteCustomDisplay(arguments, sender, out response, true, SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]", SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.");
+            return ExecuteCustomDisplay(arguments, sender, out response, true, SCPStats.Singleton?.Translation?.WarnUsage ?? "Usage: warn <id> [reason]", SCPStats.Singleton?.Translation?.WarnSuccess ?? "Added warning.", SCPStats.Singleton?.Translation?.WarnCommand?.ToUpper() ?? "WARN");
         }
 
-        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool displayed, string usage, string success, int type = 0)
+        internal static bool ExecuteCustomDisplay(ArraySegment<string> arguments, ICommandSender sender, out string response, bool displayed, string usage, string success, string command, int type = 0)
         {
             var issuerID = "";
             var issuerName = "";
-            
+
+            Player p = null;
             if (sender is PlayerCommandSender commandSender)
             {
-                var p = Player.Get(commandSender.ReferenceHub);
+                p = Player.Get(commandSender.ReferenceHub);
                 if (!p.CheckPermission("scpstats.warn"))
                 {
                     response = SCPStats.Singleton?.Translation?.NoPermissionMessage ?? "You do not have permission to run this command!";
@@ -68,7 +69,7 @@ namespace SCPStats.Commands
                             var player = Player.Get(selectedPlayer);
                             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
 
-                            API.API.AddWarning(player, message, issuerID, issuerName, !displayed);
+                            Helper.HandleBooleanTask(p, success, command, API.API.AddWarning(player, message, issuerID, issuerName, !displayed));
                         }
                         break;
                     case 5:
@@ -77,7 +78,7 @@ namespace SCPStats.Commands
                             var player = Player.Get(selectedPlayer);
                             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
 
-                            API.API.AddNote(player, message, issuerID, issuerName);
+                            Helper.HandleBooleanTask(p, success, command, API.API.AddNote(player, message, issuerID, issuerName));
                         }
                         break;
                 }
@@ -129,10 +130,10 @@ namespace SCPStats.Commands
                     switch (type)
                     {
                         case 0:
-                            API.API.AddWarning(userId, "", message, issuerID, issuerName, !displayed);
+                            Helper.HandleBooleanTask(p, success, command, API.API.AddWarning(userId, "", message, issuerID, issuerName, !displayed));
                             break;
                         case 5:
-                            API.API.AddNote(userId, "", message, issuerID, issuerName);
+                            Helper.HandleBooleanTask(p, success, command, API.API.AddNote(userId, "", message, issuerID, issuerName));
                             break;
                     }
                 }
@@ -141,16 +142,16 @@ namespace SCPStats.Commands
                     switch (type)
                     {
                         case 0:
-                            API.API.AddWarning(player, message, issuerID, issuerName, !displayed);
+                            Helper.HandleBooleanTask(p, success, command, API.API.AddWarning(player, message, issuerID, issuerName, !displayed));
                             break;
                         case 5:
-                            API.API.AddNote(player, message, issuerID, issuerName);
+                            Helper.HandleBooleanTask(p, success, command, API.API.AddNote(player, message, issuerID, issuerName));
                             break;
                     }
                 }
             }
 
-            response = success;
+            response = SCPStats.Singleton?.Translation?.PleaseWait ?? "Please wait...";
             return true;
         }
     }

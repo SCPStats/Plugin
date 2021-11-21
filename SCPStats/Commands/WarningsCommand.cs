@@ -90,10 +90,17 @@ namespace SCPStats.Commands
             Task.Run(async () =>
             {
                 var warnings = await API.API.GetWarnings(userId);
-                SendWarningsMessage(pl, warnings);
+                if (warnings == null)
+                {
+                    Helper.SendMessage(pl, SCPStats.Singleton?.Translation?.ErrorMessage ?? "An error occured. Please try again.", SCPStats.Singleton?.Translation?.WarningsCommand?.ToUpper() ?? "WARNINGS", false);
+                }
+                else
+                {
+                    SendWarningsMessage(pl, warnings);
+                }
             });
 
-            response = SCPStats.Singleton?.Translation?.WarningsSuccess ?? "Requesting warnings...";
+            response = SCPStats.Singleton?.Translation?.PleaseWait ?? "Please wait...";
             return true;
         }
 
@@ -144,14 +151,7 @@ namespace SCPStats.Commands
             var sendingEventArgs = new SendingWarningMessageEventArgs(warningsList, result);
             Events.OnSendingWarningMessage(sendingEventArgs);
 
-            if (sender != null)
-            {
-                sender.RemoteAdminMessage(sendingEventArgs.Message, true, SCPStats.Singleton?.Translation?.WarningsCommand?.ToUpper() ?? "WARNINGS");
-            }
-            else
-            {
-                ServerConsole.AddLog(sendingEventArgs.Message);
-            }
+            Helper.SendMessage(sender, sendingEventArgs.Message, SCPStats.Singleton?.Translation?.WarningsCommand?.ToUpper() ?? "WARNINGS");
         }
 
         private static List<WarningType> WarningsDisplayedTypes { get; set; } = new List<WarningType>()

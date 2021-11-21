@@ -20,7 +20,7 @@ namespace SCPStats.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            return WarnCommand.ExecuteCustomDisplay(arguments, sender, out response, false, SCPStats.Singleton?.Translation?.NoteUsage ?? "Usage: note <id> [message]", SCPStats.Singleton?.Translation?.NoteSuccess ?? "Added note.", 5);
+            return WarnCommand.ExecuteCustomDisplay(arguments, sender, out response, false, SCPStats.Singleton?.Translation?.NoteUsage ?? "Usage: note <id> [message]", SCPStats.Singleton?.Translation?.NoteSuccess ?? "Added note.", SCPStats.Singleton?.Translation?.NoteCommand?.ToUpper() ?? "NOTE", 5);
         }
     }
 }
