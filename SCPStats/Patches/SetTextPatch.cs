@@ -46,6 +46,9 @@ namespace SCPStats.Patches
                 {
                     //Playtime
                     case 3:
+                    case 12:
+                    case 13:
+                    case 14:
                         output = Helper.SecondsToHours(seconds);
                         break;
                     //Escape time
