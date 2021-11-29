@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Enums;
+using PlayerStatsSystem;
 
 namespace SCPStats
 {
@@ -78,49 +79,70 @@ namespace SCPStats
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-        //Largest ID: 38
-        private static readonly Dictionary<string, int> DamageTypeIDs = new Dictionary<string, int>()
+        //Largest ID: 43
+        private static readonly int RecontainmentDamageTypeID = 27;
+        private static readonly int WarheadDamageTypeID = 2;
+        private static readonly int MicroHidTypeID = 18;
+        private static readonly int GrenadeTypeID = 19;
+        private static readonly int Scp018TypeID = 38;
+        
+        private static readonly Dictionary<string, int> FirearmDamageTypeIDs = new Dictionary<string, int>()
         {
-            {"NONE", 0},
-            {"LURE", 1},
-            {"NUKE", 2},
-            {"WALL", 3},
-            {"DECONT", 4},
-            {"TESLA", 5},
-            {"FALLDOWN", 6},
-            {"Flying detection", 7},
-            {"Friendly fire detector", 8},
-            {"CONTAIN", 9},
-            {"POCKET", 10},
-            {"RAGDOLL-LESS", 11},
-            {"COM15", 12},
-            //{DamageTypes.P90, 13},
-            {"E11SR", 14},
-            //{DamageTypes.Mp7, 15},
-            {"LOGICER", 16},
-            //{DamageTypes.Usp, 17},
-            {"COM18", 32},
-            {"AK", 33},
-            {"SHOTGUN", 34},
-            {"CROSSVEC", 35},
-            {"FSP9", 36},
-            {"MICROHID", 18},
-            {"REVOLVER", 31},
-            {"GRENADE", 19},
-            {"SCP-049", 20},
-            {"SCP-049-2", 21},
-            {"SCP-096", 22},
-            {"SCP-106", 23},
-            {"SCP-173", 24},
-            {"SCP-939", 25},
-            {"SCP-207", 26},
-            {"SCP-018", 38},
-            {"RECONTAINMENT", 27},
-            {"BLEEDING", 28},
-            {"POISONED", 29},
-            {"ASPHYXIATION", 30},
-            {"SCP-096 CHARGE", 39},
-            {"SCP-096 PRY", 40}
+            {"GunCOM15", 12},
+            {"GunE11SR", 14},
+            {"GunLogicer", 16},
+            {"GunCOM18", 32},
+            {"GunAK", 33},
+            {"GunShotgun", 34},
+            {"GunCrossvec", 35},
+            {"GunFSP9", 36},
+            {"MicroHID", 18},
+            {"GunRevolver", 31}
+        };
+
+        private static readonly Dictionary<DeathTranslation, int> UniversalDamageTypeIDs = new Dictionary<DeathTranslation, int>()
+        {
+            {DeathTranslations.Recontained, 27},
+            {DeathTranslations.Warhead, 2},
+            {DeathTranslations.Scp049, 20},
+            {DeathTranslations.Unknown, 0},
+            {DeathTranslations.Asphyxiated, 30},
+            {DeathTranslations.Bleeding, 28},
+            {DeathTranslations.Falldown, 6},
+            {DeathTranslations.PocketDecay, 10},
+            {DeathTranslations.Decontamination, 4},
+            {DeathTranslations.Poisoned, 29},
+            {DeathTranslations.Scp207, 26},
+            {DeathTranslations.SeveredHands, 41},
+            {DeathTranslations.MicroHID, 18},
+            {DeathTranslations.Tesla, 5},
+            {DeathTranslations.Explosion, 19},
+            {DeathTranslations.Scp096, 22},
+            {DeathTranslations.Scp173, 24},
+            {DeathTranslations.Scp939, 25},
+            {DeathTranslations.Zombie, 21},
+            {DeathTranslations.BulletWounds, 42},
+            {DeathTranslations.Crushed, 43},
+            {DeathTranslations.UsedAs106Bait, 1},
+            {DeathTranslations.FriendlyFireDetector, 8}
+        };
+
+        private static readonly Dictionary<string, int> RoleDamageTypeIDs = new Dictionary<string, int>()
+        {
+            {"Scp173", 24},
+            {"Scp106", 23},
+            {"Scp049", 20},
+            {"Scp096", 22},
+            {"Scp0492", 21},
+            {"Scp93953", 25},
+            {"Scp93989", 25}
+        };
+
+        private static readonly Dictionary<string, int> Scp096DamageTypeIDs = new Dictionary<string, int>()
+        {
+            {"GateKill", 40},
+            {"Slap", 22},
+            {"Charge", 39}
         };
 
         //Largest ID: 21
@@ -177,9 +199,47 @@ namespace SCPStats
             return ItemType.None;
         }
 
-        internal static int ToID(this DamageTypes.DamageType damageType)
+        internal static int ToID(this DamageHandlerBase damageHandler)
         {
-            if (DamageTypeIDs.TryGetValue(damageType.Name, out var id)) return id;
+            if (damageHandler is RecontainmentDamageHandler) return RecontainmentDamageTypeID;
+
+            if (damageHandler is FirearmDamageHandler firearmDamageHandler)
+            {
+                var id = firearmDamageHandler.WeaponType.ToString();
+
+                return FirearmDamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+            }
+
+            if (damageHandler is WarheadDamageHandler) return WarheadDamageTypeID;
+
+            if (damageHandler is UniversalDamageHandler universalDamageHandler)
+            {
+                var id = universalDamageHandler.TranslationId;
+                if (!DeathTranslations.TranslationsById.TryGetValue(id, out var translation)) return -1;
+
+                return UniversalDamageTypeIDs.TryGetValue(translation, out var output) ? output : -1;
+            }
+
+            if (damageHandler is ScpDamageHandler scpDamageHandler)
+            {
+                var id = scpDamageHandler.Attacker.Role.ToString();
+
+                return RoleDamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+            }
+
+            if (damageHandler is Scp096DamageHandler scp096DamageHandler)
+            {
+                var id = scp096DamageHandler._attackType.ToString();
+
+                return Scp096DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+            }
+
+            if (damageHandler is MicroHidDamageHandler) return MicroHidTypeID;
+
+            if (damageHandler is ExplosionDamageHandler) return GrenadeTypeID;
+
+            if (damageHandler is Scp018DamageHandler) return Scp018TypeID;
+
             return -1;
         }
 
