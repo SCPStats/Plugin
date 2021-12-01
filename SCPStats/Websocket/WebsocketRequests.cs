@@ -63,10 +63,12 @@ namespace SCPStats.Websocket
 
         private static void HandleWarnings(string info)
         {
+            var res = info.Substring(4);
+
             var msgId = info.Substring(0, 4);
             var intMsgId = int.Parse(msgId);
-            
-            if (info == "E")
+
+            if (res == "E")
             {
                 if (MessageIDsStore.WarningsDict.TryGetValue(intMsgId, out var promise1))
                 {
@@ -78,7 +80,7 @@ namespace SCPStats.Websocket
                 return;
             }
             
-            var warnings = info.Substring(4).Split('`');
+            var warnings = res.Split('`');
 
             var warningsList = warnings.Select(warning => new Warning(warning.Split('|'))).ToList();
 
