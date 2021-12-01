@@ -296,7 +296,9 @@ namespace SCPStats
 
             if (!killerInfo.IsAllowed || !targetInfo.IsAllowed || (killerInfo.PlayerID == null && targetInfo.PlayerID == null) || targetInfo.PlayerRole == RoleType.None || targetInfo.PlayerRole == RoleType.Spectator) return;
 
-            if (ev.HitInformation.Tool.Equals(DamageTypes.Pocket) && PocketPlayers.TryGetValue(targetInfo.PlayerID, out var killer))
+            var damageID = ev.DamageHandler.ToID();
+            
+            if (damageID == 10 /* Pocket ID */ && PocketPlayers.TryGetValue(targetInfo.PlayerID, out var killer))
             {
                 killerInfo.PlayerID = killer;
                 killerInfo.PlayerRole = RoleType.Scp106;
@@ -307,7 +309,7 @@ namespace SCPStats
                 killerInfo.PlayerRole = targetInfo.PlayerRole;
             }
 
-            WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\":\""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.ToID()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.ToID()+"\",\"damageType\":\""+ev.HitInformation.Tool.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.KillDeath, "{\"killerID\":\""+killerInfo.PlayerID+"\",\"killerRole\":\""+killerInfo.PlayerRole.ToID()+"\",\"targetID\":\""+targetInfo.PlayerID+"\",\"targetRole\":\""+targetInfo.PlayerRole.ToID()+"\",\"damageType\":\""+damageID+"\"}");
         }
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
