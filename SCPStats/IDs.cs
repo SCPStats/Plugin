@@ -201,46 +201,46 @@ namespace SCPStats
 
         internal static int ToID(this DamageHandlerBase damageHandler)
         {
-            if (damageHandler is RecontainmentDamageHandler) return RecontainmentDamageTypeID;
-
-            if (damageHandler is FirearmDamageHandler firearmDamageHandler)
+            switch (damageHandler)
             {
-                var id = firearmDamageHandler.WeaponType.ToString();
+                case RecontainmentDamageHandler _:
+                    return RecontainmentDamageTypeID;
+                case MicroHidDamageHandler _:
+                    return MicroHidTypeID;
+                case ExplosionDamageHandler _:
+                    return GrenadeTypeID;
+                case WarheadDamageHandler _:
+                    return WarheadDamageTypeID;
+                case Scp018DamageHandler _:
+                    return Scp018TypeID;
+                case FirearmDamageHandler firearmDamageHandler:
+                {
+                    var id = firearmDamageHandler.WeaponType.ToString();
 
-                return FirearmDamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                    return FirearmDamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                }
+                case UniversalDamageHandler universalDamageHandler:
+                {
+                    var id = universalDamageHandler.TranslationId;
+                    if (!DeathTranslations.TranslationsById.TryGetValue(id, out var translation)) return -1;
+
+                    return UniversalDamageTypeIDs.TryGetValue(translation, out var output) ? output : -1;
+                }
+                case ScpDamageHandler scpDamageHandler:
+                {
+                    var id = scpDamageHandler.Attacker.Role.ToString();
+
+                    return RoleDamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                }
+                case Scp096DamageHandler scp096DamageHandler:
+                {
+                    var id = scp096DamageHandler._attackType.ToString();
+
+                    return Scp096DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                }
+                default:
+                    return -1;
             }
-
-            if (damageHandler is WarheadDamageHandler) return WarheadDamageTypeID;
-
-            if (damageHandler is UniversalDamageHandler universalDamageHandler)
-            {
-                var id = universalDamageHandler.TranslationId;
-                if (!DeathTranslations.TranslationsById.TryGetValue(id, out var translation)) return -1;
-
-                return UniversalDamageTypeIDs.TryGetValue(translation, out var output) ? output : -1;
-            }
-
-            if (damageHandler is ScpDamageHandler scpDamageHandler)
-            {
-                var id = scpDamageHandler.Attacker.Role.ToString();
-
-                return RoleDamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
-            }
-
-            if (damageHandler is Scp096DamageHandler scp096DamageHandler)
-            {
-                var id = scp096DamageHandler._attackType.ToString();
-
-                return Scp096DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
-            }
-
-            if (damageHandler is MicroHidDamageHandler) return MicroHidTypeID;
-
-            if (damageHandler is ExplosionDamageHandler) return GrenadeTypeID;
-
-            if (damageHandler is Scp018DamageHandler) return Scp018TypeID;
-
-            return -1;
         }
 
         internal static int ToID(this RoleType roleType)
