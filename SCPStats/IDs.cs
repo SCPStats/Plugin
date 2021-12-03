@@ -21,6 +21,44 @@ namespace SCPStats
     // to be.
     internal static class IDs
     {
+        static IDs()
+        {
+            var universalDeathTranslations = new Dictionary<string, int>()
+            {
+                {"Recontained", 27},
+                {"Warhead", 2},
+                {"Scp049", 20},
+                {"Unknown", 0},
+                {"Asphyxiated", 30},
+                {"Bleeding", 28},
+                {"Falldown", 6},
+                {"PocketDecay", 10},
+                {"Decontamination", 4},
+                {"Poisoned", 29},
+                {"Scp207", 26},
+                {"SeveredHands", 41},
+                {"MicroHID", 18},
+                {"Tesla", 5},
+                {"Explosion", 19},
+                {"Scp096", 22},
+                {"Scp173", 24},
+                {"Scp939", 25},
+                {"Zombie", 21},
+                {"BulletWounds", 42},
+                {"Crushed", 43},
+                {"UsedAs106Bait", 1},
+                {"FriendlyFireDetector", 8}
+            };
+
+            foreach (var kv in universalDeathTranslations)
+            {
+                var translation = typeof(DeathTranslations).GetField(kv.Key)?.GetValue(null);
+                if (translation == null) continue;
+
+                UniversalDamageTypeIDs[(DeathTranslation) translation] = kv.Value;
+            }
+        }
+        
         //Largest ID: 51
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
@@ -100,32 +138,7 @@ namespace SCPStats
             {"GunRevolver", 31}
         };
 
-        private static readonly Dictionary<DeathTranslation, int> UniversalDamageTypeIDs = new Dictionary<DeathTranslation, int>()
-        {
-            {DeathTranslations.Recontained, 27},
-            {DeathTranslations.Warhead, 2},
-            {DeathTranslations.Scp049, 20},
-            {DeathTranslations.Unknown, 0},
-            {DeathTranslations.Asphyxiated, 30},
-            {DeathTranslations.Bleeding, 28},
-            {DeathTranslations.Falldown, 6},
-            {DeathTranslations.PocketDecay, 10},
-            {DeathTranslations.Decontamination, 4},
-            {DeathTranslations.Poisoned, 29},
-            {DeathTranslations.Scp207, 26},
-            {DeathTranslations.SeveredHands, 41},
-            {DeathTranslations.MicroHID, 18},
-            {DeathTranslations.Tesla, 5},
-            {DeathTranslations.Explosion, 19},
-            {DeathTranslations.Scp096, 22},
-            {DeathTranslations.Scp173, 24},
-            {DeathTranslations.Scp939, 25},
-            {DeathTranslations.Zombie, 21},
-            {DeathTranslations.BulletWounds, 42},
-            {DeathTranslations.Crushed, 43},
-            {DeathTranslations.UsedAs106Bait, 1},
-            {DeathTranslations.FriendlyFireDetector, 8}
-        };
+        private static readonly Dictionary<DeathTranslation, int> UniversalDamageTypeIDs = new Dictionary<DeathTranslation, int>();
 
         private static readonly Dictionary<string, int> RoleDamageTypeIDs = new Dictionary<string, int>()
         {
