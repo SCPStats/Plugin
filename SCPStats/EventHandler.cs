@@ -164,17 +164,19 @@ namespace SCPStats
 
             if (!Helper.IsRoundRunning()) yield break;
 
+            var ids = new List<PlayerInfo>();
+
             foreach (var player in Player.List)
             {
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
-                if (player?.UserId == null || !playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
-
-                if (!player.DoNotTrack && player.Role != RoleType.None && player.Role != RoleType.Spectator)
-                {
-                    WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\"" + playerInfo.PlayerID + "\",\"spawnrole\":\"" + playerInfo.PlayerRole.ToID() + "\"}");
-                }
-                else continue;
+                if (player?.UserId == null || !playerInfo.IsAllowed || playerInfo.PlayerID == null || player.DoNotTrack || player.Role == RoleType.None || player.Role == RoleType.Spectator) continue;
                 
+                ids.Add(playerInfo);
+            }
+
+            foreach (var playerInfo in ids)
+            {
+                WebsocketHandler.SendRequest(RequestType.Spawn, "{\"playerid\":\"" + playerInfo.PlayerID + "\",\"spawnrole\":\"" + playerInfo.PlayerRole.ToID() + "\"}");
                 yield return Timing.WaitForSeconds(.05f);
             }
         }
