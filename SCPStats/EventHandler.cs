@@ -451,7 +451,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null || !Helper.IsRoundRunning()) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Item.Base.ItemTypeId.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Item.Base.ItemTypeId.ToID()+"\"}");
         }
 
         internal static void OnThrow(ThrowingItemEventArgs ev)
@@ -461,7 +461,7 @@ namespace SCPStats
             var playerInfo = Helper.GetPlayerInfo(ev.Player);
             if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) return;
             
-            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\", \"itemid\":\""+ev.Item.Base.ItemTypeId.ToID()+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Item.Base.ItemTypeId.ToID()+"\"}");
         }
 
         internal static void OnUpgrade(UpgradingItemEventArgs ev)
