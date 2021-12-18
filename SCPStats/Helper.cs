@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Loader;
+using Footprinting;
 using SCPStats.Websocket.Data;
 using UnityEngine;
 
@@ -149,6 +150,13 @@ namespace SCPStats
 
             return p.Role == RoleType.Tutorial && !playerIsSh && !IsPlayerGhost(p);
         }
+        
+        internal static bool IsPlayerTutorial(Player p, RoleType role)
+        {
+            var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
+
+            return role == RoleType.Tutorial && !playerIsSh && !IsPlayerGhost(p);
+        }
 
         internal static PlayerInfo GetPlayerInfo(Player p, bool tutorial = true, bool spectator = true)
         {
@@ -159,6 +167,33 @@ namespace SCPStats
                     : p.DoNotTrack 
                         ? new PlayerInfo(null, p.Role, true) 
                         : new PlayerInfo(Helper.HandleId(p.UserId), p.Role, true);
+        }
+        
+        internal static PlayerInfo GetFootprintInfo(Footprint f, bool tutorial = true, bool spectator = true)
+        {
+            if (!f.IsSet)
+            {
+                return new PlayerInfo(null, RoleType.None, true);
+            }
+            
+            var p = Player.Get(f.Hub);
+            
+            if(p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.ReferenceHub.characterClassManager.SpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p, f.Role))))
+            {
+                return new PlayerInfo(null, RoleType.None, false);
+            }
+            
+            if(p != null && (p.IsHost || !p.IsVerified || (spectator && (f.Role == RoleType.None || f.Role == RoleType.Spectator))))
+            {
+                return new PlayerInfo(null, RoleType.None, true);
+            }
+
+            if (p != null && !p.DoNotTrack)
+            {
+                return new PlayerInfo(Helper.HandleId(f.LogUserID), f.Role, true);
+            }
+            
+            return new PlayerInfo(null, f.Role, true);
         }
 
         internal static bool IsRoundRunning() => !EventHandler.PauseRound && RoundSummary.RoundInProgress();

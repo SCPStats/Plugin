@@ -14,6 +14,7 @@ using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs;
 using Exiled.Loader;
 using MEC;
+using PlayerStatsSystem;
 using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket;
@@ -293,7 +294,7 @@ namespace SCPStats
         {
             if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
 
-            var killerInfo = Helper.GetPlayerInfo(ev.Killer, true, false);
+            var killerInfo = Helper.GetFootprintInfo(ev.Handler.Base is AttackerDamageHandler attack ? attack.Attacker : default);
             var targetInfo = Helper.GetPlayerInfo(ev.Target);
 
             if (!killerInfo.IsAllowed || !targetInfo.IsAllowed || (killerInfo.PlayerID == null && targetInfo.PlayerID == null) || targetInfo.PlayerRole == RoleType.None || targetInfo.PlayerRole == RoleType.Spectator) return;
