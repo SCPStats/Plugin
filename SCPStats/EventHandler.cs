@@ -298,7 +298,7 @@ namespace SCPStats
 
             if (!killerInfo.IsAllowed || !targetInfo.IsAllowed || (killerInfo.PlayerID == null && targetInfo.PlayerID == null) || targetInfo.PlayerRole == RoleType.None || targetInfo.PlayerRole == RoleType.Spectator) return;
 
-            var damageID = ev.DamageHandler.ToID();
+            var damageID = ev.Handler.Base.ToID();
             
             if (damageID == 10 /* Pocket ID */ && PocketPlayers.TryGetValue(targetInfo.PlayerID, out var killer))
             {
