@@ -47,7 +47,8 @@ namespace SCPStats
                 {"BulletWounds", 42},
                 {"Crushed", 43},
                 {"UsedAs106Bait", 1},
-                {"FriendlyFireDetector", 8}
+                {"FriendlyFireDetector", 8},
+                {"Hypothermia", 44}
             };
 
             foreach (var kv in universalDeathTranslations)
@@ -112,12 +113,16 @@ namespace SCPStats
             {"GunShotgun", 48},
             {"SCP330", 49},
             {"MutantHands", 50},
-            {"SCP2176", 51}
+            {"SCP2176", 51},
+            {"SCP244a", 52},
+            {"SCP244b", 53},
+            {"Coal", 54},
+            {"MolecularDisruptor", 55}
         };
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-        //Largest ID: 43
+        //Largest ID: 45
         private static readonly int RecontainmentDamageTypeID = 27;
         private static readonly int WarheadDamageTypeID = 2;
         private static readonly int MicroHidTypeID = 18;
@@ -135,7 +140,8 @@ namespace SCPStats
             {"GunCrossvec", 35},
             {"GunFSP9", 36},
             {"MicroHID", 18},
-            {"GunRevolver", 31}
+            {"GunRevolver", 31},
+            {"MolecularDisruptor", 45}
         };
 
         private static readonly Dictionary<DeathTranslation, int> UniversalDamageTypeIDs = new Dictionary<DeathTranslation, int>();
