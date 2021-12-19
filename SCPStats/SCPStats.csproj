@@ -244,6 +244,7 @@
     <Compile Include="Patches\ActivateGrenadePatch.cs" />
     <Compile Include="Patches\BanFilePatch.cs" />
     <Compile Include="Patches\BanPatch.cs" />
+    <Compile Include="Patches\CollisionPickupPatch.cs" />
     <Compile Include="Patches\RefreshPositionAndRotationPatch.cs" />
     <Compile Include="Patches\ServerNamePatch.cs" />
     <Compile Include="Patches\SetTextPatch.cs" />
