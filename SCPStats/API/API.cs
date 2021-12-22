@@ -230,19 +230,20 @@ namespace SCPStats.API
             if (MessageIDsStore.WarnDict.ContainsKey(msgId)) MessageIDsStore.WarnDict.Remove(msgId);
             return false;
         }
-        
+
         /// <summary>
         /// Removes a warning by its ID.
         /// </summary>
         /// <param name="id">The ID of the warning.</param>
+        /// <param name="userID">The ID of the user who requested the deletion.</param>
         /// <returns>If the warning was deleted successfully.</returns>
-        public static async Task<bool> DeleteWarning(int id)
+        public static async Task<bool> DeleteWarning(int id, string userID = "")
         {
             var promise = new TaskCompletionSource<bool>();
 
             var msgId = MessageIDsStore.IncrementDelWarnCounter();
             MessageIDsStore.DelwarnDict[msgId] = promise;
-            WebsocketHandler.SendRequest(RequestType.DeleteWarnings, msgId+id.ToString());
+            WebsocketHandler.SendRequest(RequestType.DeleteWarnings, msgId+id.ToString() + "|" + Helper.HandleId(userID));
 
             var task = await Task.WhenAny(promise.Task, Task.Delay(5000));
             if (task == promise.Task) return await promise.Task;

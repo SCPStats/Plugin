@@ -49,7 +49,7 @@ namespace SCPStats.Commands
                 return false;
             }
 
-            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!", SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING", API.API.DeleteWarning(id));
+            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!", SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING", API.API.DeleteWarning(id, p?.RawUserId ?? ""));
 
             response = SCPStats.Singleton?.Translation?.PleaseWait ?? "Please wait...";
             return true;
