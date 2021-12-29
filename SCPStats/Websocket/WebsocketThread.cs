@@ -93,6 +93,7 @@ namespace SCPStats.Websocket
                 }
 
                 Pinged = false;
+                Nonce = "";
 
                 ws = new WebSocket("wss://ws.scpstats.com") {Log = {Level = LogLevel.Fatal}};
 
