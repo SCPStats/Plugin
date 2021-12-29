@@ -21,7 +21,7 @@ namespace SCPStats.Websocket
         internal static readonly ConcurrentQueue<string> Queue = new ConcurrentQueue<string>();
         internal static readonly AutoResetEvent Signal = new AutoResetEvent(false);
         internal static string Nonce { get; private set; } = "";
-        
+
         internal static readonly ConcurrentQueue<string> WebsocketRequests = new ConcurrentQueue<string>();
         
         private static WebSocket ws = null;
@@ -29,6 +29,7 @@ namespace SCPStats.Websocket
         private static bool PingerActive = false;
         private static bool CreatingClient = false;
         private static bool Pinged = true;
+        private static int _errorCount = 0;
 
         internal static void StartServer()
         {
@@ -94,6 +95,7 @@ namespace SCPStats.Websocket
 
                 Pinged = false;
                 Nonce = "";
+                _errorCount = 0;
 
                 ws = new WebSocket("wss://ws.scpstats.com") {Log = {Level = LogLevel.Fatal}};
 
@@ -181,6 +183,13 @@ namespace SCPStats.Websocket
                 {
                     case "i":
                         Log.Warn("Authentication failed. Your secret may be invalid. If you see this spammed, double check it!");
+
+                        if (++_errorCount > 5)
+                        {
+                            Log.Warn("Reached maximum authentication errors. Restarting websocket.");
+                            ws?.Close();
+                        }
+
                         return;
 
                     case "c":
