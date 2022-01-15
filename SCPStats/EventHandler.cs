@@ -43,8 +43,8 @@ namespace SCPStats
         private static List<CoroutineHandle> coroutines = new List<CoroutineHandle>();
         private static List<string> SpawnsDone = new List<string>();
 
-        //Tuple<PreauthFlags, UserInfo, RunImmediately (this will be false when requested on preauth and true when requested after the player has joined)>.
-        internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>>();
+        //Tuple<PreauthFlags, UserInfo>.
+        internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>>();
         private static List<string> PreRequestedIDs = new List<string>();
         internal static List<string> DelayedIDs = new List<string>();
 
@@ -112,9 +112,6 @@ namespace SCPStats
 
             foreach (var (id, ip) in ids)
             {
-                if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-                UserInfo[id] = UserInfo.TryGetValue(id, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
-
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
 
                 yield return Timing.WaitForSeconds(.1f);
@@ -230,9 +227,6 @@ namespace SCPStats
 
             foreach (var (id, ip) in ids)
             {
-                if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-                UserInfo[id] = UserInfo.TryGetValue(id, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, false) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, false);
-
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
 
                 yield return Timing.WaitForSeconds(.1f);
@@ -551,8 +545,11 @@ namespace SCPStats
 
             var id = Helper.HandleId(ev.UserId);
 
+            //If the server is full and they aren't in the reserved slots list.
             if (ev.ServerFull && !ev.IsAllowed)
             {
+                //If we've already gotten userinfo from them, use it to check if they have reserved slots.
+                //Otherwise, request their userinfo and delay them.
                 if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue)
                 {
                     if (WebsocketRequests.HandleReservedSlots(userInfo.Item2, userInfo.Item1.Value))
@@ -562,27 +559,35 @@ namespace SCPStats
                 }
                 else
                 {
+                    //If they haven't been pre-requested (such as at round end), request their info.
                     if (!PreRequestedIDs.Contains(id))
                     {
                         if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-                        UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
+                        UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
                         WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ev.Request.RemoteEndPoint.Address.ToString().Trim().ToLower()));
                     }
 
+                    //Delay them by 4 seconds.
                     ev.IsAllowed = true;
                     ev.Delay(4, true);
                 }
             }
+            //If the server isn't full and they aren't pre-requested (such as at round end).
             else if(!PreRequestedIDs.Contains(id))
             {
+                //If we haven't delayed them and it's the first round/empty round, and we require confirmation, and we have a positive first round preauth delay.
                 if (!DelayedIDs.Contains(id) && (firstRound || Server.PlayerCount < 1) && (SCPStats.Singleton?.Config?.RequireConfirmation ?? false) && (int) SCPStats.Singleton?.Config?.FirstRoundPreauthDelay > 0)
                 {
+                    //First delay their connection, then request their data after.
                     DelayedIDs.Add(id);
                     ev.Delay(SCPStats.Singleton?.Config?.FirstRoundPreauthDelay ?? 4, true);
-                } else if (DelayedIDs.Contains(id)) return;
+                }
+                //If they have been delayed, don't re-request.
+                else if (DelayedIDs.Contains(id)) return;
 
+                //Request their info.
                 if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
-                UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>((CentralAuthPreauthFlags) ev.Flags, null, false);
+                UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ev.Request.RemoteEndPoint.Address.ToString().Trim().ToLower()));
             }
         }

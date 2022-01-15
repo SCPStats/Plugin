@@ -143,24 +143,22 @@ namespace SCPStats.Websocket
             Log.Debug("Has hat perms: " + data.HasHat, SCPStats.Singleton?.Config?.Debug ?? false);
 
             CentralAuthPreauthFlags? preauthFlags = null;
-            var runImmediately = false;
             if (EventHandler.UserInfo.TryGetValue(playerId, out var userinfo))
             {
                 preauthFlags = userinfo.Item1;
-                runImmediately = userinfo.Item3;
             }
             
             if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
-            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(preauthFlags, data, runImmediately);
-            if (!runImmediately) return;
-            
+            EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>(preauthFlags, data);
+
+            //If the player exists, run the user info. This is needed for userinfo reloads when the player is currently on.
             var player = Player.List.FirstOrDefault(pl => pl?.UserId != null && Helper.HandleId(pl) == playerId);
             if (player == null) return;
 
-            RunUserInfo(player, true);
+            RunUserInfo(player);
         }
 
-        internal static bool RunUserInfo(Player player, bool noRecurse = false)
+        internal static bool RunUserInfo(Player player)
         {
             var playerId = Helper.HandleId(player);
 
@@ -171,21 +169,8 @@ namespace SCPStats.Websocket
                 EventHandler.DelayedIDs.Remove(playerId);
             }
 
-            if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData))
-            {
-                if (HandleUnconfirmedUser(player)) return true;
-
-                if (noRecurse) return false;
-                
-                if (EventHandler.UserInfo.Count > 500) EventHandler.UserInfo.Remove(EventHandler.UserInfo.Keys.First());
-                EventHandler.UserInfo[playerId] = EventHandler.UserInfo.TryGetValue(playerId, out var userinfo) ? new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(userinfo.Item1, userinfo.Item2, true) : new Tuple<CentralAuthPreauthFlags?, UserInfoData, bool>(null, null, true);
-                
-                WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(playerId, player.IPAddress.Trim().ToLower()));
-
-                return false;
-            }
-
-            if (tupleData.Item2 == null) return HandleUnconfirmedUser(player);
+            //If the user doesn't exist, or their data is null, handle them as unconfirmed.
+            if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData.Item2 == null) return HandleUnconfirmedUser(player);
 
             Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
             
