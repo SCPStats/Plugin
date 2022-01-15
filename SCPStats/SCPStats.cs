@@ -111,6 +111,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Kicking += EventHandler.OnKick;
             Exiled.Events.Handlers.Scp049.FinishingRecall += EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.PreAuthenticating += EventHandler.OnPreauth;
+            Exiled.Events.Handlers.Server.ReportingCheater += EventHandler.OnReportingCheater;
+            Exiled.Events.Handlers.Server.LocalReporting += EventHandler.OnReporting;
             Exiled.Events.Handlers.Server.ReloadedTranslations += this.OnReloadedTranslations;
         }
 
@@ -190,6 +192,8 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Kicking -= EventHandler.OnKick;
             Exiled.Events.Handlers.Scp049.FinishingRecall -= EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.PreAuthenticating -= EventHandler.OnPreauth;
+            Exiled.Events.Handlers.Server.ReportingCheater -= EventHandler.OnReportingCheater;
+            Exiled.Events.Handlers.Server.LocalReporting -= EventHandler.OnReporting;
             Exiled.Events.Handlers.Server.ReloadedTranslations -= this.OnReloadedTranslations;
 
             EventHandler.Reset();

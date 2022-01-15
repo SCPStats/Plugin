@@ -526,6 +526,20 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) ? Helper.HandleId(ev.Issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Issuer?.Nickname) && !(ev.Issuer?.IsHost ?? false) ? ev.Issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
         }
 
+        internal static void OnReportingCheater(ReportingCheaterEventArgs ev)
+        {
+            if (!ev.IsAllowed || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
+
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"7\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) ? Helper.HandleId(ev.Issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Issuer?.Nickname) && !(ev.Issuer?.IsHost ?? false) ? ev.Issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+        }
+
+        internal static void OnReporting(LocalReportingEventArgs ev)
+        {
+            if (!ev.IsAllowed || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
+
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"8\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) ? Helper.HandleId(ev.Issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Issuer?.Nickname) && !(ev.Issuer?.IsHost ?? false) ? ev.Issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+        }
+
         internal static void OnRecalling(FinishingRecallEventArgs ev)
         {
             if (!ev.IsAllowed || !Helper.IsRoundRunning()) return;
