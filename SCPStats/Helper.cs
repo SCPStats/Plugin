@@ -207,7 +207,7 @@ namespace SCPStats
         
         internal static string HandleId(string id)
         {
-            return id?.Split('@')[0];
+            return id?.Split('@')[0].Trim().ToLower();
         }
 
         internal static string HandleId(Player player)
