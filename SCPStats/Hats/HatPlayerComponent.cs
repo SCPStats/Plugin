@@ -59,7 +59,7 @@ namespace SCPStats.Hats
                     var camera = player.CameraTransform;
 
                     var rotAngles = camera.rotation.eulerAngles;
-                    if (player.Team == Team.SCP) rotAngles.x = 0;
+                    if (player.Role.Team == Team.SCP) rotAngles.x = 0;
 
                     var rotation = Quaternion.Euler(rotAngles);
 
@@ -94,12 +94,12 @@ namespace SCPStats.Hats
                         {
                             MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", ownerPickupInfo);
                         }
-                        else if (player1.Team == player.Team)
+                        else if (player1.Role.Team == player.Role.Team)
                         {
                             MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                         }
                         else
-                            switch (player1.Role)
+                            switch (player1.Role.Type)
                             {
                                 case RoleType.Scp93953:
                                 case RoleType.Scp93989:

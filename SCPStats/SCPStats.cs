@@ -100,7 +100,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.PickingUpAmmo += EventHandler.OnPickupAmmo;
             Exiled.Events.Handlers.Player.Verified += EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying += EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.ItemUsed += EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.UsedItem += EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingItem += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs += LoadConfigs;
@@ -181,7 +181,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.PickingUpAmmo -= EventHandler.OnPickupAmmo;
             Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying -= EventHandler.OnLeave;
-            Exiled.Events.Handlers.Player.ItemUsed -= EventHandler.OnUse;
+            Exiled.Events.Handlers.Player.UsedItem -= EventHandler.OnUse;
             Exiled.Events.Handlers.Player.ThrowingItem -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= LoadConfigs;
