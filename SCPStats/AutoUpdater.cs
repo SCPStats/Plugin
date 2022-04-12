@@ -14,7 +14,7 @@ namespace SCPStats
 {
     internal static class AutoUpdater
     {
-        private const string Version = "1.5.3";
+        private const string Version = "1.5.3-1";
         private const string Channel = "1";
 
         internal static async Task RunUpdater(int waitTime = 0)

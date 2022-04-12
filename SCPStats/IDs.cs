@@ -60,7 +60,7 @@ namespace SCPStats
             }
         }
         
-        //Largest ID: 51
+        //Largest ID: 56
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -117,17 +117,19 @@ namespace SCPStats
             {"SCP244a", 52},
             {"SCP244b", 53},
             {"Coal", 54},
-            {"MolecularDisruptor", 55}
+            /* MolecularDisruptor */ {"ParticleDisruptor", 55},
+            {"SCP1853", 56}
         };
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-        //Largest ID: 45
+        //Largest ID: 46
         private static readonly int RecontainmentDamageTypeID = 27;
         private static readonly int WarheadDamageTypeID = 2;
         private static readonly int MicroHidTypeID = 18;
         private static readonly int GrenadeTypeID = 19;
         private static readonly int Scp018TypeID = 38;
+        private static readonly int DisruptorTypeID = 46;
         
         private static readonly Dictionary<string, int> FirearmDamageTypeIDs = new Dictionary<string, int>()
         {
@@ -232,6 +234,8 @@ namespace SCPStats
                     return WarheadDamageTypeID;
                 case Scp018DamageHandler _:
                     return Scp018TypeID;
+                case DisruptorDamageHandler _:
+                    return DisruptorTypeID;
                 case FirearmDamageHandler firearmDamageHandler:
                 {
                     var id = firearmDamageHandler.WeaponType.ToString();
