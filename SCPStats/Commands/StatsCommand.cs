@@ -55,6 +55,7 @@ namespace SCPStats.Commands
             
             response += (SCPStats.Singleton?.Translation?.StatsKD ?? "K/D") + " - " + kd + "\n";
             response += (SCPStats.Singleton?.Translation?.StatsKills ?? "Kills") + " - " + kills + " - " + data.Ranks[Helper.Rankings["kills"]] + "\n";
+            response += (SCPStats.Singleton?.Translation?.StatsDeaths ?? "Deaths") + " - " + deaths + " - " + data.Ranks[Helper.Rankings["deaths"]] + "\n";
             response += (SCPStats.Singleton?.Translation?.StatsPlaytime ?? "Playtime") + " - " + playtime + " - " + data.Ranks[Helper.Rankings["playtime"]] + "\n";
             response += (SCPStats.Singleton?.Translation?.StatsRounds ?? "Rounds Played") + " - " + rounds + " - " + data.Ranks[Helper.Rankings["rounds"]] + "\n";
             response += (SCPStats.Singleton?.Translation?.StatsSodas ?? "Sodas Consumed") + " - " + sodas + " - " + data.Ranks[Helper.Rankings["sodas"]] + "\n";
