@@ -255,6 +255,32 @@ namespace SCPStats
 
         [Description("The hint shown when a person tries to pick up someone else's hat.")]
         public string HatHint { get; set; } = "You can get a hat like this at patreon.com/SCPStats.";
+        
+        [Description("Used to change the stats command.")]
+        public string StatsCommand { get; set; } = "stats";
+
+        [Description("Used to change the stats command aliases.")]
+        public List<string> StatsCommandAliases { get; set; } = new List<string>() {"stat", "serverstat", "serverstats"};
+
+        [Description("The description of the stats command.")]
+        public string StatsDescription { get; set; } = "View your stats and ranking for this server.";
+
+        [Description("The header sent with the stats command response.")]
+        public string StatsHeader { get; set; } = "\nHere are your stats for this server:\n\nStat - Amount - Rank";
+
+        [Description("The message sent when someone doesn't have any stats.")]
+        public string StatsNoStats { get; set; } =
+            "Looks like you don't have any stats. Make sure you've signed up at https://scpstats.com to view your stats.";
+
+        [Description("The translations for the different stats returned by the stats command.")]
+        public string StatsKD { get; set; } = "K/D";
+        public string StatsKills { get; set; } = "Kills";
+        public string StatsDeaths { get; set; } = "Deaths";
+        public string StatsPlaytime { get; set; } = "Playtime";
+        public string StatsRounds { get; set; } = "Rounds Played";
+        public string StatsSodas { get; set; } = "Sodas Consumed";
+        public string StatsEscapes { get; set; } = "Escapes";
+        public string StatsFastestEscape { get; set; } = "Fastest Escape";
 
         public string TimeSeconds { get; set; } = "second(s)";
         public string TimeMinutes { get; set; } = "minute(s)";
