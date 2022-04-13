@@ -31,9 +31,9 @@ namespace SCPStats.Commands
             var p = Player.Get(((PlayerCommandSender) sender).ReferenceHub);
             
             // If for whatever reason we have no UserInfoData on the player, send the no stats message.
-            // We should also send it if the stats/ranks are empty.
+            // We should also send it if the stats are empty.
             Tuple<CentralAuthPreauthFlags?, UserInfoData> dataTuple;
-            if (!EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out dataTuple) || dataTuple.Item2.Stats.Length < 1 || dataTuple.Item2.Ranks.Length < 1)
+            if (!EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out dataTuple) || dataTuple.Item2.Stats.Length < 1)
             {
                 response = SCPStats.Singleton?.Translation?.StatsNoStats ?? "Looks like you don't have any stats. Make sure you've signed up at https://scpstats.com to view your stats.";
                 return true;
@@ -52,17 +52,24 @@ namespace SCPStats.Commands
             var sodas = data.Stats[Helper.Rankings["sodas"]];
             var escapes = data.Stats[Helper.Rankings["escapes"]];
             var fastestEscape = int.TryParse(data.Stats[Helper.Rankings["fastestescape"]], out var fastestEscape1) ? Helper.SecondsToString(fastestEscape1) : Helper.SecondsToString(0);
+
+            bool hasRanks = data.Ranks.Length > 0;
             
-            response += (SCPStats.Singleton?.Translation?.StatsKD ?? "K/D") + " - " + kd + "\n";
-            response += (SCPStats.Singleton?.Translation?.StatsKills ?? "Kills") + " - " + kills + " - " + data.Ranks[Helper.Rankings["kills"]] + "\n";
-            response += (SCPStats.Singleton?.Translation?.StatsDeaths ?? "Deaths") + " - " + deaths + " - " + data.Ranks[Helper.Rankings["deaths"]] + "\n";
-            response += (SCPStats.Singleton?.Translation?.StatsPlaytime ?? "Playtime") + " - " + playtime + " - " + data.Ranks[Helper.Rankings["playtime"]] + "\n";
-            response += (SCPStats.Singleton?.Translation?.StatsRounds ?? "Rounds Played") + " - " + rounds + " - " + data.Ranks[Helper.Rankings["rounds"]] + "\n";
-            response += (SCPStats.Singleton?.Translation?.StatsSodas ?? "Sodas Consumed") + " - " + sodas + " - " + data.Ranks[Helper.Rankings["sodas"]] + "\n";
-            response += (SCPStats.Singleton?.Translation?.StatsEscapes ?? "Escapes") + " - " + escapes + " - " + data.Ranks[Helper.Rankings["escapes"]] + "\n";
-            response += (SCPStats.Singleton?.Translation?.StatsFastestEscape ?? "Fastest Escape") + " - " + fastestEscape + " - " + data.Ranks[Helper.Rankings["fastestescape"]];
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsKD ?? "K/D", kd.ToString());
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsKills ?? "Kills", kills.ToString(), hasRanks ? data.Ranks[Helper.Rankings["kills"]] : "");
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsDeaths ?? "Deaths", deaths.ToString(), hasRanks ? data.Ranks[Helper.Rankings["deaths"]] : "");
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsPlaytime ?? "Playtime", playtime, hasRanks ? data.Ranks[Helper.Rankings["playtime"]] : "");
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsRounds ?? "Rounds Played", rounds, hasRanks ? data.Ranks[Helper.Rankings["rounds"]] : "");
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsSodas ?? "Sodas Consumed", sodas, hasRanks ? data.Ranks[Helper.Rankings["sodas"]] : "");
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsEscapes ?? "Escapes", escapes, hasRanks ? data.Ranks[Helper.Rankings["escapes"]] : "");
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsFastestEscape ?? "Fastest Escape", fastestEscape, hasRanks ? data.Ranks[Helper.Rankings["fastestescape"]] : "", false);
 
             return true;
+        }
+
+        private static String generateMessage(String key, String amount, String rank = "", bool newLine = true)
+        {
+            return key + " - " + amount + (rank == "" ? "" : " - " + rank) + (newLine ? "\n" : "");
         }
     }
 }
