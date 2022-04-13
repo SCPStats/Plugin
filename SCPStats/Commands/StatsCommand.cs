@@ -56,13 +56,13 @@ namespace SCPStats.Commands
             bool hasRanks = data.Ranks.Length > 0;
             
             response += generateMessage(SCPStats.Singleton?.Translation?.StatsKD ?? "K/D", kd.ToString());
-            response += generateMessage(SCPStats.Singleton?.Translation?.StatsKills ?? "Kills", kills.ToString(), hasRanks ? data.Ranks[Helper.Rankings["kills"]] : "");
-            response += generateMessage(SCPStats.Singleton?.Translation?.StatsDeaths ?? "Deaths", deaths.ToString(), hasRanks ? data.Ranks[Helper.Rankings["deaths"]] : "");
-            response += generateMessage(SCPStats.Singleton?.Translation?.StatsPlaytime ?? "Playtime", playtime, hasRanks ? data.Ranks[Helper.Rankings["playtime"]] : "");
-            response += generateMessage(SCPStats.Singleton?.Translation?.StatsRounds ?? "Rounds Played", rounds, hasRanks ? data.Ranks[Helper.Rankings["rounds"]] : "");
-            response += generateMessage(SCPStats.Singleton?.Translation?.StatsSodas ?? "Sodas Consumed", sodas, hasRanks ? data.Ranks[Helper.Rankings["sodas"]] : "");
-            response += generateMessage(SCPStats.Singleton?.Translation?.StatsEscapes ?? "Escapes", escapes, hasRanks ? data.Ranks[Helper.Rankings["escapes"]] : "");
-            response += generateMessage(SCPStats.Singleton?.Translation?.StatsFastestEscape ?? "Fastest Escape", fastestEscape, hasRanks ? data.Ranks[Helper.Rankings["fastestescape"]] : "", false);
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsKills ?? "Kills", kills.ToString(), getRank(hasRanks, data, "kills"));
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsDeaths ?? "Deaths", deaths.ToString(), getRank(hasRanks, data, "deaths"));
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsPlaytime ?? "Playtime", playtime, getRank(hasRanks, data, "playtime"));
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsRounds ?? "Rounds Played", rounds, getRank(hasRanks, data, "rounds"));
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsSodas ?? "Sodas Consumed", sodas, getRank(hasRanks, data, "sodas"));
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsEscapes ?? "Escapes", escapes, getRank(hasRanks, data, "escapes"));
+            response += generateMessage(SCPStats.Singleton?.Translation?.StatsFastestEscape ?? "Fastest Escape", fastestEscape, getRank(hasRanks, data, "fastestescape"), false);
 
             return true;
         }
@@ -70,6 +70,22 @@ namespace SCPStats.Commands
         private static String generateMessage(String key, String amount, String rank = "", bool newLine = true)
         {
             return key + " - " + amount + (rank == "" ? "" : " - " + rank) + (newLine ? "\n" : "");
+        }
+
+        private static String getRank(bool hasRanks, UserInfoData data, String key)
+        {
+            if (!hasRanks) return "";
+
+            String value = data.Ranks[Helper.Rankings[key]];
+
+            int valueInt;
+            if (!int.TryParse(value, out valueInt))
+            {
+                return "";
+            }
+
+            // We need to add one because it's zero-based.
+            return (valueInt + 1).ToString();
         }
     }
 }
