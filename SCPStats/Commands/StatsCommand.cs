@@ -18,7 +18,7 @@ namespace SCPStats.Commands
     {
         public string Command => SCPStats.Singleton?.Translation?.StatsCommand ?? "stats";
         public string[] Aliases { get; } = SCPStats.Singleton?.Translation?.StatsCommandAliases?.ToArray() ?? new string[] {"stat", "serverstat", "serverstats"};
-        public string Description => SCPStats.Singleton?.Translation?.SilentWarnDescription ?? "View your stats and ranking for this server.";
+        public string Description => SCPStats.Singleton?.Translation?.StatsDescription ?? "View your stats and ranking for this server.";
         
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
