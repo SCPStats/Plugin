@@ -35,10 +35,13 @@ namespace SCPStats.Patches
 
             var newName = _varRegex.Replace(value, match =>
             {
+                // This should never happen, but it's here because of a bug.
+                if (match.Groups.Count < 2) return match.Value;
+
                 var statKey = match.Groups[1].Value;
                 if (!Helper.Rankings.TryGetValue(statKey, out var idx)) return match.Value;
 
-                var output = stats.Length < idx ? "0" : stats[idx];
+                var output = stats.Length <= idx ? "0" : stats[idx];
 
                 if (!int.TryParse(output, out var seconds)) return output;
 
