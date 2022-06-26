@@ -160,7 +160,7 @@ namespace SCPStats
 
         internal static PlayerInfo GetPlayerInfo(Player p, bool tutorial = true, bool spectator = true)
         {
-            return p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.ReferenceHub.characterClassManager.SpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
+            return p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
                 ? new PlayerInfo(null, RoleType.None, false)
                 : p?.UserId == null || p.IsHost || !p.IsVerified || (spectator && (p.Role == RoleType.None || p.Role == RoleType.Spectator))
                     ? new PlayerInfo(null, RoleType.None, true)
@@ -178,7 +178,7 @@ namespace SCPStats
             
             var p = Player.Get(f.Hub);
             
-            if(p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.ReferenceHub.characterClassManager.SpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p, f.Role))))
+            if(p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p, f.Role))))
             {
                 return new PlayerInfo(null, RoleType.None, false);
             }
