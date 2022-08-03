@@ -144,7 +144,7 @@ namespace SCPStats.Commands
                 KickPlayer(player, duration, message);
             }
 
-            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.IpBanSuccess ?? "Successfully banned IP!", SCPStats.Singleton?.Translation?.IpBanCommand?.ToUpper() ?? "IPBAN", API.API.AddWarningWithType(6, ip, "", message, issuerID, issuerName));
+            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.IpBanSuccess ?? "Successfully banned IP!", SCPStats.Singleton?.Translation?.IpBanCommand?.ToUpper() ?? "IPBAN", API.API.AddWarningWithType(6, ip, null, "", message, issuerID, issuerName));
 
             response = SCPStats.Singleton?.Translation?.PleaseWait ?? "Please wait...";
             return true;

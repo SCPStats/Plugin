@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Exiled.API.Features;
@@ -186,7 +187,7 @@ namespace SCPStats.API
         /// <returns>If the warning was added successfully.</returns>
         public static async Task<bool> AddWarning(string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
-            return await AddWarningWithType(0, Helper.HandleId(userID), userName, message, issuerID, issuerName, silent);
+            return await AddWarningWithType(0, Helper.HandleId(userID), null, userName, message, issuerID, issuerName, silent);
         }
         
         /// <summary>
@@ -213,16 +214,16 @@ namespace SCPStats.API
         /// <returns>If the note was added successfully.</returns>
         public static async Task<bool> AddNote(string userID, string userName, string message, string issuerID = "", string issuerName = "")
         {
-            return await AddWarningWithType(5, Helper.HandleId(userID), userName, message, issuerID, issuerName);
+            return await AddWarningWithType(5, Helper.HandleId(userID), null, userName, message, issuerID, issuerName);
         }
         
-        internal static async Task<bool> AddWarningWithType(int type, string userID, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
+        internal static async Task<bool> AddWarningWithType(int type, string userID, string userIP, string userName, string message, string issuerID = "", string issuerName = "", bool silent = false)
         {
             var promise = new TaskCompletionSource<bool>();
 
             var msgId = MessageIDsStore.IncrementWarnCounter();
             MessageIDsStore.WarnDict[msgId] = promise;
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userID.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + userName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + Helper.HandleId(issuerID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + ",\"res\":" + msgId + "}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"" + type + "\",\"playerId\":\"" + userID.Replace("\\", "\\\\").Replace("\"", "\\\"") + (userIP != null ? "\",\"playerIP\":\"" + userIP : "") + "\",\"message\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"playerName\":\"" + userName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuer\":\"" + Helper.HandleId(issuerID).Replace("\\", "\\\\").Replace("\"", "\\\"") + "\",\"issuerName\":\"" + issuerName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"" + (silent ? ",\"online\":true" : "") + ",\"res\":" + msgId + "}");
 
             var task = await Task.WhenAny(promise.Task, Task.Delay(5000));
             if (task == promise.Task) return await promise.Task;

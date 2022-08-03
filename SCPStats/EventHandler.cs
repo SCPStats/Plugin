@@ -497,8 +497,9 @@ namespace SCPStats
             if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || string.IsNullOrEmpty(ev.Details.Id) || ev.Type != BanHandler.BanType.UserId) return;
 
             var name = ev.Target?.UserId != null ? ev.Target.Nickname : ev.Details.OriginalName;
+            var ip = (SCPStats.Singleton?.Config?.LinkIpsToBans ?? false) ? Helper.HandleIP(ev.Target) : null;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id)+"\",\"message\":\""+ev.Details.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((long) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"playerName\":\""+name.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) ? Helper.HandleId(ev.Issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Issuer?.Nickname) && !(ev.Issuer?.IsHost ?? false) ? ev.Issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id) + (ip != null ? "\",\"playerIP\":\"" + ip : "") + "\",\"message\":\""+ev.Details.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((long) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"playerName\":\""+name.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) ? Helper.HandleId(ev.Issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Issuer?.Nickname) && !(ev.Issuer?.IsHost ?? false) ? ev.Issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
         }
         
         private static List<string> IgnoredMessages = new List<string>()

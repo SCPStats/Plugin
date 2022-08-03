@@ -215,6 +215,16 @@ namespace SCPStats
             return HandleId(player?.UserId);
         }
 
+        internal static string HandleIP(string ip)
+        {
+            return ip?.Trim()?.ToLower();
+        }
+
+        internal static string HandleIP(Player player)
+        {
+            return HandleIP(player?.IPAddress);
+        }
+
         internal static string UserInfoData(string id, string ip)
         {
             return id + ((SCPStats.Singleton?.Config?.SyncBans ?? false) ? "|" + ip : "");

@@ -27,6 +27,9 @@ namespace SCPStats
         [Description("If you enable this, bans will only be saved to SCPStats and will not be saved to the bans file. This fixes a bug where players must be unbanned on the server they were banned on, or else they will be unbanned on every server but that one. This does not affect already existing bans.")]
         public bool DisableBasegameBans { get; set; } = false;
 
+        [Description("If you enable this, any normal bans that you issue (bans issued through the ban command, not the ipban command) will associate the banned player's IP along with their ID in the ban record (preventing the player from joining with the same ID or IP). This does not create a separate IP ban, so the process for unbanning a player is exactly the same as it is with this option off.")]
+        public bool LinkIpsToBans { get; set; } = false;
+
         [Description("By default, SCPStats does not require confirmation that a user is not banned (and will only kick them if it confirms that they are banned). This is fine, but makes it possible to bypass bans with a DDOS attack. Turning this on will kick players if they are not confirmed to not be banned.")]
         public bool RequireConfirmation { get; set; } = false;
 
