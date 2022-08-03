@@ -21,7 +21,7 @@ namespace SCPStats
         [Description("Turning this off will disable the auto updater, which will automatically update the plugin.")]
         public bool AutoUpdates { get; set; } = true;
 
-        [Description("If you enable this option, bans will automatically be synced across every server linked together.")]
+        [Description("If you enable this option, bans will automatically be synced across all of your servers.")]
         public bool SyncBans { get; set; } = false;
 
         [Description("If you enable this, bans will only be saved to SCPStats and will not be saved to the bans file. This fixes a bug where players must be unbanned on the server they were banned on, or else they will be unbanned on every server but that one. This does not affect already existing bans.")]
