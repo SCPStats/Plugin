@@ -49,38 +49,38 @@
       <HintPath>$(EXILED_REFERENCES)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="CommandSystem.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\CommandSystem.Core.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\CommandSystem.Core.dll</HintPath>
     </Reference>
     <Reference Include="Costura, Version=5.1.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Costura.Fody.5.1.0\lib\netstandard1.0\Costura.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Exiled.API, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.API.dll</HintPath>
+    <Reference Include="Exiled.API, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.API.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Bootstrap, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.Bootstrap.dll</HintPath>
+    <Reference Include="Exiled.Bootstrap, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Bootstrap.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CreditTags, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.CreditTags.dll</HintPath>
+    <Reference Include="Exiled.CreditTags, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CreditTags.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CustomItems, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.CustomItems.dll</HintPath>
+    <Reference Include="Exiled.CustomItems, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CustomItems.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.CustomRoles, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.CustomRoles.dll</HintPath>
+    <Reference Include="Exiled.CustomRoles, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.CustomRoles.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Events, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.Events.dll</HintPath>
+    <Reference Include="Exiled.Events, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Events.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Loader, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.Loader.dll</HintPath>
+    <Reference Include="Exiled.Loader, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Loader.dll</HintPath>
     </Reference>
-    <Reference Include="Exiled.Permissions, Version=5.2.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.Permissions.dll</HintPath>
+    <Reference Include="Exiled.Permissions, Version=5.2.2.0, Culture=neutral, processorArchitecture=Amd64">
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Permissions.dll</HintPath>
     </Reference>
     <Reference Include="Exiled.Updater, Version=3.1.1.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\Exiled.Updater.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\Exiled.Updater.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
@@ -91,7 +91,7 @@
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="NorthwoodLib, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EXILED.5.2.1\lib\net472\NorthwoodLib.dll</HintPath>
+      <HintPath>..\packages\EXILED.5.2.2\lib\net472\NorthwoodLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
