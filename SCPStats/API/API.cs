@@ -203,7 +203,7 @@ namespace SCPStats.API
         }
 
         /// <summary>
-        /// Warn a player.
+        /// Add a note to a player.
         /// </summary>
         /// <param name="userID">The user ID of the player who will have a note added to them.</param>
         /// <param name="userName">The username of the player who will have a note added to them.</param>
