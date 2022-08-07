@@ -14,8 +14,7 @@ namespace SCPStats
 {
     internal static class AutoUpdater
     {
-        private const string Version = "1.5.4";
-        private const string Channel = "1";
+        private const string Version = "1.5.4-0";
 
         internal static async Task RunUpdater(int waitTime = 0)
         {
@@ -25,8 +24,8 @@ namespace SCPStats
             {
                 if (SCPStats.Singleton == null) return;
 
-                var res = await client.DownloadStringTaskAsync("https://scpstats.com/update/" + Channel + "/version");
-                if (res == "-1" || res == Version) return;
+                var latestVersion = await client.DownloadStringTaskAsync("https://scpstats.com/update/version/" + Loader.Version.ToString());
+                if (latestVersion == "-1" || latestVersion == Version) return;
 
                 var location = SCPStats.Singleton?.GetPath();
                 if (location == null)
@@ -34,11 +33,8 @@ namespace SCPStats
                     Log.Warn("SCPStats auto updater couldn't determine the plugin path. Make sure your plugin dll is named \"SCPStats.dll\".");
                     return;
                 }
-                
-                var githubVer = await client.DownloadStringTaskAsync("https://scpstats.com/update/" + Channel + "/github");
-                if (githubVer == "-1") return;
 
-                await client.DownloadFileTaskAsync("https://github.com/SCPStats/Plugin/releases/download/"+githubVer.Replace("/", "")+"/SCPStats.dll", location);
+                await client.DownloadFileTaskAsync("https://github.com/SCPStats/Plugin/releases/download/"+latestVersion.Split('-')[0].Replace("/", "")+"/SCPStats.dll", location);
                 Log.Info("Updated SCPStats. Please restart your server to complete the update.");
             }
         }
