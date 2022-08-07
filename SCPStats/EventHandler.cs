@@ -410,7 +410,7 @@ namespace SCPStats
 
             var isInvalid = !Round.IsStarted && Players.Contains(ev.Player.UserId);
 
-            if(!ev.Player.DoNotTrack) WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+(isInvalid ? ",\"invalid\":true" : "")+"}");
+            WebsocketHandler.SendRequest(RequestType.Join, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+(isInvalid ? ",\"invalid\":true" : "")+(ev.Player.DoNotTrack ? ",\"dnt\":true" : "")+"}");
 
             if (isInvalid) return;
 
@@ -434,8 +434,7 @@ namespace SCPStats
             if (UserInfo.ContainsKey(id)) UserInfo.Remove(id);
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
 
-            if (ev.Player.DoNotTrack) return;
-            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\"}");
+            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\""+(ev.Player.DoNotTrack ? ",\"dnt\":true" : "")+"}");
         }
 
         internal static void OnUse(UsedItemEventArgs ev)
