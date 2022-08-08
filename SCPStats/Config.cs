@@ -120,7 +120,8 @@ namespace SCPStats
             "[Anty AFK]",
             "Auto-Kick:",
             "[Auto-Kick]",
-            "[Auto Kick]"
+            "[Auto Kick]",
+            "[Ultimate-AFK]"
         };
 
         [Description("Should SCPStats record stats? It is recommened to disable stat tracking on event/gamemode servers.")]
