@@ -434,7 +434,7 @@ namespace SCPStats
             if (UserInfo.ContainsKey(id)) UserInfo.Remove(id);
             if (Players.Contains(ev.Player.UserId)) Players.Remove(ev.Player.UserId);
 
-            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\""+((SCPStats.Singleton?.Config?.SendPlayerNames ?? false) ? ",\"playername\":\""+ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\"" : "")+(ev.Player.DoNotTrack ? ",\"dnt\":true" : "")+"}");
+            WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\""+id+"\""+(ev.Player.DoNotTrack ? ",\"dnt\":true" : "")+"}");
         }
 
         internal static void OnUse(UsedItemEventArgs ev)
