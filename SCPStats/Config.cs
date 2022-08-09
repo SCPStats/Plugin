@@ -121,7 +121,8 @@ namespace SCPStats
             "Auto-Kick:",
             "[Auto-Kick]",
             "[Auto Kick]",
-            "[Ultimate-AFK]"
+            "[Ultimate-AFK]",
+            "You were kicked by a plugin"
         };
 
         [Description("Should SCPStats record stats? It is recommened to disable stat tracking on event/gamemode servers.")]
