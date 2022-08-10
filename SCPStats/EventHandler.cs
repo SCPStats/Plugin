@@ -595,8 +595,8 @@ namespace SCPStats
             //If the server isn't full and they aren't pre-requested (such as at round end).
             else if(!PreRequestedIDs.Contains(id))
             {
-                //If we haven't delayed them and it's the first round/empty round, and we require confirmation, and we have a positive first round preauth delay.
-                if (!DelayedIDs.Contains(id) && (firstRound || Server.PlayerCount < 1) && (SCPStats.Singleton?.Config?.RequireConfirmation ?? false) && (int) SCPStats.Singleton?.Config?.FirstRoundPreauthDelay > 0)
+                //If we haven't delayed them and it's the first round/empty round, and we need to confirm bans, and we have a positive first round preauth delay.
+                if (!DelayedIDs.Contains(id) && (firstRound || Server.PlayerCount < 1) && (SCPStats.Singleton?.Config?.SyncBans ?? false) && (int) SCPStats.Singleton?.Config?.FirstRoundPreauthDelay > 0)
                 {
                     //First delay their connection, then request their data after.
                     DelayedIDs.Add(id);
@@ -614,7 +614,7 @@ namespace SCPStats
 
         internal static IEnumerator<float> UpdateLocalBanCache()
         {
-            if(!(SCPStats.Singleton?.Config?.LocalBanCache ?? false)) yield break;
+            if(!(SCPStats.Singleton?.Config?.SyncBans ?? false)) yield break;
 
             yield return Timing.WaitForSeconds(5f);
 
@@ -623,7 +623,7 @@ namespace SCPStats
 
         internal static void SetLocalBanCache(string info, bool write = true)
         {
-            if(!(SCPStats.Singleton?.Config?.LocalBanCache ?? false)) return;
+            if(!(SCPStats.Singleton?.Config?.SyncBans ?? false)) return;
             
             var bans = info.Split('`');
 
@@ -651,7 +651,7 @@ namespace SCPStats
 
         internal static void LoadLocalBanCache()
         {
-            if(!(SCPStats.Singleton?.Config?.LocalBanCache ?? false)) return;
+            if(!(SCPStats.Singleton?.Config?.SyncBans ?? false)) return;
             
             var file = Path.Combine(Paths.Configs, "SCPStats", Server.Port + "-Bans.txt");
 

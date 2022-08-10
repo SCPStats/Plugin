@@ -204,8 +204,8 @@ namespace SCPStats.Websocket
             //security will not be compromised. To get the functionality back, we'll just re-query their
             //user info.
             //
-            //If we use the local cache, let's confirm that they aren't banned.
-            if (SCPStats.Singleton?.Config?.LocalBanCache ?? false)
+            //If we care about bans, let's confirm that they aren't banned.
+            if (SCPStats.Singleton?.Config?.SyncBans ?? false)
             {
                 //This will always be less than the current timestamp,
                 //so it's a safe default.
@@ -229,15 +229,6 @@ namespace SCPStats.Websocket
                 
                 //They aren't banned, so let them pass. We'll re-query their user info though, just to be safe.
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
-                
-                return false;
-            }
-
-            if (SCPStats.Singleton?.Config?.RequireConfirmation ?? false)
-            {
-                Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-                ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.NotConfirmedKickMessage ?? "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.");
-                return true;
             }
 
             return false;
