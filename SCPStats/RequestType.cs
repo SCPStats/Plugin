@@ -30,6 +30,7 @@ namespace SCPStats
         PocketEnter = 23,
         PocketExit = 24,
         RoundEndPlayer = 25,
-        GetAllBans = 26
+        GetAllBans = 26,
+        SetVersion = 27
     }
 }

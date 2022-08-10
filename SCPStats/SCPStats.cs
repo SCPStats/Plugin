@@ -83,6 +83,11 @@ namespace SCPStats
             EventHandler.OnRAReload();
             Timing.CallDelayed(5f, EventHandler.OnRAReload);
 
+            Timing.CallDelayed(5f, () =>
+            {
+                WebsocketHandler.SendRequest(RequestType.SetVersion, AutoUpdater.Version);
+            });
+
             base.OnEnabled();
         }
 
