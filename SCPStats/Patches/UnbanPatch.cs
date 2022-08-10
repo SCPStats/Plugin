@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using HarmonyLib;
+using MEC;
 using SCPStats.Websocket;
 
 namespace SCPStats.Patches
@@ -26,6 +27,9 @@ namespace SCPStats.Patches
             }
 
             WebsocketHandler.SendRequest(RequestType.InvalidateBan, Helper.HandleId(id));
+
+            Timing.RunCoroutine(EventHandler.UpdateLocalBanCache());
+            
             return true;
         }
     }

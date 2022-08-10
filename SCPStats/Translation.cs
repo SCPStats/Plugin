@@ -29,6 +29,10 @@ namespace SCPStats
         [Description("The kick message used when a player is banned. Use \"{duration}\" for the amount of time left until the ban expires and \"{reason}\" for the ban reason.")]
         public string BannedMessage { get; set; } = "[SCPStats] You have been banned from this server:\nExpires in: {duration}.\nReason: {reason}.";
 
+        [Description("The kick message used when a player is banned but the full details of the ban could not be retrieved.")]
+        public string CacheBannedMessage { get; set; } =
+            "[SCPStats] You have been banned from this server, but there was an error fetching the details of your ban.";
+
         [Description("If RequireConfirmation is enabled, this message will be sent when an unconfirmed user joins.")]
         public string NotConfirmedKickMessage { get; set; } = "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.";
 

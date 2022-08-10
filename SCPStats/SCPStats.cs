@@ -40,6 +40,7 @@ namespace SCPStats
 
         private CoroutineHandle update;
         private CoroutineHandle requests;
+        private CoroutineHandle cache;
 
         public override void OnEnabled()
         {
@@ -72,6 +73,10 @@ namespace SCPStats
                 AutoUpdater.RunUpdater(10000);
                 update = Timing.RunCoroutine(AutoUpdates());
             }
+
+            EventHandler.LoadLocalBanCache();
+            Timing.RunCoroutine(EventHandler.UpdateLocalBanCache());
+            cache = Timing.RunCoroutine(UpdateCache());
 
             requests = Timing.RunCoroutine(WebsocketRequests.DequeueRequests());
 
@@ -168,7 +173,7 @@ namespace SCPStats
             harmony?.UnpatchAll(harmony.Id);
             harmony = null;
 
-            Timing.KillCoroutines(update, requests);
+            Timing.KillCoroutines(update, cache, requests);
 
             Exiled.Events.Handlers.Server.RoundStarted -= EventHandler.OnRoundStart;
             Exiled.Events.Handlers.Server.EndingRound -= EventHandler.OnRoundEnding;
@@ -222,6 +227,16 @@ namespace SCPStats
                 yield return Timing.WaitForSeconds(7200);
 
                 AutoUpdater.RunUpdater(10000);
+            }
+        }
+
+        private IEnumerator<float> UpdateCache()
+        {
+            while (true)
+            {
+                yield return Timing.WaitForSeconds(3600);
+
+                Timing.RunCoroutine(EventHandler.UpdateLocalBanCache());
             }
         }
     }

@@ -7,6 +7,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using Exiled.API.Enums;
 using Exiled.API.Features;
@@ -47,6 +49,8 @@ namespace SCPStats
         internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>>();
         private static List<string> PreRequestedIDs = new List<string>();
         internal static List<string> DelayedIDs = new List<string>();
+
+        internal static Dictionary<string, Int64> LocalBanCache = new Dictionary<string, Int64>();
 
         internal static void Reset()
         {
@@ -499,6 +503,8 @@ namespace SCPStats
             var ip = (SCPStats.Singleton?.Config?.LinkIpsToBans ?? false) ? Helper.HandleIP(ev.Target) : null;
 
             WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id) + (ip != null ? "\",\"playerIP\":\"" + ip : "") + "\",\"message\":\""+ev.Details.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((long) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"playerName\":\""+name.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Issuer?.UserId) && !(ev.Issuer?.IsHost ?? false) ? Helper.HandleId(ev.Issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Issuer?.Nickname) && !(ev.Issuer?.IsHost ?? false) ? ev.Issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+            
+            Timing.RunCoroutine(UpdateLocalBanCache());
         }
         
         private static List<string> IgnoredMessages = new List<string>()
@@ -604,6 +610,54 @@ namespace SCPStats
                 UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>((CentralAuthPreauthFlags) ev.Flags, null);
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ev.Request.RemoteEndPoint.Address.ToString().Trim().ToLower()));
             }
+        }
+
+        internal static IEnumerator<float> UpdateLocalBanCache()
+        {
+            if(!(SCPStats.Singleton?.Config?.LocalBanCache ?? false)) yield break;
+
+            yield return Timing.WaitForSeconds(5f);
+
+            WebsocketHandler.SendRequest(RequestType.GetAllBans);
+        }
+
+        internal static void SetLocalBanCache(string info, bool write = true)
+        {
+            if(!(SCPStats.Singleton?.Config?.LocalBanCache ?? false)) return;
+            
+            var bans = info.Split('`');
+
+            //First, we'll save our bans in the dictionary.
+            //We're on a single thread, so clearing is safe.
+            LocalBanCache.Clear();
+
+            foreach (string ban in bans)
+            {
+                var banInfo = ban.Split(',');
+                var bannedUser = banInfo[0];
+                var banExpiry = Int64.Parse(banInfo[1], NumberStyles.Integer, Helper.UsCulture);
+
+                LocalBanCache[bannedUser] = banExpiry;
+            }
+
+            if (!write) return;
+            
+            //Now, we should write it to a file. We'll place the file inside
+            //of our config directory.
+            var file = Path.Combine(Paths.Configs, "SCPStats", Server.Port + "-Bans.txt");
+            
+            File.WriteAllText(file, info);
+        }
+
+        internal static void LoadLocalBanCache()
+        {
+            if(!(SCPStats.Singleton?.Config?.LocalBanCache ?? false)) return;
+            
+            var file = Path.Combine(Paths.Configs, "SCPStats", Server.Port + "-Bans.txt");
+
+            if (!File.Exists(file)) return;
+
+            SetLocalBanCache(File.ReadAllText(file), false);
         }
     }
 }

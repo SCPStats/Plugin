@@ -33,6 +33,9 @@ namespace SCPStats
         [Description("By default, SCPStats does not require confirmation that a user is not banned (and will only kick them if it confirms that they are banned). This is fine, but makes it possible to bypass bans with a DDOS attack. Turning this on will kick players if they are not confirmed to not be banned.")]
         public bool RequireConfirmation { get; set; } = false;
 
+        [Description("Stores a list of bans locally and references it if SCPStats cannot be reached for any reason. This means that if require_confirmation is enabled, the local cache will be used instead of potentially kicking a player, and if it isn't, the local cache will be used instead of potentially allowing a banned player to join.")]
+        public bool LocalBanCache { get; set; } = false;
+
         [Description("By default, SCPStats records basegame moderations such as kicks, bans, and reports automatically. Turning this off will stop SCPStats from recording these. Only turn this off if you aren't using SCPStats for moderation and don't plan to. Turning this off will not disable manual actions such as warns and ipbans (which are a part of SCPStats and not basegame).")]
         public bool ModerationLogging { get; set; } = true;
 

@@ -51,6 +51,10 @@ namespace SCPStats.Websocket
                         else if (info.StartsWith("wd"))
                         {
                             HandleDelwarn(info.Substring(2));
+                        } 
+                        else if (info.StartsWith("ba"))
+                        {
+                            HandleLocalBanCache(info.Substring(2));
                         }
                     }
                     catch (Exception e)
@@ -121,6 +125,11 @@ namespace SCPStats.Websocket
             
             promise?.SetResult(res == "S");
         }
+        
+        private static void HandleLocalBanCache(string info)
+        {
+            EventHandler.SetLocalBanCache(info);
+        }
 
         private static void HandleUserInfo(string info)
         {
@@ -189,6 +198,41 @@ namespace SCPStats.Websocket
 
         private static bool HandleUnconfirmedUser(Player player)
         {
+            //They're unconfirmed. The only important thing that we need to make sure of is that
+            //they don't have an active ban. If we can confirm that they don't via the local ban cache,
+            //then we don't need to kick them. Some functionality (such as hats) will break, but server
+            //security will not be compromised. To get the functionality back, we'll just re-query their
+            //user info.
+            //
+            //If we use the local cache, let's confirm that they aren't banned.
+            if (SCPStats.Singleton?.Config?.LocalBanCache ?? false)
+            {
+                //This will always be less than the current timestamp,
+                //so it's a safe default.
+                Int64 banExpiry = -1;
+
+                var id = Helper.HandleId(player);
+                var ip = Helper.HandleIP(player);
+
+                //Try to get a ban for their ID. If there isn't one, try their IP.
+                if (!EventHandler.LocalBanCache.TryGetValue(id, out banExpiry))
+                    EventHandler.LocalBanCache.TryGetValue(ip, out banExpiry);
+                
+                //Now, let's check if the ban expires after now. If it does,
+                //we'll send them a message, otherwise we can return.
+                if (banExpiry > DateTimeOffset.Now.ToUnixTimeSeconds())
+                {
+                    Log.Debug("Player is banned (by cache). Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                    ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.CacheBannedMessage ?? "[SCPStats] You have been banned from this server, but there was an error fetching the details of your ban.");
+                    return true;
+                }
+                
+                //They aren't banned, so let them pass. We'll re-query their user info though, just to be safe.
+                WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
+                
+                return false;
+            }
+
             if (SCPStats.Singleton?.Config?.RequireConfirmation ?? false)
             {
                 Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);

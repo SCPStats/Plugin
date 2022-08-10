@@ -29,6 +29,7 @@ namespace SCPStats
         Revive = 22,
         PocketEnter = 23,
         PocketExit = 24,
-        RoundEndPlayer = 25
+        RoundEndPlayer = 25,
+        GetAllBans = 26
     }
 }
