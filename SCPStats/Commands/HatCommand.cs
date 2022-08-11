@@ -84,7 +84,7 @@ namespace SCPStats.Commands
         {
             {"Tank", new CustomHat() {Item = IDs.ItemIDToType(25), Scale = new Vector3(5, 5, 5), Rotation = new Vector3(180, 0, 0)}},
             {"Turret", new CustomHat() {Item = IDs.ItemIDToType(12), Scale = new Vector3(2, 3, 2), Rotation = new Vector3(0, 90, 0)}},
-            {"Light", new CustomHat() {Item = IDs.ItemIDToType(15), Scale = new Vector3(3, 3, .25f), Offset = new Vector3(0, 0, .2f), Rotation = new Vector3(180, 0, 0)}}
+            {"Speaker", new CustomHat() {Item = IDs.ItemIDToType(15), Scale = new Vector3(3, 3, .25f), Offset = new Vector3(0, 0, .2f), Rotation = new Vector3(180, 0, 0)}}
         };
         
         private static Dictionary<string, CustomHat> _tier4Hats = new Dictionary<string, CustomHat>()
