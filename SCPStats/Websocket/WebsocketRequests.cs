@@ -316,8 +316,8 @@ namespace SCPStats.Websocket
 
             var item = IDs.ItemIDToType(data.HatID);
 
-            if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool>(new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation, data.HideHat), new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation, data.HideHat), true);
-            else HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool>(new HatInfo(ItemType.SCP268), new HatInfo(ItemType.SCP268), true);
+            if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation, data.HideHat), new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation, data.HideHat), true, data.CustomHatTier);
+            else HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(new HatInfo(ItemType.SCP268), new HatInfo(ItemType.SCP268), true, data.CustomHatTier);
 
             if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
             {

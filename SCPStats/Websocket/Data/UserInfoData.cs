@@ -91,11 +91,16 @@ namespace SCPStats.Websocket.Data
         /// Is this user's hat custom (does it have a custom scale, offset, or rotation)?
         /// </summary>
         public bool IsCustomHat { get; }
-        
+
         /// <summary>
         /// Is this user's hat hidden from them (but visible to everyone else)?
         /// </summary>
         public bool HideHat { get; }
+
+        /// <summary>
+        /// Is this user capable of having a custom hat (even if they don't currently have one)?
+        /// </summary>
+        public bool CustomHatTier { get; }
 
         public UserInfoData(string[] flags)
         {
@@ -133,6 +138,8 @@ namespace SCPStats.Websocket.Data
             BanLength = length > 19 && int.TryParse(flags[19], NumberStyles.Integer, Helper.UsCulture, out var banLength) ? banLength : 0;
 
             HideHat = length > 20 && flags[20] == "1";
+
+            CustomHatTier = length > 21 && flags[21] == "1";
         }
     }
 }
