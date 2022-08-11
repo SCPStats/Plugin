@@ -80,7 +80,7 @@ namespace SCPStats.Hats
 
                     var ownerPickupInfo = pickupInfo;
                     ownerPickupInfo.Locked = true;
-                    if (item.hideHat)
+                    if (!item.showHat)
                     {
                         ownerPickupInfo.Position = Vector3.zero;
                         ownerPickupInfo.Rotation = new LowPrecisionQuaternion(Quaternion.identity);

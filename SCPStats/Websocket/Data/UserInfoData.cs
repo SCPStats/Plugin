@@ -93,9 +93,9 @@ namespace SCPStats.Websocket.Data
         public bool IsCustomHat { get; }
 
         /// <summary>
-        /// Is this user's hat hidden from them (but visible to everyone else)?
+        /// Is this user's hat shown to them (instead of being hidden from their view but visible to everyone else)?
         /// </summary>
-        public bool HideHat { get; }
+        public bool ShowHat { get; }
 
         /// <summary>
         /// Is this user capable of having a custom hat (even if they don't currently have one)?
@@ -137,7 +137,9 @@ namespace SCPStats.Websocket.Data
             BanText = length > 18 ? flags[18] : "";
             BanLength = length > 19 && int.TryParse(flags[19], NumberStyles.Integer, Helper.UsCulture, out var banLength) ? banLength : 0;
 
-            HideHat = length > 20 && flags[20] == "1";
+            //It's actually hideHat on the backend, so we check against 0
+            //for show hat. This is done so the default here is hiding the hat (show hat = false).
+            ShowHat = length > 20 && flags[20] == "0";
 
             CustomHatTier = length > 21 && flags[21] == "1";
         }

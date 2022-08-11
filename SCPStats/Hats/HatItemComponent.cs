@@ -17,6 +17,6 @@ namespace SCPStats.Hats
         internal Vector3 itemOffset;
         internal Quaternion rot;
         internal ItemPickupBase item;
-        internal bool hideHat;
+        internal bool showHat;
     }
 }
