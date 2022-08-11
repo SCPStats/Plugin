@@ -124,6 +124,8 @@ namespace SCPStats.Commands
                 playerComponent = p.GameObject.AddComponent<HatPlayerComponent>();
             }
 
+            var hasInfo = EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out var info);
+
             var command = string.Join(" ", arguments).ToLower();
 
             switch (command)
@@ -131,7 +133,7 @@ namespace SCPStats.Commands
                 case "on":
                     if (playerComponent.item == null)
                     {
-                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1);
+                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, info.Item2.ShowHat);
                         response = SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.";
                         return true;
                     }
@@ -150,7 +152,7 @@ namespace SCPStats.Commands
                 case "toggle":
                     if (playerComponent.item == null)
                     {
-                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1);
+                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, info.Item2.ShowHat);
                         response = SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.";
                         return true;
                     }
@@ -162,12 +164,12 @@ namespace SCPStats.Commands
                     }
                 case "default":
                     HatPlayers[p.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(HatPlayers[p.UserId].Item2, HatPlayers[p.UserId].Item2, HatPlayers[p.UserId].Item3, HatPlayers[p.UserId].Item4);
-                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1);
+                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, info.Item2.ShowHat);
 
                     response = SCPStats.Singleton?.Translation?.HatDefault ?? "Your hat has been changed back to your default hat.";
                     return true;
                 default:
-                    var hasHatPerms = EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out var info) && info.Item2.HasHat;
+                    var hasHatPerms = hasInfo && info.Item2.HasHat;
                     var customHats = SCPStats.Singleton?.Config?.Hats ?? new Dictionary<string, CustomHat>();
                     var perHatPermissions = SCPStats.Singleton?.Config?.PerHatPermissions ?? false;
                     
@@ -213,7 +215,7 @@ namespace SCPStats.Commands
                     }
                     
                     HatPlayers[p.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(item, HatPlayers[p.UserId].Item2, HatPlayers[p.UserId].Item3, HatPlayers[p.UserId].Item4);
-                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1);
+                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, info.Item2.ShowHat);
                     
                     response = SCPStats.Singleton?.Translation?.HatChanged ?? "Your hat has been changed.";
                     return true;

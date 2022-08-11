@@ -30,7 +30,8 @@ namespace SCPStats.API
         /// </summary>
         /// <param name="player">The <see cref="Player"/> who should wear the hat.</param>
         /// <param name="hat">The <see cref="HatInfo"/> of the hat.</param>
-        public static void SpawnHat(Player player, HatInfo hat)
+        /// <param name="showHat">A <see cref="bool"/> indicating if the hat should be displayed on its owner's screen.</param>
+        public static void SpawnHat(Player player, HatInfo hat, bool showHat = false)
         {
             if (hat.Item == ItemType.None) return;
 
@@ -86,7 +87,7 @@ namespace SCPStats.API
 
             var pickup = itemObj.Spawn(Vector3.zero, Quaternion.identity);
 
-            SpawnHat(player, pickup, itemOffset, rot, hat.ShowHat);
+            SpawnHat(player, pickup, itemOffset, rot, showHat);
         }
         
         /// <summary>

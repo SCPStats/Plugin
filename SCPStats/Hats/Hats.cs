@@ -17,14 +17,14 @@ namespace SCPStats.Hats
         {
             if (!HatCommand.HatPlayers.ContainsKey(p.UserId)) return;
 
-            p.SpawnHat(HatCommand.HatPlayers[p.UserId].Item1);
+            p.SpawnHat(HatCommand.HatPlayers[p.UserId].Item1, EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out var info) && info.Item2.ShowHat);
         }
         
-        internal static void SpawnHat(this Player p, HatInfo hat)
+        internal static void SpawnHat(this Player p, HatInfo hat, bool showHat)
         {
             if (!(SCPStats.Singleton?.Config?.EnableHats ?? true)) return;
             
-            API.API.SpawnHat(p, hat);
+            API.API.SpawnHat(p, hat, showHat);
         }
 
         internal static Vector3 GetHatPosForRole(RoleType role)
