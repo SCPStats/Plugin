@@ -55,9 +55,10 @@ namespace SCPStats
                     Log.Error("Config for SCPStats has not been filled out correctly. Disabling!");
                 }
 
-                this.OnDisabled();
-                Timing.CallDelayed(1f, this.OnUnregisteringCommands);
+                Log.Info(
+                    "Go to https://panel.scpstats.com/myservers to create a server, then paste in the command you see after clicking the View Secret button.");
 
+                this.OnDisabled();
                 return;
             }
 
