@@ -96,6 +96,12 @@ namespace SCPStats.Commands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            if (!(SCPStats.Singleton?.Config?.EnableHats ?? true))
+            {
+                response = SCPStats.Singleton?.Translation?.HatsNotEnabled ?? "Hats are not enabled on this server.";
+                return false;
+            }
+
             if (!(sender is PlayerCommandSender))
             {
                 response = SCPStats.Singleton?.Translation?.NotPlayer ?? "This command can only be ran by a player!";

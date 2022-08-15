@@ -259,6 +259,9 @@ namespace SCPStats
 
         [Description("The hint shown when a person tries to pick up someone else's hat.")]
         public string HatHint { get; set; } = "You can get a hat like this at patreon.com/SCPStats.";
+
+        [Description("The message shown when a player uses the hat command while hats are disabled.")]
+        public string HatsNotEnabled { get; set; } = "Hats are not enabled on this server.";
         
         [Description("Used to change the stats command.")]
         public string StatsCommand { get; set; } = "stats";
