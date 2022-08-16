@@ -233,7 +233,7 @@ namespace SCPStats.Websocket
 
             //If we use the whitelist, we need to make sure that we have details about the player.
             //If we don't, we should kick them.
-            if (SCPStats.Singleton?.Config?.Whitelist != null)
+            if (Config.WhitelistEnabled())
             {
                 Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
                 ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.NotConfirmedKickMessage ?? "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.");
@@ -260,7 +260,7 @@ namespace SCPStats.Websocket
 
         private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
         {
-            if (flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) || SCPStats.Singleton?.Config?.Whitelist == null || SCPStats.Singleton.Config.Whitelist.Count(req => req != "DiscordRoleID") < 1) return false;
+            if (flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) || !Config.WhitelistEnabled()) return false;
 
             var passed = false;
             

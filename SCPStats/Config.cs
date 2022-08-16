@@ -7,6 +7,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Exiled.API.Interfaces;
 using Exiled.Events.EventArgs;
 using SCPStats.Hats;
@@ -54,7 +55,9 @@ namespace SCPStats
         {
             {"ExampleXPRole", "{xp} XP | Level {level}"}
         };
-        
+
+        public static bool WhitelistEnabled() => SCPStats.Singleton.Config?.Whitelist != null && SCPStats.Singleton.Config.Whitelist.Count(req => req != "DiscordRoleID") > 0;
+
         [Description("The whitelist will only allow a player to join the server if they meet certain conditions. See the below options for how to change the whitelist's behavior. The whitelist is just a list of the same conditions used in rolesync (so only the left side, without the : ), with the addition of \"discordmember\" and \"booster\" being valid conditions.")]
         public List<string> Whitelist { get; set; } = new List<string>()
         {
