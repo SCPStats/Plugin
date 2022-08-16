@@ -595,8 +595,8 @@ namespace SCPStats
             //If the server isn't full and they aren't pre-requested (such as at round end).
             else if(!PreRequestedIDs.Contains(id))
             {
-                //If we haven't delayed them and it's the first round/empty round, and we need to confirm bans, and we have a positive first round preauth delay.
-                if (!DelayedIDs.Contains(id) && (firstRound || Server.PlayerCount < 1) && (SCPStats.Singleton?.Config?.SyncBans ?? false) && (int) SCPStats.Singleton?.Config?.FirstRoundPreauthDelay > 0)
+                //If we haven't delayed them and it's the first round/empty round, and we need to confirm bans/handle a whitelist, and we have a positive first round preauth delay.
+                if (!DelayedIDs.Contains(id) && (firstRound || Server.PlayerCount < 1) && ((SCPStats.Singleton?.Config?.SyncBans ?? false) || SCPStats.Singleton?.Config?.Whitelist != null) && (int) SCPStats.Singleton?.Config?.FirstRoundPreauthDelay > 0)
                 {
                     //First delay their connection, then request their data after.
                     DelayedIDs.Add(id);

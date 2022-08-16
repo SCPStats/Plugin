@@ -231,6 +231,15 @@ namespace SCPStats.Websocket
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
             }
 
+            //If we use the whitelist, we need to make sure that we have details about the player.
+            //If we don't, we should kick them.
+            if (SCPStats.Singleton?.Config?.Whitelist != null)
+            {
+                Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.NotConfirmedKickMessage ?? "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.");
+                return true;
+            }
+
             return false;
         }
 
