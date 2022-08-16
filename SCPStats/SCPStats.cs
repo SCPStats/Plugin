@@ -56,7 +56,7 @@ namespace SCPStats
                 }
 
                 Log.Info(
-                    "Go to https://panel.scpstats.com/myservers to create a server, then paste in the command you see after clicking the View Secret button.");
+                    "Go to https://docs.scpstats.com for more information on how to setup SCPStats.");
 
                 this.OnDisabled();
                 return;
