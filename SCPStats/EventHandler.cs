@@ -623,8 +623,8 @@ namespace SCPStats
 
         internal static void SetLocalBanCache(string info, bool write = true)
         {
-            if(!(SCPStats.Singleton?.Config?.SyncBans ?? false)) return;
-            
+            if(!(SCPStats.Singleton?.Config?.SyncBans ?? false) || string.IsNullOrEmpty(info)) return;
+
             var bans = info.Split('`');
 
             //First, we'll save our bans in the dictionary.
