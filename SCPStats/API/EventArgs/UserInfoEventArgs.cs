@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using Exiled.API.Features;
+using Exiled.Events.EventArgs.Interfaces;
 using SCPStats.Websocket.Data;
 
 namespace SCPStats.API.EventArgs
@@ -13,7 +14,7 @@ namespace SCPStats.API.EventArgs
     /// <summary>
     /// Includes all of the information for user info events.
     /// </summary>
-    public class UserInfoEventArgs : System.EventArgs
+    public class UserInfoEventArgs : IExiledEvent
     {
         internal UserInfoEventArgs(Player player, UserInfoData userInfo, CentralAuthPreauthFlags? flags)
         {
