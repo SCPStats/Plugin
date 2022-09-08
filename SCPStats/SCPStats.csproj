@@ -241,6 +241,7 @@
     <Compile Include="IDs.cs" />
     <Compile Include="Integrations.cs" />
     <Compile Include="Patches\ActivateGrenadePatch.cs" />
+    <Compile Include="Patches\ActivateGrenadePickupPatch.cs" />
     <Compile Include="Patches\BanFilePatch.cs" />
     <Compile Include="Patches\BanPatch.cs" />
     <Compile Include="Patches\CollisionPickupPatch.cs" />
