@@ -651,13 +651,18 @@ namespace SCPStats
 
         internal static void LoadLocalBanCache()
         {
-            if(!(SCPStats.Singleton?.Config?.SyncBans ?? false)) return;
+            try {
+                if(!(SCPStats.Singleton?.Config?.SyncBans ?? false)) return;
             
-            var file = Path.Combine(Paths.Configs, "SCPStats", Server.Port + "-Bans.txt");
+                var file = Path.Combine(Paths.Configs, "SCPStats", Server.Port + "-Bans.txt");
 
-            if (!File.Exists(file)) return;
+                if (!File.Exists(file)) return;
 
-            SetLocalBanCache(File.ReadAllText(file), false);
+                SetLocalBanCache(File.ReadAllText(file), false);
+            } catch(Exception e) {
+                // Fail gracefully so that the ban cache can be updated.
+                Log.Error(e);
+            }
         }
     }
 }
