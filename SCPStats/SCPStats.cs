@@ -50,8 +50,6 @@ namespace SCPStats
         {
             Singleton = this;
             
-            EventManager.RegisterEvents<EventHandler>(this);
-            
             LoadConfigs();
 
             if (Secret == "fill this" || ServerID == "fill this")
@@ -65,9 +63,10 @@ namespace SCPStats
                     "Go to https://docs.scpstats.com for more information on how to setup SCPStats.");
 
                 PluginHandler.Get(this).Unload();
-                this.OnDisabled();
                 return;
             }
+            
+            EventManager.RegisterEvents<EventHandler>(this);
 
             _harmony = new Harmony($"SCPStats-{DateTime.Now.Ticks}");
             _harmony.PatchAll();
