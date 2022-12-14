@@ -34,12 +34,12 @@ namespace SCPStats.API
         /// </summary>
         public static System.EventHandler<SendingWarningMessageEventArgs> SendingWarningMessage;
 
-        internal static void OnUserInfoReceived(UserInfoEventArgs ev) => UserInfoReceived.Invoke(null, ev);
+        internal static void OnUserInfoReceived(UserInfoEventArgs ev) => UserInfoReceived?.Invoke(null, ev);
 
-        internal static void OnUserInfoHandled(UserInfoEventArgs ev) => UserInfoHandled.Invoke(null, ev);
+        internal static void OnUserInfoHandled(UserInfoEventArgs ev) => UserInfoHandled?.Invoke(null, ev);
 
-        internal static void OnGeneratingWarningMessage(GeneratingWarningMessageEventArgs ev) => GeneratingWarningMessage.Invoke(null, ev);
+        internal static void OnGeneratingWarningMessage(GeneratingWarningMessageEventArgs ev) => GeneratingWarningMessage?.Invoke(null, ev);
 
-        internal static void OnSendingWarningMessage(SendingWarningMessageEventArgs ev) => SendingWarningMessage.Invoke(null, ev);
+        internal static void OnSendingWarningMessage(SendingWarningMessageEventArgs ev) => SendingWarningMessage?.Invoke(null, ev);
     }
 }

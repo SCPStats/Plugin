@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
+using InventorySystem.Items.ThrowableProjectiles;
 using LiteNetLib;
 using MEC;
 using PlayerRoles;
@@ -25,6 +26,7 @@ using SCPStats.Commands;
 using SCPStats.Hats;
 using SCPStats.Websocket;
 using SCPStats.Websocket.Data;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace SCPStats
@@ -146,7 +148,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.RoundStart)]
-        internal static void OnRoundStart()
+        internal void OnRoundStart()
         {
             Restarting = false;
             DidRoundEnd = false;
@@ -191,14 +193,14 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.RoundEnd)]
-        internal static void OnRoundEnding()
+        internal void OnRoundEnding()
         {
             // TODO: Track leading team.
             SendRoundEnd("-1");
         }
         
         [PluginEvent(ServerEventType.RoundRestart)]
-        internal static void OnRoundRestart()
+        internal void OnRoundRestart()
         {
             SendRoundEnd("-1");
         }
@@ -288,7 +290,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.WaitingForPlayers)]
-        internal static void Waiting()
+        internal void Waiting()
         {
             coroutines.Add(Timing.RunCoroutine(ClearPlayers()));
             
@@ -298,7 +300,7 @@ namespace SCPStats
         }
         
         [PluginEvent(ServerEventType.PlayerDeath)]
-        internal static void OnKill(Player target, Player attacker, DamageHandlerBase damageHandler)
+        internal void OnKill(Player target, Player attacker, DamageHandlerBase damageHandler)
         {
             if (!Helper.IsRoundRunning()) return;
 
@@ -324,7 +326,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerChangeRole)]
-        internal static void OnRoleChanged(Player player, PlayerRoleBase oldRole, RoleTypeId newRole, RoleChangeReason changeReason)
+        internal void OnRoleChanged(Player player, PlayerRoleBase oldRole, RoleTypeId newRole, RoleChangeReason changeReason)
         {
             if (player?.UserId != null && player.GameObject != null && !player.IsServer)
             {
@@ -361,7 +363,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerSearchedPickup)]
-        internal static bool OnPickup(Player player, ItemPickupBase item)
+        internal bool OnPickup(Player player, ItemPickupBase item)
         {
             if (!item || !item.gameObject) return true;
             
@@ -384,7 +386,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerDropItem)]
-        internal static void OnDrop(Player player, ItemBase item)
+        internal void OnDrop(Player player, ItemBase item)
         {
             if (item == null || !Helper.IsRoundRunning()) return;
             
@@ -395,7 +397,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerPickupAmmo)]
-        internal static bool OnPickupAmmo(Player player, ItemPickupBase item)
+        internal bool OnPickupAmmo(Player player, ItemPickupBase item)
         {
             if (!item || !item.gameObject || !item.gameObject.TryGetComponent<HatItemComponent>(out var hat)) return true;
 
@@ -408,7 +410,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerJoined)]
-        internal static void OnJoin(Player player)
+        internal void OnJoin(Player player)
         {
             if (player?.UserId == null || player.IsServer || !player.IsReady || Helper.IsPlayerNPC(player)) return;
 
@@ -438,7 +440,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerLeft)]
-        internal static void OnLeave(Player player)
+        internal void OnLeave(Player player)
         {
             if (player?.UserId == null || player.IsServer || !player.IsReady || Helper.IsPlayerNPC(player)) return;
 
@@ -459,7 +461,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerUsedItem)]
-        internal static void OnUse(Player player, ItemBase item)
+        internal void OnUse(Player player, ItemBase item)
         {
             if (item == null) return;
 
@@ -470,7 +472,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerThrowProjectile)]
-        internal static void OnThrow(Player player, ItemBase item)
+        internal void OnThrow(Player player, ThrowableItem item, float forceAmount, float upwardsFactor, Vector3 torque, Vector3 velocity)
         {
             if (item == null || !Helper.IsRoundRunning()) return;
             
@@ -481,7 +483,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.Scp914UpgradePickup)]
-        internal static bool OnUpgrade(ItemPickupBase item)
+        internal bool OnUpgrade(ItemPickupBase item)
         {
             if (item == null || item.gameObject == null) return true;
             if (item.gameObject.TryGetComponent<HatItemComponent>(out _)) return false;
@@ -490,7 +492,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.Scp106TeleportPlayer)]
-        internal static void OnEnterPocketDimension(Player player, Player scp106)
+        internal void OnEnterPocketDimension(Player player, Player scp106)
         {
             if (!Helper.IsRoundRunning()) return;
             
@@ -507,7 +509,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerExitPocketDimension)]
-        internal static void OnEscapingPocketDimension(Player player, bool isSuccessful)
+        internal void OnEscapingPocketDimension(Player player, bool isSuccessful)
         {
             if (!isSuccessful || !Helper.IsRoundRunning()) return;
             
@@ -520,7 +522,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerBanned)]
-        internal static void OnBan(Player target, Player issuer, string reason, long duration)
+        internal void OnBan(Player target, Player issuer, string reason, long duration)
         {
             // TODO: Offline bans.
             if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target == null) return;
@@ -554,7 +556,7 @@ namespace SCPStats
         internal static List<string> IgnoredMessagesFromIntegration = new List<string>();
         
         [PluginEvent(ServerEventType.PlayerKicked)]
-        internal static void OnKick(Player target, Player issuer, string reason)
+        internal void OnKick(Player target, Player issuer, string reason)
         {
             if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target?.UserId == null || target.IsServer || !target.IsReady || Helper.IsPlayerNPC(target) || JustJoined.Contains(target.UserId) || (SCPStats.Singleton?.Translation?.BannedMessage != null && reason.StartsWith(SCPStats.Singleton.Translation.BannedMessage.Split('{').First())) || (SCPStats.Singleton?.Translation?.WhitelistKickMessage != null && reason.StartsWith(SCPStats.Singleton.Translation.WhitelistKickMessage)) || (SCPStats.Singleton?.Config?.IgnoredMessages ?? IgnoredMessages).Any(val => reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => reason.StartsWith(val))) return;
 
@@ -562,7 +564,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerCheaterReport)]
-        internal static void OnReportingCheater(Player issuer, Player target, string reason)
+        internal void OnReportingCheater(Player issuer, Player target, string reason)
         {
             if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target?.UserId == null || target.IsServer || !target.IsReady || Helper.IsPlayerNPC(target)) return;
 
@@ -570,7 +572,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerReport)]
-        internal static void OnReporting(Player issuer, Player target, string reason)
+        internal void OnReporting(Player issuer, Player target, string reason)
         {
             if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target?.UserId == null || target.IsServer || !target.IsReady || Helper.IsPlayerNPC(target)) return;
 
@@ -578,7 +580,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.Scp049ResurrectBody)]
-        internal static void OnRecalling(Player scp049, Player target, BasicRagdoll body)
+        internal void OnRecalling(Player scp049, Player target, BasicRagdoll body)
         {
             if (!Helper.IsRoundRunning()) return;
             
@@ -592,7 +594,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerCheckReservedSlot)]
-        internal static PlayerCheckReservedSlotCancellationData OnReservedSlotCheck(string userId, bool hasReservedSlot)
+        internal PlayerCheckReservedSlotCancellationData OnReservedSlotCheck(string userId, bool hasReservedSlot)
         {
             var id = Helper.HandleId(userId);
             
@@ -616,7 +618,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerPreauth)]
-        internal static PreauthCancellationData OnPreauth(string userId, string ipAddress, long expiration, CentralAuthPreauthFlags centralFlags, string region, byte[] signature, ConnectionRequest connectionRequest, int readerStartPosition)
+        internal PreauthCancellationData OnPreauth(string userId, string ipAddress, long expiration, CentralAuthPreauthFlags centralFlags, string region, byte[] signature, ConnectionRequest connectionRequest, int readerStartPosition)
         {
             var id = Helper.HandleId(userId);
             
@@ -676,7 +678,7 @@ namespace SCPStats
             
             //Now, we should write it to a file. We'll place the file inside
             //of our config directory.
-            var file = Path.Combine(Paths.Configs, "SCPStats", Server.Port + "-Bans.txt");
+            var file = Path.Combine(PluginHandler.Get(SCPStats.Singleton).PluginDirectoryPath, "Bans.txt");
             
             File.WriteAllText(file, info);
         }
@@ -685,7 +687,7 @@ namespace SCPStats
         {
             if(!(SCPStats.Singleton?.Config?.SyncBans ?? false)) return;
             
-            var file = Path.Combine(Paths.Configs, "SCPStats", Server.Port + "-Bans.txt");
+            var file = Path.Combine(PluginHandler.Get(SCPStats.Singleton).PluginDirectoryPath, "Bans.txt");
 
             if (!File.Exists(file)) return;
 

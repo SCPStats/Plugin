@@ -52,8 +52,6 @@ namespace SCPStats
             
             EventManager.RegisterEvents<EventHandler>(this);
             
-            Log.Info("a");
-
             LoadConfigs();
 
             if (Secret == "fill this" || ServerID == "fill this")
