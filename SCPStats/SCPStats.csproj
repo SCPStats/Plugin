@@ -231,6 +231,7 @@
     <Compile Include="Patches\SetTextPatch.cs" />
     <Compile Include="Patches\UnbanPatch.cs" />
     <Compile Include="PlayerInfo.cs" />
+    <Compile Include="Position.cs" />
     <Compile Include="RequestType.cs" />
     <Compile Include="SCPStats.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

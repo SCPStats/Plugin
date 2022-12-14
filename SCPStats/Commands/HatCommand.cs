@@ -76,23 +76,23 @@ namespace SCPStats.Commands
 
         private static Dictionary<string, CustomHat> _specialHats = new Dictionary<string, CustomHat>()
         {
-            {"Box", new CustomHat() {Item = IDs.ItemIDToType(38), Scale = new Vector3(3, 3, 3), Offset = new Vector3(0, -.2f, 0)}},
-            {"Green", new CustomHat() {Item = IDs.ItemIDToType(56), Scale = new Vector3(5, 3, 5), Offset = new Vector3(0, .1f, 0)}},
-            {"Medic", new CustomHat() {Item = IDs.ItemIDToType(14), Scale = new Vector3(2, 3, 2), Rotation = new Vector3(90, 0, 0)}}
+            {"Box", new CustomHat() {Item = IDs.ItemIDToType(38), Scale = new Position(new Vector3(3, 3, 3)), Offset = new Position(new Vector3(0, -.2f, 0))}},
+            {"Green", new CustomHat() {Item = IDs.ItemIDToType(56), Scale = new Position(new Vector3(5, 3, 5)), Offset = new Position(new Vector3(0, .1f, 0))}},
+            {"Medic", new CustomHat() {Item = IDs.ItemIDToType(14), Scale = new Position(new Vector3(2, 3, 2)), Rotation = new Position(new Vector3(90, 0, 0))}}
         };
 
         private static Dictionary<string, CustomHat> _patreonHats = new Dictionary<string, CustomHat>()
         {
-            {"Tank", new CustomHat() {Item = IDs.ItemIDToType(25), Scale = new Vector3(5, 5, 5), Rotation = new Vector3(180, 0, 0)}},
-            {"Turret", new CustomHat() {Item = IDs.ItemIDToType(12), Scale = new Vector3(2, 3, 2), Rotation = new Vector3(0, 90, 0)}},
-            {"Speaker", new CustomHat() {Item = IDs.ItemIDToType(15), Scale = new Vector3(3, 3, .25f), Offset = new Vector3(0, 0, .2f), Rotation = new Vector3(180, 0, 0)}}
+            {"Tank", new CustomHat() {Item = IDs.ItemIDToType(25), Scale = new Position(new Vector3(5, 5, 5)), Rotation = new Position(new Vector3(180, 0, 0))}},
+            {"Turret", new CustomHat() {Item = IDs.ItemIDToType(12), Scale = new Position(new Vector3(2, 3, 2)), Rotation = new Position(new Vector3(0, 90, 0))}},
+            {"Speaker", new CustomHat() {Item = IDs.ItemIDToType(15), Scale = new Position(new Vector3(3, 3, .25f)), Offset = new Position(new Vector3(0, 0, .2f)), Rotation = new Position(new Vector3(180, 0, 0))}}
         };
         
         private static Dictionary<string, CustomHat> _tier4Hats = new Dictionary<string, CustomHat>()
         {
-            {"Lightbulb", new CustomHat() {Item = IDs.ItemIDToType(51), Scale = new Vector3(2, 2, 2), Offset = new Vector3(0, .3f, 0), Rotation = new Vector3(20, 0, 0)}},
-            {"Mask", new CustomHat() {Item = IDs.ItemIDToType(35), Scale = new Vector3(5, 3, 5), Offset = new Vector3(0, 0, .25f), Rotation = new Vector3(90, 0, 0)}},
-            {"Microhead", new CustomHat() {Item = IDs.ItemIDToType(16), Scale = new Vector3(1, .5f, 1), Offset = new Vector3(0, 0, .1f), Rotation = new Vector3(-90, 0, 0)}}
+            {"Lightbulb", new CustomHat() {Item = IDs.ItemIDToType(51), Scale = new Position(new Vector3(2, 2, 2)), Offset = new Position(new Vector3(0, .3f, 0)), Rotation = new Position(new Vector3(20, 0, 0))}},
+            {"Mask", new CustomHat() {Item = IDs.ItemIDToType(35), Scale = new Position(new Vector3(5, 3, 5)), Offset = new Position(new Vector3(0, 0, .25f)), Rotation = new Position(new Vector3(90, 0, 0))}},
+            {"Microhead", new CustomHat() {Item = IDs.ItemIDToType(16), Scale = new Position(new Vector3(1, .5f, 1)), Offset = new Position(new Vector3(0, 0, .1f)), Rotation = new Position(new Vector3(-90, 0, 0))}}
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)

@@ -8,11 +8,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using HarmonyLib;
 using MEC;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
+using PluginAPI.Events;
 using SCPStats.Patches;
 using SCPStats.Websocket;
 
@@ -30,9 +32,9 @@ namespace SCPStats
         internal string Secret = "fill this";
 
         [PluginConfig]
-        internal Config Config;
+        public Config Config;
         [PluginConfig("translations.yml")]
-        internal Translation Translation;
+        public Translation Translation;
 
         internal string ID = "";
 
@@ -48,6 +50,10 @@ namespace SCPStats
         {
             Singleton = this;
             
+            EventManager.RegisterEvents<EventHandler>(this);
+            
+            Log.Info("a");
+
             LoadConfigs();
 
             if (Secret == "fill this" || ServerID == "fill this")
@@ -57,7 +63,7 @@ namespace SCPStats
                     Log.Error("Config for SCPStats has not been filled out correctly. Disabling!");
                 }
 
-                Log.Info(
+                Log.Error(
                     "Go to https://docs.scpstats.com for more information on how to setup SCPStats.");
 
                 PluginHandler.Get(this).Unload();
@@ -148,6 +154,8 @@ namespace SCPStats
             _harmony = null;
 
             Timing.KillCoroutines(_update, _cache, _requests);
+            
+            EventManager.UnregisterEvents<EventHandler>(this);
 
             EventHandler.Reset();
             Hats.Hats.Reset();

@@ -139,9 +139,9 @@ namespace SCPStats
             {"Example Hat", new CustomHat()
             {
                 Item = ItemType.SCP268,
-                Scale = Vector3.one,
-                Offset = Vector3.zero,
-                Rotation = Vector3.zero,
+                Scale = new Position(Vector3.one),
+                Offset = new Position(Vector3.zero),
+                Rotation = new Position(Vector3.zero),
                 Permission = "scpstats.hat.example"
             }}
         };
@@ -153,11 +153,11 @@ namespace SCPStats
     public struct CustomHat
     {
         public ItemType Item { get; set; }
-        public Vector3 Scale { get; set; }
-        public Vector3 Offset { get; set; }
-        public Vector3 Rotation { get; set; }
+        public Position Scale { get; set; }
+        public Position Offset { get; set; }
+        public Position Rotation { get; set; }
         public string Permission { get; set; }
 
-        public HatInfo Info() => new HatInfo(Item, Scale, Offset, Quaternion.Euler(Rotation));
+        public HatInfo Info() => new HatInfo(Item, Scale.GetPositions(), Offset.GetPositions(), Quaternion.Euler(Rotation.GetPositions()));
     }
 }
