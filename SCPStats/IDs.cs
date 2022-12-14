@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PlayerRoles;
+using PlayerRoles.PlayableScps.Scp939;
 using PlayerStatsSystem;
 
 namespace SCPStats
@@ -60,7 +61,7 @@ namespace SCPStats
             }
         }
         
-        //Largest ID: 56
+        //Largest ID: 57
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -118,12 +119,13 @@ namespace SCPStats
             {"SCP244b", 53},
             {"Coal", 54},
             /* MolecularDisruptor */ {"ParticleDisruptor", 55},
-            {"SCP1853", 56}
+            {"SCP1853", 56},
+            {"GunCom45", 57}
         };
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-        //Largest ID: 46
+        //Largest ID: 50
         private static readonly int RecontainmentDamageTypeID = 27;
         private static readonly int WarheadDamageTypeID = 2;
         private static readonly int MicroHidTypeID = 18;
@@ -143,7 +145,8 @@ namespace SCPStats
             {"GunFSP9", 36},
             {"MicroHID", 18},
             {"GunRevolver", 31},
-            {"MolecularDisruptor", 45}
+            {"MolecularDisruptor", 45},
+            {"GunCom45", 50}
         };
 
         private static readonly Dictionary<DeathTranslation, int> UniversalDamageTypeIDs = new Dictionary<DeathTranslation, int>();
@@ -155,8 +158,7 @@ namespace SCPStats
             {"Scp049", 20},
             {"Scp096", 22},
             {"Scp0492", 21},
-            {"Scp93953", 25},
-            {"Scp93989", 25}
+            {"Scp939", 25},
         };
 
         private static readonly Dictionary<string, int> Scp096DamageTypeIDs = new Dictionary<string, int>()
@@ -165,8 +167,16 @@ namespace SCPStats
             {"Slap", 22},
             {"Charge", 39}
         };
+        
+        private static readonly Dictionary<string, int> Scp939DamageTypeIDs = new Dictionary<string, int>()
+        {
+            {"None", 46},
+            {"Claw", 47},
+            {"LungeTarget", 48},
+            {"LungeSecondary", 49}
+        };
 
-        //Largest ID: 21
+        //Largest ID: 22
         private static readonly Dictionary<string, int> RoleIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -187,11 +197,10 @@ namespace SCPStats
             /* NtfCadet */ {"NtfPrivate", 13},
             {"Tutorial", 14},
             {"FacilityGuard", 15},
-            {"Scp93953", 16},
-            {"Scp93989", 17},
             {"ChaosRifleman", 19},
             {"ChaosRepressor", 20},
-            {"ChaosMarauder", 21}
+            {"ChaosMarauder", 21},
+            {"Scp939", 22}
         };
 
         //Largest ID: 9
@@ -260,6 +269,12 @@ namespace SCPStats
                     var id = scp096DamageHandler._attackType.ToString();
 
                     return Scp096DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                }
+                case Scp939DamageHandler scp939DamageHandler:
+                {
+                    var id = scp939DamageHandler._damageType.ToString();
+                    
+                    return Scp939DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
                 }
                 default:
                     return -1;
