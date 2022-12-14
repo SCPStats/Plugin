@@ -624,7 +624,7 @@ namespace SCPStats
             
             // We only *need* to do delays if a system like bans, reserved slots, or whitelist depends on it.
             var delayNeeded = (SCPStats.Singleton?.Config?.SyncBans ?? false) || Config.WhitelistEnabled() ||
-                              (SCPStats.Singleton?.Config?.ReservedSlots?.Count ?? 0) > 0;
+                              (SCPStats.Singleton?.Config?.ReservedSlots?.Count(req => req != "DiscordRoleID") ?? 0) > 0;
             
             // If we have their info, no need to do anything.
             if(UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue) return PreauthCancellationData.Accept();
