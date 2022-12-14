@@ -9,9 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Exiled.API.Features;
-using Exiled.Loader;
 using MEC;
+using PlayerRoles;
+using PluginAPI.Core;
 using SCPStats.API;
 using SCPStats.API.EventArgs;
 using SCPStats.Commands;
@@ -59,7 +59,7 @@ namespace SCPStats.Websocket
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e);
+                        Log.Error(e.ToString());
                     }
                 }
             }
@@ -161,7 +161,7 @@ namespace SCPStats.Websocket
             EventHandler.UserInfo[playerId] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>(preauthFlags, data);
 
             //If the player exists, run the user info. This is needed for userinfo reloads when the player is currently on.
-            var player = Player.List.FirstOrDefault(pl => pl?.UserId != null && Helper.HandleId(pl) == playerId);
+            var player = Player.GetPlayers().FirstOrDefault(pl => pl?.UserId != null && Helper.HandleId(pl) == playerId);
             if (player == null) return;
 
             RunUserInfo(player);
@@ -171,7 +171,7 @@ namespace SCPStats.Websocket
         {
             var playerId = Helper.HandleId(player);
 
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
+            if (player?.UserId == null || player.IsServer || !player.IsReady || Helper.IsPlayerNPC(player)) return false;
 
             if (EventHandler.DelayedIDs.Contains(playerId))
             {
@@ -311,7 +311,7 @@ namespace SCPStats.Websocket
 
         private static bool HandleBans(Player player, UserInfoData data)
         {
-            if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
+            if (!data.IsBanned || player.IsBypassEnabled) return false;
             Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
             ServerConsole.Disconnect(player.GameObject, (SCPStats.Singleton?.Translation?.BannedMessage ?? "[SCPStats] You have been banned from this server:\nExpires in: {duration}.\nReason: {reason}.").Replace("{duration}", Helper.SecondsToString(data.BanLength)).Replace("{reason}", data.BanText));
             return true;
@@ -328,7 +328,7 @@ namespace SCPStats.Websocket
             if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation), new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation), true, data.CustomHatTier);
             else HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(new HatInfo(ItemType.SCP268), new HatInfo(ItemType.SCP268), true, data.CustomHatTier);
 
-            if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
+            if (player.Role != RoleTypeId.None && player.Role != RoleTypeId.Spectator)
             {
                 player.SpawnCurrentHat();
             }
@@ -347,7 +347,7 @@ namespace SCPStats.Websocket
 
             Log.Debug("Checking if player already has a role.", SCPStats.Singleton?.Config?.Debug ?? false);
             
-            if (player.Group != null && !PlayerHasGroup(player, SCPStats.Singleton.Config.BoosterRole) && !PlayerHasGroup(player, SCPStats.Singleton.Config.DiscordMemberRole) && !SCPStats.Singleton.Config.RoleSync.Any(role =>
+            if (player.ReferenceHub.serverRoles.Group != null && !PlayerHasGroup(player, SCPStats.Singleton.Config.BoosterRole) && !PlayerHasGroup(player, SCPStats.Singleton.Config.DiscordMemberRole) && !SCPStats.Singleton.Config.RoleSync.Any(role =>
             {
                 var split = role.Split(':');
                 return split.Length >= 2 && split[1] != "IngameRoleName" && PlayerHasGroup(player, split[1]);
@@ -455,15 +455,15 @@ namespace SCPStats.Websocket
             var group = ServerStatic.PermissionsHandler._groups[key];
 
             //Gets a player's gtag, but only if it is currently active.
-            var gtag = player.GlobalBadge.HasValue && group != null && !group.Cover && !player.BadgeHidden && player.RankName == player.GlobalBadge.Value.Text && player.RankColor == player.GlobalBadge.Value.Color ? player.GlobalBadge : null;
+            var gtag = !string.IsNullOrEmpty(player.ReferenceHub.serverRoles.GlobalBadge) && group != null && !group.Cover && string.IsNullOrEmpty(player.ReferenceHub.serverRoles.HiddenBadge) && player.ReferenceHub.serverRoles.Network_myText == player.ReferenceHub.serverRoles.GlobalBadge && player.ReferenceHub.serverRoles.Network_myColor == player.ReferenceHub.serverRoles._bgc;
 
             player.ReferenceHub.serverRoles.SetGroup(group, false);
             ServerStatic.PermissionsHandler._members[player.UserId] = key;
 
-            if (gtag != null)
+            if (gtag)
             {
-                player.ReferenceHub.serverRoles.SetText(gtag.Value.Text);
-                player.ReferenceHub.serverRoles.SetColor(gtag.Value.Color);
+                player.ReferenceHub.serverRoles.SetText(player.ReferenceHub.serverRoles.GlobalBadge);
+                player.ReferenceHub.serverRoles.SetColor(player.ReferenceHub.serverRoles._bgc);
             }
 
             Rainbow(player);
@@ -473,12 +473,12 @@ namespace SCPStats.Websocket
 
         private static bool PlayerHasGroup(Player p, string key)
         {
-            return key != "none" && key != "fill this" && ServerStatic.PermissionsHandler._groups.TryGetValue(key, out var group) && group == p.Group;
+            return key != "none" && key != "fill this" && ServerStatic.PermissionsHandler._groups.TryGetValue(key, out var group) && group == p.ReferenceHub.serverRoles.Group;
         }
 
         private static void Rainbow(Player p)
         {
-            var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "RainbowTags")?.Assembly;
+            /*var assembly = Loader.Plugins.FirstOrDefault(pl => pl.Name == "RainbowTags")?.Assembly;
             if (assembly == null) return;
 
             var extensions = assembly.GetType("RainbowTags.Extensions");
@@ -497,7 +497,7 @@ namespace SCPStats.Websocket
             }
 
             var controller = p.GameObject.AddComponent(component);
-            component.GetMethod("AwakeFunc")?.Invoke(controller, new object[] {parameters[1], p.ReferenceHub.serverRoles});
+            component.GetMethod("AwakeFunc")?.Invoke(controller, new object[] {parameters[1], p.ReferenceHub.serverRoles});*/
         }
         
         private static Regex RoundSummaryVariable = new Regex("({.*?})");
@@ -523,11 +523,11 @@ namespace SCPStats.Websocket
 
             var broadcastLength = (ushort) (broadcast.Length > 0 ? SCPStats.Singleton.Config.RoundSummaryBroadcastDuration / broadcast.Length : 0);
 
-            foreach (var player in Player.List)
+            foreach (var player in Player.GetPlayers())
             {
                 foreach (var msg in broadcast)
                 {
-                    player.Broadcast(new Exiled.API.Features.Broadcast(msg, broadcastLength), false);
+                    player.SendBroadcast(msg, broadcastLength);
                 }
                 
                 foreach (var msg in consoleMessage)

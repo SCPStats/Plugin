@@ -5,7 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Exiled.API.Features;
+using PluginAPI.Core;
 using SCPStats.Websocket.Data;
 
 namespace SCPStats.API.EventArgs

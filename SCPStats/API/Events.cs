@@ -5,7 +5,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Exiled.Events.Extensions;
 using SCPStats.API.EventArgs;
 
 namespace SCPStats.API
@@ -18,29 +17,29 @@ namespace SCPStats.API
         /// <summary>
         /// Called when a player joins, before user info is handled.
         /// </summary>
-        public static Exiled.Events.Events.CustomEventHandler<UserInfoEventArgs> UserInfoReceived;
+        public static System.EventHandler<UserInfoEventArgs> UserInfoReceived;
 
         /// <summary>
         /// Called after user info has been handled (after bans and rolesync, etc). This will not run if the player has been kicked.
         /// </summary>
-        public static Exiled.Events.Events.CustomEventHandler<UserInfoEventArgs> UserInfoHandled;
+        public static System.EventHandler<UserInfoEventArgs> UserInfoHandled;
 
         /// <summary>
         /// Called before a warning message is generated for the warnings command.
         /// </summary>
-        public static Exiled.Events.Events.CustomEventHandler<GeneratingWarningMessageEventArgs> GeneratingWarningMessage;
+        public static System.EventHandler<GeneratingWarningMessageEventArgs> GeneratingWarningMessage;
 
         /// <summary>
         /// Called before a warning message is sent for the warnings command.
         /// </summary>
-        public static Exiled.Events.Events.CustomEventHandler<SendingWarningMessageEventArgs> SendingWarningMessage;
+        public static System.EventHandler<SendingWarningMessageEventArgs> SendingWarningMessage;
 
-        internal static void OnUserInfoReceived(UserInfoEventArgs ev) => UserInfoReceived.InvokeSafely(ev);
+        internal static void OnUserInfoReceived(UserInfoEventArgs ev) => UserInfoReceived.Invoke(null, ev);
 
-        internal static void OnUserInfoHandled(UserInfoEventArgs ev) => UserInfoHandled.InvokeSafely(ev);
+        internal static void OnUserInfoHandled(UserInfoEventArgs ev) => UserInfoHandled.Invoke(null, ev);
 
-        internal static void OnGeneratingWarningMessage(GeneratingWarningMessageEventArgs ev) => GeneratingWarningMessage.InvokeSafely(ev);
+        internal static void OnGeneratingWarningMessage(GeneratingWarningMessageEventArgs ev) => GeneratingWarningMessage.Invoke(null, ev);
 
-        internal static void OnSendingWarningMessage(SendingWarningMessageEventArgs ev) => SendingWarningMessage.InvokeSafely(ev);
+        internal static void OnSendingWarningMessage(SendingWarningMessageEventArgs ev) => SendingWarningMessage.Invoke(null, ev);
     }
 }

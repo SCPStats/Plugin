@@ -6,7 +6,7 @@
 // -----------------------------------------------------------------------
 
 using System.Threading;
-using Exiled.API.Features;
+using PluginAPI.Core;
 
 namespace SCPStats.Websocket
 {
@@ -40,9 +40,9 @@ namespace SCPStats.Websocket
             }
             
             var str = ((int) type).ToString().PadLeft(2, '0')+data;
-            var message = "p" + SCPStats.ServerID + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Secret, str + WebsocketThread.Nonce);
+            var message = "p" + SCPStats.Singleton.ServerID + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Singleton.Secret, str + WebsocketThread.Nonce);
             
-            Log.Debug(">" + "p" + SCPStats.ServerID + str.Length + " " + str, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug(">" + "p" + SCPStats.Singleton.ServerID + str.Length + " " + str, SCPStats.Singleton?.Config?.Debug ?? false);
 
             WebsocketThread.Queue.Enqueue(message);
             WebsocketThread.Signal.Set();

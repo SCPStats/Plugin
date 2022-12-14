@@ -9,9 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Exiled.API.Features;
 using HarmonyLib;
 using Mirror;
+using PluginAPI.Core;
 
 namespace SCPStats.Patches
 {
@@ -28,7 +28,7 @@ namespace SCPStats.Patches
         public static bool Prefix(ServerRoles __instance, string i)
         {
             var p = Player.Get(__instance._hub);
-            var key = Server.PermissionsHandler._groups.FirstOrDefault(kvp => kvp.Value == __instance.Group).Key;
+            var key = ServerStatic.PermissionsHandler._groups.FirstOrDefault(kvp => kvp.Value == __instance.Group).Key;
             if (p == null || string.IsNullOrEmpty(i) || string.IsNullOrEmpty(key) || !(SCPStats.Singleton?.Config?.RoleNames ?? RoleNames).TryGetValue(key, out var value)) return true;
 
             var stats = EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out var info) && info?.Item2 != null ? info.Item2.Stats : Array.Empty<string>();

@@ -8,7 +8,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Exiled.API.Features;
+using PluginAPI.Core;
 
 namespace SCPStats.Websocket.Data
 {
@@ -47,7 +47,7 @@ namespace SCPStats.Websocket.Data
 
             PlayerStats = new Dictionary<Player, Stats>();
 
-            var players = Player.List.Where(pl => !Helper.IsPlayerNPC(pl) && !pl.IsHost && pl.IsVerified).ToDictionary(Helper.HandleId, pl => pl);
+            var players = Player.GetPlayers().Where(pl => !Helper.IsPlayerNPC(pl) && !pl.IsServer && pl.IsReady).ToDictionary(Helper.HandleId, pl => pl);
             
             KillsByScore = CreateScoreArray(parts[0], "Kills", players);
             PlayerKillsByScore = CreateScoreArray(parts[1], "PlayerKills", players);

@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Exiled.API.Features;
+using PluginAPI.Core;
 using WebSocketSharp;
 
 namespace SCPStats.Websocket
@@ -67,7 +67,7 @@ namespace SCPStats.Websocket
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e);
+                        Log.Error(e.ToString());
                     }
                 }
 
@@ -108,7 +108,7 @@ namespace SCPStats.Websocket
             }
             catch (Exception e)
             {
-                Log.Error(e);
+                Log.Error(e.ToString());
                 CreatingClient = false;
 
                 if (e is ThreadAbortException) return;
@@ -168,9 +168,9 @@ namespace SCPStats.Websocket
         
         private static void OnError(object sender, ErrorEventArgs e)
         {
-            Log.Warn("An error occured in SCPStats:");
-            Log.Warn(e.Message);
-            Log.Warn(e.Exception);
+            Log.Warning("An error occured in SCPStats:");
+            Log.Warning(e.Message);
+            Log.Warning(e.Exception.ToString());
         }
 
         private static void OnMessage(object sender, MessageEventArgs e)
@@ -182,11 +182,11 @@ namespace SCPStats.Websocket
                 switch (e.Data)
                 {
                     case "i":
-                        Log.Warn("Authentication failed. Your secret may be invalid. If you see this spammed, double check it!");
+                        Log.Warning("Authentication failed. Your secret may be invalid. If you see this spammed, double check it!");
 
                         if (++_errorCount > 5)
                         {
-                            Log.Warn("Reached maximum authentication errors. Restarting websocket.");
+                            Log.Warning("Reached maximum authentication errors. Restarting websocket.");
                             ws?.Close();
                         }
 
@@ -221,7 +221,7 @@ namespace SCPStats.Websocket
             catch (Exception ex)
             {
                 Log.Error("An error occured during the OnMessage event:");
-                Log.Error(ex);
+                Log.Error(ex.ToString());
             }
         }
     }

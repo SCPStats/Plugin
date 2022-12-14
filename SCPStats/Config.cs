@@ -8,17 +8,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Exiled.API.Interfaces;
-using Exiled.Events.EventArgs;
 using SCPStats.Hats;
 using UnityEngine;
 
 namespace SCPStats
 {
-    public class Config : IConfig
+    public class Config
     {
-        public bool IsEnabled { get; set; } = true;
-
         [Description("Turning this off will disable the auto updater, which will automatically update the plugin.")]
         public bool AutoUpdates { get; set; } = true;
 

@@ -9,8 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
+using PlayerRoles;
+using PluginAPI.Core;
 using RemoteAdmin;
 using SCPStats.Hats;
 using UnityEngine;
@@ -139,7 +140,7 @@ namespace SCPStats.Commands
                 case "on":
                     if (playerComponent.item == null)
                     {
-                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
+                        if(p.Role != RoleTypeId.None && p.Role != RoleTypeId.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
                         response = SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.";
                         return true;
                     }
@@ -158,7 +159,7 @@ namespace SCPStats.Commands
                 case "toggle":
                     if (playerComponent.item == null)
                     {
-                        if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
+                        if(p.Role != RoleTypeId.None && p.Role != RoleTypeId.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
                         response = SCPStats.Singleton?.Translation?.HatEnabled ?? "You put on your hat.";
                         return true;
                     }
@@ -170,7 +171,7 @@ namespace SCPStats.Commands
                     }
                 case "default":
                     HatPlayers[p.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(HatPlayers[p.UserId].Item2, HatPlayers[p.UserId].Item2, HatPlayers[p.UserId].Item3, HatPlayers[p.UserId].Item4);
-                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
+                    if(p.Role != RoleTypeId.None && p.Role != RoleTypeId.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
 
                     response = SCPStats.Singleton?.Translation?.HatDefault ?? "Your hat has been changed back to your default hat.";
                     return true;
@@ -221,7 +222,7 @@ namespace SCPStats.Commands
                     }
                     
                     HatPlayers[p.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(item, HatPlayers[p.UserId].Item2, HatPlayers[p.UserId].Item3, HatPlayers[p.UserId].Item4);
-                    if(p.Role != RoleType.None && p.Role != RoleType.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
+                    if(p.Role != RoleTypeId.None && p.Role != RoleTypeId.Spectator) p.SpawnHat(HatPlayers[p.UserId].Item1, hasInfo && info.Item2.ShowHat);
                     
                     response = SCPStats.Singleton?.Translation?.HatChanged ?? "Your hat has been changed.";
                     return true;

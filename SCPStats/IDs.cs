@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Exiled.API.Enums;
+using PlayerRoles;
 using PlayerStatsSystem;
 
 namespace SCPStats
@@ -194,8 +194,8 @@ namespace SCPStats
             {"ChaosMarauder", 21}
         };
 
-        //Largest ID: 8
-        private static readonly Dictionary<string, int> SpawnReasonIDs = new Dictionary<string, int>()
+        //Largest ID: 9
+        private static readonly Dictionary<string, int> RoleChangeReasonIDs = new Dictionary<string, int>()
         {
             {"None", 0},
             {"RoundStart", 1},
@@ -204,8 +204,8 @@ namespace SCPStats
             {"Died", 4},
             {"Escaped", 5},
             {"Revived", 6},
-            {"ForceClass", 7},
-            {"Overwatch", 8}
+            {"RemoteAdmin", 7},
+            {"Destroyed", 9}
         };
 
         internal static int ToID(this ItemType item)
@@ -266,15 +266,15 @@ namespace SCPStats
             }
         }
 
-        internal static int ToID(this RoleType roleType)
+        internal static int ToID(this RoleTypeId RoleTypeId)
         {
-            if (RoleIDs.TryGetValue(roleType.ToString(), out var id)) return id;
+            if (RoleIDs.TryGetValue(RoleTypeId.ToString(), out var id)) return id;
             return -1;
         }
 
-        internal static int ToID(this SpawnReason spawnReason)
+        internal static int ToID(this RoleChangeReason roleChangeReason)
         {
-            if (SpawnReasonIDs.TryGetValue(spawnReason.ToString(), out var id)) return id;
+            if (RoleChangeReasonIDs.TryGetValue(roleChangeReason.ToString(), out var id)) return id;
             return -1;
         }
     }

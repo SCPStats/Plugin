@@ -8,7 +8,7 @@
 using System;
 using System.IO;
 using CommandSystem;
-using Exiled.API.Features;
+using PluginAPI.Core;
 using RemoteAdmin;
 using RoundRestarting;
 
@@ -45,9 +45,9 @@ namespace SCPStats.Commands
             var id = parts[0];
             var secret = parts[1];
 
-            var path = Path.Combine(Paths.Configs, "SCPStats");
-            var serverIdPath = Path.Combine(path, Server.Port + "-ServerID.txt");
-            var secretPath = Path.Combine(path, Server.Port + "-Secret.txt");
+            var path = PluginHandler.Get(SCPStats.Singleton).PluginDirectoryPath;
+            var serverIdPath = Path.Combine(path, "ServerID.txt");
+            var secretPath = Path.Combine(path, "Secret.txt");
 
             File.WriteAllText(serverIdPath, id);
             File.WriteAllText(secretPath, secret);

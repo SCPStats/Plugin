@@ -7,7 +7,7 @@
 
 using System;
 using CommandSystem;
-using Exiled.API.Features;
+using PluginAPI.Core;
 using RemoteAdmin;
 using SCPStats.Websocket.Data;
 

@@ -10,8 +10,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
+using PluginAPI.Core;
 using RemoteAdmin;
 using SCPStats.Websocket;
 
@@ -54,7 +54,7 @@ namespace SCPStats.Commands
             //If it is a player
             if (ipPlayer != null && !isIp)
             {
-                ip = ipPlayer.IPAddress;
+                ip = ipPlayer.IpAddress;
             }
             //If it isn't an ip (and not a player)
             else if (!isIp)
@@ -118,11 +118,11 @@ namespace SCPStats.Commands
             CommandSender commandSender1;
             var allowCheck = (commandSender1 = (sender as CommandSender)) != null && !commandSender1.FullPermissions;
 
-            foreach (var player in Player.List)
+            foreach (var player in Player.GetPlayers())
             {
-                if (player.IPAddress.Trim().ToLower() != ip) continue;
+                if (player.IpAddress.Trim().ToLower() != ip) continue;
 
-                if (player.IsStaffBypassEnabled)
+                if (player.IsBypassEnabled)
                 {
                     response = SCPStats.Singleton?.Translation?.IpBanCantBan ?? "You cannot ban this IP!";
                     return false;
@@ -130,16 +130,16 @@ namespace SCPStats.Commands
 
                 if (!allowCheck) continue;
 
-                var requiredKickPower = player.Group?.RequiredKickPower ?? 0;
+                var requiredKickPower = player.ReferenceHub.serverRoles.Group?.RequiredKickPower ?? 0;
                 if (requiredKickPower <= commandSender1.KickPower) continue;
 
                 response = SCPStats.Singleton?.Translation?.IpBanCantBan ?? "You cannot ban this IP!";
                 return false;
             }
 
-            foreach (var player in Player.List)
+            foreach (var player in Player.GetPlayers())
             {
-                if (player.IPAddress.Trim().ToLower() != ip) continue;
+                if (player.IpAddress.Trim().ToLower() != ip) continue;
 
                 KickPlayer(player, duration, message);
             }

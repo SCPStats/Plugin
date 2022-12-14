@@ -6,13 +6,10 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using CommandSystem;
-using Exiled.API.Features;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
+using PluginAPI.Core;
 using RemoteAdmin;
-using SCPStats.Websocket;
 
 namespace SCPStats.Commands
 {
@@ -49,7 +46,7 @@ namespace SCPStats.Commands
                 return false;
             }
 
-            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!", SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING", API.API.DeleteWarning(id, p?.RawUserId ?? ""));
+            Helper.HandleBooleanTask(p, SCPStats.Singleton?.Translation?.WarningDeleted ?? "Successfully deleted warning!", SCPStats.Singleton?.Translation?.DeleteWarningCommand?.ToUpper() ?? "DELETEWARNING", API.API.DeleteWarning(id, Helper.HandleId(p) ?? ""));
 
             response = SCPStats.Singleton?.Translation?.PleaseWait ?? "Please wait...";
             return true;

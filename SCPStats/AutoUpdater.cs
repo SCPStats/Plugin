@@ -9,8 +9,8 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Exiled.API.Features;
-using Exiled.Loader;
+using PluginAPI;
+using PluginAPI.Core;
 
 namespace SCPStats
 {
@@ -29,21 +29,21 @@ namespace SCPStats
                     if (SCPStats.Singleton == null) return;
 
                     var latestVersion =
-                        await client.DownloadStringTaskAsync("https://scpstats.com/update/version/" +
-                                                             Loader.Version.ToString());
+                        await client.DownloadStringTaskAsync("https://scpstats.com/update/versionnw/" +
+                                                             PluginApiVersion.VersionString);
                     if (latestVersion == "-1" || latestVersion == Version) return;
 
-                    var location = SCPStats.Singleton?.GetPath();
+                    var location = PluginHandler.Get(SCPStats.Singleton)?.PluginFilePath;
                     if (location == null)
                     {
-                        Log.Warn(
+                        Log.Warning(
                             "SCPStats auto updater couldn't determine the plugin path. Make sure your plugin dll is named \"SCPStats.dll\".");
                         return;
                     }
 
                     var data = await client.DownloadDataTaskAsync(
                         "https://github.com/SCPStats/Plugin/releases/download/" +
-                        latestVersion.Split('-')[0].Replace("/", "") + "/SCPStats.dll");
+                        latestVersion.Split('-')[0].Replace("/", "") + "-NW" + "/SCPStats.dll");
 
                     //This data is expected to be > 50,000 bytes, so we should only save if it is.
                     if (data.Length > 50000)
@@ -57,13 +57,13 @@ namespace SCPStats
                     }
                     else
                     {
-                        Log.Warn("Received invalid data while trying to download an update.");
+                        Log.Warning("Received invalid data while trying to download an update.");
                     }
                 }
             }
             catch (Exception e)
             {
-                Log.Error(e);
+                Log.Error(e.ToString());
             }
         }
     }

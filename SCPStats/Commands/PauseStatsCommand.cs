@@ -7,7 +7,7 @@
 
 using System;
 using CommandSystem;
-using Exiled.Permissions.Extensions;
+using NWAPIPermissionSystem;
 using RemoteAdmin;
 
 namespace SCPStats.Commands

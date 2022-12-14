@@ -5,10 +5,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Linq;
 using System.Reflection;
-using Exiled.Loader;
-using JetBrains.Annotations;
 
 namespace SCPStats
 {
@@ -20,15 +17,15 @@ namespace SCPStats
         
         internal static void SetupReflection()
         {
-            IsGhost = GetPluginMethod("GhostSpectator", "GhostSpectator.API", "IsGhost");
-            GetSH = GetPluginMethod("SerpentsHand", "SerpentsHand.API.SerpentsHand", "GetSHPlayers");
-            IsNpc = GetPluginMethod("CustomNPCs", "NPCS.Extensions", "IsNPC");
+            //IsGhost = GetPluginMethod("GhostSpectator", "GhostSpectator.API", "IsGhost");
+            //GetSH = GetPluginMethod("SerpentsHand", "SerpentsHand.API.SerpentsHand", "GetSHPlayers");
+            //IsNpc = GetPluginMethod("CustomNPCs", "NPCS.Extensions", "IsNPC");
             
-            var vpnShieldMessage = GetConfigKey<string>("VPNShield EXILED Edition", "VPNShield.Config", "VpnKickMessage");
-            if(vpnShieldMessage != null) EventHandler.IgnoredMessagesFromIntegration.Add(vpnShieldMessage);
+            //var vpnShieldMessage = GetConfigKey<string>("VPNShield EXILED Edition", "VPNShield.Config", "VpnKickMessage");
+            //if(vpnShieldMessage != null) EventHandler.IgnoredMessagesFromIntegration.Add(vpnShieldMessage);
             
-            var uAfkMessage = GetConfigKey<string>("Ultimate AFK", "UltimateAFK.Config", "MsgKick");
-            if(uAfkMessage != null) EventHandler.IgnoredMessagesFromIntegration.Add(uAfkMessage);
+            //var uAfkMessage = GetConfigKey<string>("Ultimate AFK", "UltimateAFK.Config", "MsgKick");
+            //if(uAfkMessage != null) EventHandler.IgnoredMessagesFromIntegration.Add(uAfkMessage);
         }
 
         internal static void ClearReflection()
@@ -40,7 +37,7 @@ namespace SCPStats
             EventHandler.IgnoredMessagesFromIntegration.Clear();
         }
 
-        [CanBeNull]
+        /*[CanBeNull]
         private static MethodInfo GetPluginMethod(string pluginName, string typeName, string methodName) => Loader.Plugins.FirstOrDefault(plugin => plugin.Name == pluginName)?.Assembly?.GetType(typeName)?.GetMethod(methodName);
 
         [CanBeNull]
@@ -48,6 +45,6 @@ namespace SCPStats
         {
             var plugin = Loader.Plugins.FirstOrDefault(pl => pl.Name == pluginName);
             return (T) plugin?.Assembly?.GetType(configTypeName)?.GetProperty(keyName)?.GetValue(plugin.Config);
-        }
+        }*/
     }
 }

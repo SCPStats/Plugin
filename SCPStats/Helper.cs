@@ -9,13 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Exiled.API.Features;
-using Exiled.Loader;
 using Footprinting;
+using PlayerRoles;
+using PluginAPI.Core;
 using SCPStats.Websocket.Data;
 using UnityEngine;
 
@@ -146,24 +145,26 @@ namespace SCPStats
 
         internal static bool IsPlayerTutorial(Player p)
         {
-            var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
+            //var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
-            return p.Role == RoleType.Tutorial && !playerIsSh && !IsPlayerGhost(p);
+            //return p.Role == RoleTypeId.Tutorial && !playerIsSh && !IsPlayerGhost(p);
+            return p.Role == RoleTypeId.Tutorial;
         }
         
-        internal static bool IsPlayerTutorial(Player p, RoleType role)
+        internal static bool IsPlayerTutorial(Player p, RoleTypeId role)
         {
-            var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
+            //var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
-            return role == RoleType.Tutorial && !playerIsSh && !IsPlayerGhost(p);
+            //return role == RoleTypeId.Tutorial && !playerIsSh && !IsPlayerGhost(p);
+            return role == RoleTypeId.Tutorial;
         }
 
         internal static PlayerInfo GetPlayerInfo(Player p, bool tutorial = true, bool spectator = true)
         {
-            return p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
-                ? new PlayerInfo(null, RoleType.None, false)
-                : p?.UserId == null || p.IsHost || !p.IsVerified || (spectator && (p.Role == RoleType.None || p.Role == RoleType.Spectator))
-                    ? new PlayerInfo(null, RoleType.None, true)
+            return p != null && (p.IsNoclipEnabled || p.IsGodModeEnabled || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
+                ? new PlayerInfo(null, RoleTypeId.None, false)
+                : p?.UserId == null || p.IsServer || !p.IsReady || (spectator && (p.Role == RoleTypeId.None || p.Role == RoleTypeId.Spectator))
+                    ? new PlayerInfo(null, RoleTypeId.None, true)
                     : p.DoNotTrack 
                         ? new PlayerInfo(null, p.Role, true) 
                         : new PlayerInfo(Helper.HandleId(p.UserId), p.Role, true);
@@ -173,19 +174,19 @@ namespace SCPStats
         {
             if (!f.IsSet)
             {
-                return new PlayerInfo(null, RoleType.None, true);
+                return new PlayerInfo(null, RoleTypeId.None, true);
             }
             
             var p = Player.Get(f.Hub);
             
-            if(p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p, f.Role))))
+            if(p != null && (p.IsNoclipEnabled || p.IsGodModeEnabled || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p, f.Role))))
             {
-                return new PlayerInfo(null, RoleType.None, false);
+                return new PlayerInfo(null, RoleTypeId.None, false);
             }
             
-            if(p != null && (p.IsHost || !p.IsVerified || (spectator && (f.Role == RoleType.None || f.Role == RoleType.Spectator))))
+            if(p != null && (p.IsServer || !p.IsReady || (spectator && (f.Role == RoleTypeId.None || f.Role == RoleTypeId.Spectator))))
             {
-                return new PlayerInfo(null, RoleType.None, true);
+                return new PlayerInfo(null, RoleTypeId.None, true);
             }
 
             if (p != null && !p.DoNotTrack)
@@ -222,7 +223,7 @@ namespace SCPStats
 
         internal static string HandleIP(Player player)
         {
-            return HandleIP(player?.IPAddress);
+            return HandleIP(player?.IpAddress);
         }
 
         internal static string UserInfoData(string id, string ip)
@@ -237,14 +238,15 @@ namespace SCPStats
 
         internal static bool IsPlayerNPC(Player p)
         {
-            return p.Id == 9999 || p.NetworkIdentity.connectionToClient == null || p.IPAddress == "127.0.0.WAN" || (bool) (Integrations.IsNpc?.Invoke(null, new object[]
-                {
-                    p
-                }) ?? false);
+            //return p.Id == 9999 || p.NetworkIdentity.connectionToClient == null || p.IpAddress == "127.0.0.WAN" || (bool) (Integrations.IsNpc?.Invoke(null, new object[]
+            //    {
+            //        p
+            //    }) ?? false);
+            return false;
         }
         
         internal static void SendWarningMessage(Player p, string reason){
-            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none" && SCPStats.Singleton.Config.WarningMessageDuration > 0) p.Broadcast(new Exiled.API.Features.Broadcast(SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason), SCPStats.Singleton.Config.WarningMessageDuration), true);
+            if(!string.IsNullOrEmpty(SCPStats.Singleton?.Config?.WarningMessage) && SCPStats.Singleton.Config.WarningMessage != "none" && SCPStats.Singleton.Config.WarningMessageDuration > 0) p.SendBroadcast(SCPStats.Singleton.Config.WarningMessage.Replace("{reason}", reason), SCPStats.Singleton.Config.WarningMessageDuration, Broadcast.BroadcastFlags.Normal, true);
         }
 
         internal static bool IsZero(this Quaternion rot) => rot.x == 0 && rot.y == 0 && rot.z == 0;
@@ -345,7 +347,7 @@ namespace SCPStats
         {
             if (p != null)
             {
-                p.RemoteAdminMessage(message, success, command);
+                p.ReferenceHub.queryProcessor._sender.RaReply(command + "#" + message, success, true, string.Empty);
             }
             else
             {

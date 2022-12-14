@@ -5,15 +5,17 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using PlayerRoles;
+
 namespace SCPStats
 {
     internal struct PlayerInfo
     {
         internal string PlayerID;
-        internal RoleType PlayerRole;
+        internal RoleTypeId PlayerRole;
         internal bool IsAllowed;
 
-        public PlayerInfo(string playerID, RoleType playerRole, bool isAllowed)
+        public PlayerInfo(string playerID, RoleTypeId playerRole, bool isAllowed)
         {
             PlayerID = playerID;
             PlayerRole = playerRole;

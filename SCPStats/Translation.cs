@@ -7,12 +7,11 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using Exiled.API.Interfaces;
 using SCPStats.Websocket.Data;
 
 namespace SCPStats
 {
-    public class Translation : ITranslation
+    public class Translation
     {
         [Description("The message sent to users attempting to run a command they do not have permission to run.")]
         public string NoPermissionMessage { get; set; } = "You do not have permission to run this command!";

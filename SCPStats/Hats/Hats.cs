@@ -5,7 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using Exiled.API.Features;
+using PlayerRoles;
+using PluginAPI.Core;
 using SCPStats.Commands;
 using UnityEngine;
 
@@ -27,27 +28,26 @@ namespace SCPStats.Hats
             API.API.SpawnHat(p, hat, showHat);
         }
 
-        internal static Vector3 GetHatPosForRole(RoleType role)
+        internal static Vector3 GetHatPosForRole(RoleTypeId role)
         {
             switch (role)
             {
-                case RoleType.Scp173:
+                case RoleTypeId.Scp173:
                     return new Vector3(0, .55f, -.05f);
-                case RoleType.Scp106:
+                case RoleTypeId.Scp106:
                     return new Vector3(0, .45f, .18f);
-                case RoleType.Scp096:
+                case RoleTypeId.Scp096:
                     return new Vector3(.15f, .425f, .325f);
-                case RoleType.Scp93953:
+                case RoleTypeId.Scp939:
+                    // TODO: Fix.
                     return new Vector3(0, -.5f, 1.125f);
-                case RoleType.Scp93989:
-                    return new Vector3(0, -.3f, 1.1f);
-                case RoleType.Scp049:
+                case RoleTypeId.Scp049:
                     return new Vector3(0, .125f, -.05f);
-                case RoleType.None:
+                case RoleTypeId.None:
                     return new Vector3(-1000, -1000, -1000);
-                case RoleType.Spectator:
+                case RoleTypeId.Spectator:
                     return new Vector3(-1000, -1000, -1000);
-                case RoleType.Scp0492:
+                case RoleTypeId.Scp0492:
                     return new Vector3(0, .1f, -.16f);
                 default:
                     return new Vector3(0, .15f, -.07f);
