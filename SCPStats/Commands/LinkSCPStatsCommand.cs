@@ -45,9 +45,8 @@ namespace SCPStats.Commands
             var id = parts[0];
             var secret = parts[1];
 
-            var path = PluginHandler.Get(SCPStats.Singleton).PluginDirectoryPath;
-            var serverIdPath = Path.Combine(path, "ServerID.txt");
-            var secretPath = Path.Combine(path, "Secret.txt");
+            var serverIdPath = Path.Combine(SCPStats.ConfigPath, "ServerID.txt");
+            var secretPath = Path.Combine(SCPStats.ConfigPath, "Secret.txt");
 
             File.WriteAllText(serverIdPath, id);
             File.WriteAllText(secretPath, secret);

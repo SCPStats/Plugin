@@ -28,6 +28,8 @@ namespace SCPStats
         
         internal static SCPStats Singleton;
 
+        internal static string ConfigPath;
+
         internal string ServerID = "fill this";
         internal string Secret = "fill this";
 
@@ -49,6 +51,7 @@ namespace SCPStats
         public void OnEnabled()
         {
             Singleton = this;
+            ConfigPath = PluginHandler.Get(this).PluginDirectoryPath;
             
             LoadConfigs();
 
