@@ -88,12 +88,10 @@ namespace SCPStats.Hats
 
                         if (player1 == player)
                         {
-                            Log.Info("Set own pickup info");
                             MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", ownerPickupInfo);
                         }
                         else if (player1.Role.GetTeam() == player.Role.GetTeam())
                         {
-                            Log.Info("Set team pickup info");
                             MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                         }
                         else if(player1.ReferenceHub.roleManager.CurrentRole is FpcStandardRoleBase role)
@@ -106,7 +104,6 @@ namespace SCPStats.Hats
                                     MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", fakePickupInfo);
                                     break;
                                 default:
-                                    Log.Info("Set default pickup info");
                                     MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                                     break;
                             }
