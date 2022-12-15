@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using InventorySystem;
+using InventorySystem.Items;
+using InventorySystem.Items.Firearms.Ammo;
 using InventorySystem.Items.Pickups;
 using JetBrains.Annotations;
 using Mirror;
@@ -18,6 +21,7 @@ using SCPStats.Hats;
 using SCPStats.Websocket;
 using SCPStats.Websocket.Data;
 using UnityEngine;
+using Utf8Json.Internal.DoubleConversion;
 
 namespace SCPStats.API
 {
@@ -85,11 +89,24 @@ namespace SCPStats.API
             if(hat.Scale != Vector3.one || hat.Position != Vector3.zero || !hat.Rotation.IsZero()) item = hat.Item;
 
             // TODO: Fix.
-            //var itemObj = new Item(Server.Instance.Host.Inventory.CreateItemInstance(item, false)) {Scale = scale};
+            var itemModel = InventoryItemLoader.AvailableItems[item];
+            
+            var psi = new PickupSyncInfo()
+            {
+                ItemId = item,
+                Serial = ItemSerialGenerator.GenerateNext(),
+                Weight = itemModel.Weight
+            };
+            
+            var pickup = Object.Instantiate(itemModel.PickupDropModel, Vector3.zero, Quaternion.identity);
+            pickup.transform.localScale = scale;
+            pickup.NetworkInfo = psi;
 
-            //var pickup = itemObj.Spawn(Vector3.zero, Quaternion.identity);
-
-            //SpawnHat(player, pickup, itemOffset, rot, showHat);
+            NetworkServer.Spawn(pickup.gameObject);
+            pickup.InfoReceived(new PickupSyncInfo(), psi);
+            pickup.RefreshPositionAndRotation();
+            
+            SpawnHat(player, pickup, itemOffset, rot, showHat);
         }
         
         /// <summary>

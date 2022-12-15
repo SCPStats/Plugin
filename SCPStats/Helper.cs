@@ -233,7 +233,8 @@ namespace SCPStats
 
         internal static bool IsPlayerGhost(Player p)
         {
-            return (bool) (Integrations.IsGhost?.Invoke(null, new object[] {p}) ?? false);
+            return false;
+            //return (bool) (Integrations.IsGhost?.Invoke(null, new object[] {p}) ?? false);
         }
 
         internal static bool IsPlayerNPC(Player p)

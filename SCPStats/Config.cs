@@ -158,6 +158,6 @@ namespace SCPStats
         public Position Rotation { get; set; }
         public string Permission { get; set; }
 
-        public HatInfo Info() => new HatInfo(Item, Scale.GetPositions(), Offset.GetPositions(), Quaternion.Euler(Rotation.GetPositions()));
+        public HatInfo Info() => new HatInfo(Item, Scale?.GetPositions() ?? default, Offset?.GetPositions() ?? default, Rotation != null ? Quaternion.Euler(Rotation.GetPositions()) : default);
     }
 }

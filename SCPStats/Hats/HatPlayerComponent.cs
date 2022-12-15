@@ -12,6 +12,9 @@ using InventorySystem.Items.Pickups;
 using MEC;
 using Mirror;
 using PlayerRoles;
+using PlayerRoles.FirstPersonControl;
+using PlayerRoles.PlayableScps.Scp096;
+using PlayerRoles.PlayableScps.Scp939;
 using PluginAPI.Core;
 using Respawning;
 using SCPStats.Exiled;
@@ -49,8 +52,8 @@ namespace SCPStats.Hats
 
                     if (player.Role == RoleTypeId.None || player.Role == RoleTypeId.Spectator || Helper.IsPlayerGhost(player) || (player.EffectsManager.TryGetEffect<Invisible>(out var effect) && effect.Intensity != 0))
                     {
-                        pickupInfo._serverPosition = Vector3.one * 6000f;
                         pickup.transform.position = Vector3.one * 6000f;
+                        pickupInfo.ServerSetPositionAndRotation(Vector3.one * 6000f, Quaternion.identity);
 
                         pickup.NetworkInfo = pickupInfo;
 
@@ -67,25 +70,17 @@ namespace SCPStats.Hats
                     var rot = rotation * item.rot;
                     var transform1 = pickup.transform;
                     var pos = (player.Role != RoleTypeId.Scp079 ? rotation * (item.pos+item.itemOffset) : (item.pos+item.itemOffset)) + camera.position;
-
-                    transform1.rotation = rot;
-                    pickupInfo._serverRotation = rot;
-
+                    
                     transform1.position = pos;
-                    pickupInfo._serverPosition = pos;
+                    transform1.rotation = rot;
+                    
+                    pickupInfo.ServerSetPositionAndRotation(pos, rot);
 
                     var fakePickupInfo = pickup.NetworkInfo;
-                    fakePickupInfo._serverPosition = Vector3.zero;
-                    fakePickupInfo._serverRotation = Quaternion.identity;
+                    fakePickupInfo.ServerSetPositionAndRotation(Vector3.zero, Quaternion.identity);
                     fakePickupInfo.Locked = true;
 
-                    var ownerPickupInfo = pickupInfo;
-                    ownerPickupInfo.Locked = true;
-                    if (!item.showHat)
-                    {
-                        ownerPickupInfo._serverPosition = Vector3.zero;
-                        ownerPickupInfo._serverRotation = Quaternion.identity;
-                    }
+                    var ownerPickupInfo = item.showHat ? pickupInfo : fakePickupInfo;
 
                     foreach (var player1 in Player.GetPlayers())
                     {
@@ -93,32 +88,25 @@ namespace SCPStats.Hats
 
                         if (player1 == player)
                         {
+                            Log.Info("Set own pickup info");
                             MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", ownerPickupInfo);
                         }
                         else if (player1.Role.GetTeam() == player.Role.GetTeam())
                         {
+                            Log.Info("Set team pickup info");
                             MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                         }
-                        else
+                        else if(player1.ReferenceHub.roleManager.CurrentRole is FpcStandardRoleBase role)
                             switch (player1.Role)
                             {
-                                case RoleTypeId.Scp939:
-                                {
-                                    //if (!player.ReferenceHub.scpsController.CurrentScp.CanSee(player1.ReferenceHub.scp939visionController._myVisuals939))
-                                    //{
-                                    //    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", fakePickupInfo);
-                                    //}
-                                    //else
-                                    //{
-                                        MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
-                                    //}
-
+                                case RoleTypeId.Scp939 when role.VisibilityController is Scp939VisibilityController vision && !vision.ValidateVisibility(player.ReferenceHub):
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", fakePickupInfo);
                                     break;
-                                }
-                                //case RoleTypeId.Scp096 when player1.CurrentScp is Scp096 script && script.EnragedOrEnraging && !script.HasTarget(player.ReferenceHub):
-                                //    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", fakePickupInfo);
-                                //    break;
+                                case RoleTypeId.Scp096 when role.VisibilityController is Scp096VisibilityController vision && !vision.ValidateVisibility(player.ReferenceHub):
+                                    MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", fakePickupInfo);
+                                    break;
                                 default:
+                                    Log.Info("Set default pickup info");
                                     MirrorExtensions.SendFakeSyncVar(player1, pickup.netIdentity, pickupType, "NetworkInfo", pickupInfo);
                                     break;
                             }
