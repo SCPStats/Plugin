@@ -88,7 +88,6 @@ namespace SCPStats.API
             if(!hat.Rotation.IsZero()) rot = hat.Rotation;
             if(hat.Scale != Vector3.one || hat.Position != Vector3.zero || !hat.Rotation.IsZero()) item = hat.Item;
 
-            // TODO: Fix.
             var itemModel = InventoryItemLoader.AvailableItems[item];
             
             var psi = new PickupSyncInfo()
