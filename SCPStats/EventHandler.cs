@@ -596,6 +596,9 @@ namespace SCPStats
         [PluginEvent(ServerEventType.PlayerCheckReservedSlot)]
         internal PlayerCheckReservedSlotCancellationData OnReservedSlotCheck(string userId, bool hasReservedSlot)
         {
+            // TODO: Remove this when bypass becomes a thing.
+            CustomNetworkManager.reservedSlots = 50;
+            
             var id = Helper.HandleId(userId);
             
             // Reserved slot checking is handled as follows:
