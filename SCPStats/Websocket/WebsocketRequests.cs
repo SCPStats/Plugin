@@ -9,9 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using MEC;
 using PlayerRoles;
 using PluginAPI.Core;
+using PluginAPI.Events;
 using SCPStats.API;
 using SCPStats.API.EventArgs;
 using SCPStats.Commands;
@@ -167,6 +169,60 @@ namespace SCPStats.Websocket
             RunUserInfo(player);
         }
 
+        /// <summary>
+        /// Handles user info for a pre-authenticated player.
+        /// If a player should be kicked, a PreauthCancellationData will be returned.
+        /// </summary>
+        /// <param name="id">The handled ID of the player.</param>
+        /// <param name="ip">The handled IP of the player.</param>
+        internal static PreauthCancellationData? RunUserInfoPreauth(string id, string ip, [CanBeNull] UserInfoData data, CentralAuthPreauthFlags flags)
+        {
+            if (data != null)
+            {
+                if (!IsWhitelisted(data, flags))
+                {
+                    Log.Debug("[Preauth] Player is not whitelisted. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                    return PreauthCancellationData.Reject(SCPStats.Singleton?.Translation?.WhitelistKickMessage ?? "[SCPStats] You are not whitelisted on this server!", true);
+                }
+
+                if ((SCPStats.Singleton?.Config?.SyncBans ?? false) && data.IsBanned && !flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreBans))
+                {
+                    Log.Debug("[Preauth] Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                    return PreauthCancellationData.RejectBanned(data.BanText, DateTime.Now.AddSeconds(data.BanLength), true);
+                }
+            }
+            else
+            {
+                // With null UserInfo, we can only check bans offline.
+
+                if (SCPStats.Singleton?.Config?.SyncBans ?? false)
+                {
+                    // Try to get a ban for their ID. If there isn't one, try their IP.
+                    if (EventHandler.LocalBanCache.TryGetValue(id, out var banExpiry) ||
+                        EventHandler.LocalBanCache.TryGetValue(ip, out banExpiry))
+                    {
+
+                        // Now, let's check if the ban expires after now. If it does,
+                        // we'll send them a message, otherwise we can return.
+                        if (banExpiry > DateTimeOffset.Now.ToUnixTimeSeconds())
+                        {
+                            Log.Debug("[Preauth] Player is banned (by cache). Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                            return PreauthCancellationData.RejectBanned(
+                                SCPStats.Singleton?.Translation?.CacheBannedMessage ?? "[SCPStats] You have been banned from this server, but there was an error fetching the details of your ban.",
+                                DateTimeOffset.FromUnixTimeSeconds(banExpiry).DateTime,
+                                true
+                                );
+                        }
+
+                        // They aren't banned, so let them pass. We'll re-query their user info though, just to be safe.
+                        WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
+                    }
+                }
+            }
+
+            return null;
+        }
+
         internal static bool RunUserInfo(Player player)
         {
             var playerId = Helper.HandleId(player);
@@ -187,8 +243,9 @@ namespace SCPStats.Websocket
             Events.OnUserInfoReceived(ev);
             
             Log.Debug("Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
-                
-            if(ev.Flags.HasValue && (HandleWhitelist(player, ev.UserInfo, ev.Flags.Value) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo)))) return true;
+            
+            // No need to handle bans here as it's done in preauth.
+            if(ev.Flags.HasValue && HandleWhitelist(player, ev.UserInfo, ev.Flags.Value)) return true;
             Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
 
             Timing.RunCoroutine(DelayedUserInfo(player, ev, playerId));
@@ -258,9 +315,12 @@ namespace SCPStats.Websocket
             Events.OnUserInfoHandled(ev);
         }
 
-        private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
+        /// <summary>
+        /// Returns true if the player is whitelisted (or if a whitelist is not enabled).
+        /// </summary>
+        private static bool IsWhitelisted(UserInfoData data, CentralAuthPreauthFlags flags)
         {
-            if (flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) || !Config.WhitelistEnabled()) return false;
+            if (flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) || !Config.WhitelistEnabled()) return true;
 
             var passed = false;
             
@@ -278,7 +338,12 @@ namespace SCPStats.Websocket
                 if (!SCPStats.Singleton.Config.WhitelistRequireAll) break;
             }
 
-            if (passed) return false;
+            return passed;
+        }
+
+        private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
+        {
+            if (IsWhitelisted(data, flags)) return false;
             
             Log.Debug("Player is not whitelisted. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
             ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.WhitelistKickMessage ?? "[SCPStats] You are not whitelisted on this server!");
@@ -307,14 +372,6 @@ namespace SCPStats.Websocket
             }
 
             return passed;
-        }
-
-        private static bool HandleBans(Player player, UserInfoData data)
-        {
-            if (!data.IsBanned || player.IsBypassEnabled) return false;
-            Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
-            ServerConsole.Disconnect(player.GameObject, (SCPStats.Singleton?.Translation?.BannedMessage ?? "[SCPStats] You have been banned from this server:\nExpires in: {duration}.\nReason: {reason}.").Replace("{duration}", Helper.SecondsToString(data.BanLength)).Replace("{reason}", data.BanText));
-            return true;
         }
 
         private static void HandleHats(Player player, UserInfoData data)

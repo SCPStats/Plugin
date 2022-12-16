@@ -630,13 +630,21 @@ namespace SCPStats
         internal PreauthCancellationData OnPreauth(string userId, string ipAddress, long expiration, CentralAuthPreauthFlags centralFlags, string region, byte[] signature, ConnectionRequest connectionRequest, int readerStartPosition)
         {
             var id = Helper.HandleId(userId);
+            var ip = Helper.HandleIP(ipAddress);
             
             // We only *need* to do delays if a system like bans, reserved slots, or whitelist depends on it.
             var delayNeeded = (SCPStats.Singleton?.Config?.SyncBans ?? false) || Config.WhitelistEnabled() ||
                               (SCPStats.Singleton?.Config?.ReservedSlots?.Count(req => req != "DiscordRoleID") ?? 0) > 0;
             
             // If we have their info, no need to do anything.
-            if(UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue) return PreauthCancellationData.Accept();
+            if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue)
+            {
+                // We won't delay anymore, so no need to store this.
+                DelayedIDs.Remove(id);
+                
+                // We should make sure the user isn't banned/is whitelisted (if these options are enabled).
+                return WebsocketRequests.RunUserInfoPreauth(id, ip, userInfo.Item2, centralFlags) ?? PreauthCancellationData.Accept();
+            }
 
             //If they haven't been pre-requested (such as at round end), request their info.
             if (!PreRequestedIDs.Contains(id))
@@ -646,13 +654,24 @@ namespace SCPStats
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, connectionRequest.RemoteEndPoint.Address.ToString().Trim().ToLower()));
             }
             
-            // Now, we can delay them (if needed).
-            if(delayNeeded) return PreauthCancellationData.RejectDelay(4, true);
+            // If we need to delay, we should only do so if we haven't already delayed.
+            if (delayNeeded && !DelayedIDs.Contains(id))
+            {
+                if(DelayedIDs.Count > 500) DelayedIDs.RemoveAt(0);
+                DelayedIDs.Add(id);
+                
+                // Remove them from PreRequestedIDs to make sure their info is requested if something fails.
+                PreRequestedIDs.Remove(id);
+                
+                return PreauthCancellationData.RejectDelay(4, true);
+            }
             
-            // TODO: More advanced usage (with DelayedIDs and FirstRoundPreauthDelay).
+            // No need to keep them in DelayedIDs, as we'll only Reject or Accept from this point forward.
+            DelayedIDs.Remove(id);
             
-            // Accept the request as nothing else came up.
-            return PreauthCancellationData.Accept();
+            // At this point we don't have data, and we aren't going to delay to get it.
+            // We should try to run the preauth user info in case this user has a ban.
+            return WebsocketRequests.RunUserInfoPreauth(id, ip, null, centralFlags) ?? PreauthCancellationData.Accept();
         }
 
         internal static IEnumerator<float> UpdateLocalBanCache()
