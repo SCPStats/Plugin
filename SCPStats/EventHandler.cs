@@ -596,28 +596,34 @@ namespace SCPStats
         [PluginEvent(ServerEventType.PlayerCheckReservedSlot)]
         internal PlayerCheckReservedSlotCancellationData OnReservedSlotCheck(string userId, bool hasReservedSlot)
         {
-            // TODO: Remove this when bypass becomes a thing.
-            CustomNetworkManager.reservedSlots = 50;
-            
             var id = Helper.HandleId(userId);
             
             // Reserved slot checking is handled as follows:
-            // If the player has a reserved slot, let them through.
-            // If they don't, check if they have an SCPStats reserved slot.
-            // If they don't have data yet, let them through. Then, preauth will delay them until they get data.
-            // Once they get data, they'll end up back here.
-            if(hasReservedSlot) return PlayerCheckReservedSlotCancellationData.Override(true);
-            else if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null &&
-                     userInfo.Item1.HasValue)
+            // If the player has info, we'll check their reserved slot status.
+            // If they have a reserved slot, we'll let them in. Otherwise, we'll do nothing.
+            // If they don't have info yet, let them through. Then, preauth will delay them until they get data.
+            // Once they get info, they'll end up back here.
+            //
+            // The reason that hasReservedSlot isn't used is that it could lead to a situation where someone with a local
+            // and SCPStats reserved slot gets denied entry because of their local reserved slot. This is because SCPStats
+            // bypasses player limit checks, but local doesn't. Instead, we do SCPStats first, then fallback to local, so players
+            // with local reserved slots can still get in.
+            
+            // Check if they have info.
+            if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null &&
+                userInfo.Item1.HasValue)
             {
                 // They have info.
-                return PlayerCheckReservedSlotCancellationData.Override(WebsocketRequests.HandleReservedSlots(userInfo.Item2, userInfo.Item1.Value));
+                
+                return WebsocketRequests.HandleReservedSlots(userInfo.Item2, userInfo.Item1.Value) ?
+                    // They have an actual reserved slot.
+                    PlayerCheckReservedSlotCancellationData.BypassCheck() :
+                    // They have no reserved slot (from us). If hasReservedSlot is true, they will be let in though.
+                    PlayerCheckReservedSlotCancellationData.LeaveUnchanged();
             }
-            else
-            {
-                // They don't have info. Let them through temporarily.
-                return PlayerCheckReservedSlotCancellationData.Override(true);
-            }
+
+            // They don't have info. Let them through temporarily.
+            return PlayerCheckReservedSlotCancellationData.BypassCheck();
         }
 
         [PluginEvent(ServerEventType.PlayerPreauth)]
