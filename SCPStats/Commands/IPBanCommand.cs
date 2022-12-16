@@ -122,7 +122,7 @@ namespace SCPStats.Commands
             {
                 if (player.IpAddress.Trim().ToLower() != ip) continue;
 
-                if (player.IsBypassEnabled)
+                if (player.ReferenceHub.serverRoles.BypassStaff)
                 {
                     response = SCPStats.Singleton?.Translation?.IpBanCantBan ?? "You cannot ban this IP!";
                     return false;
