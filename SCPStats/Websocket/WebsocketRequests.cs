@@ -177,17 +177,22 @@ namespace SCPStats.Websocket
         /// <param name="ip">The handled IP of the player.</param>
         internal static PreauthCancellationData? RunUserInfoPreauth(string id, string ip, [CanBeNull] UserInfoData data, CentralAuthPreauthFlags flags)
         {
+            // Data is removed when we reject so it has the potential to be refreshed.
+            // This is the same behavior that happens with Joins, where a player's info is removed on leave.
+            
             if (data != null)
             {
                 if (!IsWhitelisted(data, flags))
                 {
                     Log.Debug("[Preauth] Player is not whitelisted. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                    EventHandler.UserInfo.Remove(id);
                     return PreauthCancellationData.Reject(SCPStats.Singleton?.Translation?.WhitelistKickMessage ?? "[SCPStats] You are not whitelisted on this server!", true);
                 }
 
                 if ((SCPStats.Singleton?.Config?.SyncBans ?? false) && data.IsBanned && !flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreBans))
                 {
                     Log.Debug("[Preauth] Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                    EventHandler.UserInfo.Remove(id);
                     return PreauthCancellationData.RejectBanned(data.BanText, DateTime.Now.AddSeconds(data.BanLength), true);
                 }
             }
@@ -207,6 +212,7 @@ namespace SCPStats.Websocket
                         if (banExpiry > DateTimeOffset.Now.ToUnixTimeSeconds())
                         {
                             Log.Debug("[Preauth] Player is banned (by cache). Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                            EventHandler.UserInfo.Remove(id);
                             return PreauthCancellationData.RejectBanned(
                                 SCPStats.Singleton?.Translation?.CacheBannedMessage ?? "[SCPStats] You have been banned from this server, but there was an error fetching the details of your ban.",
                                 DateTimeOffset.FromUnixTimeSeconds(banExpiry).DateTime,
