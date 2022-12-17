@@ -194,10 +194,10 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.RoundEnd)]
-        internal void OnRoundEnding()
+        internal void OnRoundEnding(RoundSummary.LeadingTeam leadingTeam)
         {
             // TODO: Track leading team.
-            SendRoundEnd("-1");
+            SendRoundEnd(((int) leadingTeam).ToString());
         }
         
         [PluginEvent(ServerEventType.RoundRestart)]
