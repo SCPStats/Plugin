@@ -27,10 +27,12 @@ namespace SCPStats
                 using (var client = new WebClient())
                 {
                     if (SCPStats.Singleton == null) return;
+                    
+                    // We need to do this because VersionString is a const and is normally the version we built against.
+                    var versionString = (string) typeof(PluginApiVersion).GetField(nameof(PluginApiVersion.VersionString)).GetValue(null);
 
                     var latestVersion =
-                        await client.DownloadStringTaskAsync("https://scpstats.com/update/versionnw/" +
-                                                             PluginApiVersion.VersionString);
+                        await client.DownloadStringTaskAsync("https://scpstats.com/update/versionnw/" + versionString);
                     if (latestVersion == "-1" || latestVersion == Version) return;
 
                     var location = PluginHandler.Get(SCPStats.Singleton)?.PluginFilePath;
