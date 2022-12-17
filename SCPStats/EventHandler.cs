@@ -54,7 +54,8 @@ namespace SCPStats
         //Tuple<PreauthFlags, UserInfo>.
         internal static Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>> UserInfo = new Dictionary<string, Tuple<CentralAuthPreauthFlags?, UserInfoData>>();
         private static List<string> PreRequestedIDs = new List<string>();
-        internal static List<string> DelayedIDs = new List<string>();
+        // ID: seconds delayed
+        internal static Dictionary<string, uint> DelayedIDs = new Dictionary<string, uint>();
 
         internal static Dictionary<string, Int64> LocalBanCache = new Dictionary<string, Int64>();
 
@@ -645,25 +646,33 @@ namespace SCPStats
                 // We should make sure the user isn't banned/is whitelisted (if these options are enabled).
                 return WebsocketRequests.RunUserInfoPreauth(id, ip, userInfo.Item2, centralFlags) ?? PreauthCancellationData.Accept();
             }
-
-            //If they haven't been pre-requested (such as at round end), request their info.
-            if (!PreRequestedIDs.Contains(id))
+            
+            // We'll figure out how many times we've already delayed them.
+            // If it's 0 (so we haven't delayed), we can request userinfo. If it's 4 (so 4 seconds delayed), we can
+            // request user info again. If it's 6, we can just let them through like normal.
+            if (!DelayedIDs.TryGetValue(id, out var secondsDelayed))
+                secondsDelayed = 0;
+            
+            // If they haven't been pre-requested (such as at round end), request their info.
+            // With the delay stuff, we can only do this on 0 or 4.
+            if (!PreRequestedIDs.Contains(id) && (secondsDelayed == 0 || secondsDelayed == 4))
             {
                 if (UserInfo.Count > 500) UserInfo.Remove(UserInfo.Keys.First());
                 UserInfo[id] = new Tuple<CentralAuthPreauthFlags?, UserInfoData>(centralFlags, null);
                 WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, connectionRequest.RemoteEndPoint.Address.ToString().Trim().ToLower()));
             }
             
-            // If we need to delay, we should only do so if we haven't already delayed.
-            if (delayNeeded && !DelayedIDs.Contains(id))
+            // Now, we can delay if it's needed, and if we're less than 6.
+            if (delayNeeded && secondsDelayed < 6)
             {
-                if(DelayedIDs.Count > 500) DelayedIDs.RemoveAt(0);
-                DelayedIDs.Add(id);
-                
                 // Remove them from PreRequestedIDs to make sure their info is requested if something fails.
                 PreRequestedIDs.Remove(id);
+
+                // This needs to be 2 in order to avoid the preauth ratelimit.
+                if (DelayedIDs.Count > 500) DelayedIDs.Remove(DelayedIDs.Keys.First());
+                DelayedIDs[id] = secondsDelayed + 2;
                 
-                return PreauthCancellationData.RejectDelay(4, true);
+                return PreauthCancellationData.RejectDelay(2, true);
             }
             
             // No need to keep them in DelayedIDs, as we'll only Reject or Accept from this point forward.
