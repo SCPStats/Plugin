@@ -650,7 +650,7 @@ namespace SCPStats
             
             // We'll figure out how many times we've already delayed them.
             // If it's 0 (so we haven't delayed), we can request userinfo. If it's 4 (so 4 seconds delayed), we can
-            // request user info again. If it's 6, we can just let them through like normal.
+            // request user info again and let them through like normal.
             if (!DelayedIDs.TryGetValue(id, out var secondsDelayed))
                 secondsDelayed = 0;
             
@@ -664,16 +664,16 @@ namespace SCPStats
             }
             
             // Now, we can delay if it's needed, and if we're less than 6.
-            if (delayNeeded && secondsDelayed < 6)
+            if (delayNeeded && secondsDelayed < 4)
             {
                 // Remove them from PreRequestedIDs to make sure their info is requested if something fails.
                 PreRequestedIDs.Remove(id);
 
-                // This needs to be 2 in order to avoid the preauth ratelimit.
+                // This needs to be 4 in order to avoid the preauth ratelimit.
                 if (DelayedIDs.Count > 500) DelayedIDs.Remove(DelayedIDs.Keys.First());
-                DelayedIDs[id] = secondsDelayed + 2;
+                DelayedIDs[id] = secondsDelayed + 4;
                 
-                return PreauthCancellationData.RejectDelay(2, true);
+                return PreauthCancellationData.RejectDelay(4, true);
             }
             
             // No need to keep them in DelayedIDs, as we'll only Reject or Accept from this point forward.
