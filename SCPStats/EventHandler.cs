@@ -23,6 +23,7 @@ using PluginAPI.Enums;
 using PluginAPI.Events;
 using PluginAPI.Helpers;
 using SCPStats.Commands;
+using SCPStats.Exiled;
 using SCPStats.Hats;
 using SCPStats.Websocket;
 using SCPStats.Websocket.Data;
@@ -528,7 +529,7 @@ namespace SCPStats
             if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || string.IsNullOrEmpty(banDetails.Id) || banType != BanHandler.BanType.UserId) return;
 
             var target = Player.Get(banDetails.Id);
-            var issuer = Player.Get(banDetails.Issuer);
+            var issuer = Banned.GetBanningPlayer(banDetails.Issuer);
 
             var name = target?.UserId != null ? target.Nickname : banDetails.OriginalName;
             var ip = (SCPStats.Singleton?.Config?.LinkIpsToBans ?? false) ? Helper.HandleIP(target) : null;

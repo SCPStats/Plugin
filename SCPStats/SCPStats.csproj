@@ -212,6 +212,7 @@
     <Compile Include="Commands\WarningsCommand.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="EventHandler.cs" />
+    <Compile Include="Exiled\Banned.cs" />
     <Compile Include="Exiled\MirrorExtensions.cs" />
     <Compile Include="Hats\HatInfo.cs" />
     <Compile Include="Hats\HatItemComponent.cs" />
