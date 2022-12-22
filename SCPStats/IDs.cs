@@ -61,7 +61,7 @@ namespace SCPStats
             }
         }
         
-        //Largest ID: 57
+        //Largest ID: 60
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -120,7 +120,10 @@ namespace SCPStats
             {"Coal", 54},
             /* MolecularDisruptor */ {"ParticleDisruptor", 55},
             {"SCP1853", 56},
-            {"GunCom45", 57}
+            {"GunCom45", 57},
+            {"SCP1576", 58},
+            {"Coal", 59},
+            {"Scp2536_2", 60}
         };
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
