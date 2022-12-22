@@ -122,7 +122,6 @@ namespace SCPStats
             {"SCP1853", 56},
             {"GunCom45", 57},
             {"SCP1576", 58},
-            {"Coal", 59},
             {"Scp2536_2", 60}
         };
 
