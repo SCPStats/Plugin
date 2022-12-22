@@ -67,7 +67,7 @@
       <HintPath>$(EXILED_REFERENCES)\NWAPIPermissionSystem.dll</HintPath>
     </Reference>
     <Reference Include="PluginAPI, Version=12.0.0.0, Culture=neutral, processorArchitecture=Amd64">
-      <HintPath>..\packages\Northwood.PluginAPI.12.0.0-rc.4\lib\net48\PluginAPI.dll</HintPath>
+      <HintPath>..\packages\Northwood.PluginAPI.12.0.0-rc.5\lib\net48\PluginAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
