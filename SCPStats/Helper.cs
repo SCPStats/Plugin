@@ -164,7 +164,7 @@ namespace SCPStats
         {
             return p != null && (p.ReferenceHub.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip) || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
                 ? new PlayerInfo(null, RoleTypeId.None, false)
-                : p?.UserId == null || p.IsHost || !p.IsVerified || (spectator && (p.Role == RoleTypeId.None || p.Role == RoleTypeId.Spectator))
+                : p?.UserId == null || p.ReferenceHub.isLocalPlayer || !p.IsVerified || (spectator && (p.Role == RoleTypeId.None || p.Role == RoleTypeId.Spectator))
                     ? new PlayerInfo(null, RoleTypeId.None, true)
                     : p.DoNotTrack 
                         ? new PlayerInfo(null, p.Role, true) 
@@ -185,7 +185,7 @@ namespace SCPStats
                 return new PlayerInfo(null, RoleTypeId.None, false);
             }
             
-            if(p != null && (p.IsHost || !p.IsVerified || (spectator && (f.Role == RoleTypeId.None || f.Role == RoleTypeId.Spectator))))
+            if(p != null && (p.ReferenceHub.isLocalPlayer || !p.IsVerified || (spectator && (f.Role == RoleTypeId.None || f.Role == RoleTypeId.Spectator))))
             {
                 return new PlayerInfo(null, RoleTypeId.None, true);
             }

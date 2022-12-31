@@ -99,7 +99,7 @@ namespace SCPStats
             for (var i = 0; i < Players.Count; i++)
             {
                 var player = Players[i];
-                if (Player.List.Any(p => p != null && !p.IsHost && p.UserId == player)) continue;
+                if (Player.List.Any(p => p != null && !p.ReferenceHub.isLocalPlayer && p.UserId == player)) continue;
                 
                 WebsocketHandler.SendRequest(RequestType.Leave, "{\"playerid\":\"" + Helper.HandleId(player) + "\"}");
 
@@ -118,7 +118,7 @@ namespace SCPStats
 
             ClearUserInfo();
 
-            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select new Tuple<string, string>(Helper.HandleId(player), player.IPAddress.Trim().ToLower())).ToList();
+            var ids = (from player in Player.List where player?.UserId != null && !player.ReferenceHub.isLocalPlayer && player.IsVerified && !Helper.IsPlayerNPC(player) select new Tuple<string, string>(Helper.HandleId(player), player.IPAddress.Trim().ToLower())).ToList();
 
             foreach (var (id, ip) in ids)
             {
@@ -207,7 +207,7 @@ namespace SCPStats
             
             foreach (var player in Player.List)
             {
-                if (player?.UserId == null || player.IsHost || Helper.IsPlayerNPC(player) || !player.IsVerified || Players.Contains(player.UserId)) continue;
+                if (player?.UserId == null || player.ReferenceHub.isLocalPlayer || Helper.IsPlayerNPC(player) || !player.IsVerified || Players.Contains(player.UserId)) continue;
                 
                 Players.Add(player.UserId);
             }
@@ -232,7 +232,7 @@ namespace SCPStats
 
         private static IEnumerator<float> GetRoundEndUsers()
         {
-            var ids = (from player in Player.List where player?.UserId != null && !player.IsHost && player.IsVerified && !Helper.IsPlayerNPC(player) select new Tuple<string, string>(Helper.HandleId(player), player.IPAddress.Trim().ToLower())).ToList();
+            var ids = (from player in Player.List where player?.UserId != null && !player.ReferenceHub.isLocalPlayer && player.IsVerified && !Helper.IsPlayerNPC(player) select new Tuple<string, string>(Helper.HandleId(player), player.IPAddress.Trim().ToLower())).ToList();
             PreRequestedIDs = ids.Select(tuple => tuple.Item1).ToList();
 
             foreach (var (id, ip) in ids)
@@ -321,7 +321,7 @@ namespace SCPStats
 
         internal static void OnRoleChanged(ChangingRoleEventArgs ev)
         {
-            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.IsHost)
+            if (ev.Player?.UserId != null && ev.Player.GameObject != null && !ev.Player.ReferenceHub.isLocalPlayer)
             {
                 if (ev.NewRole != RoleTypeId.None && ev.NewRole != RoleTypeId.Spectator)
                 {
@@ -361,7 +361,7 @@ namespace SCPStats
             
             if (ev.Pickup.Base.gameObject.TryGetComponent<HatItemComponent>(out var hat))
             {
-                if (ev.Player?.UserId != null && !ev.Player.IsHost && ev.Player.IsVerified && ev.Player.IPAddress != "127.0.0.WAN" && ev.Player.IPAddress != "127.0.0.1" && (hat.player == null || hat.player.gameObject != ev.Player?.GameObject) && (SCPStats.Singleton?.Config.DisplayHatHint ?? true))
+                if (ev.Player?.UserId != null && !ev.Player.ReferenceHub.isLocalPlayer && ev.Player.IsVerified && ev.Player.IPAddress != "127.0.0.WAN" && ev.Player.IPAddress != "127.0.0.1" && (hat.player == null || hat.player.gameObject != ev.Player?.GameObject) && (SCPStats.Singleton?.Config.DisplayHatHint ?? true))
                 {
                     ev.Player.ShowHint(SCPStats.Singleton?.Translation?.HatHint ?? "You can get a hat like this at patreon.com/SCPStats.", 2f);
                 }
@@ -388,7 +388,7 @@ namespace SCPStats
 
         internal static void OnJoin(VerifiedEventArgs ev)
         {
-            if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
+            if (ev.Player?.UserId == null || ev.Player.ReferenceHub.isLocalPlayer || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
 
             if (firstJoin)
             {
@@ -417,7 +417,7 @@ namespace SCPStats
 
         internal static void OnLeave(DestroyingEventArgs ev)
         {
-            if (ev.Player?.UserId == null || ev.Player.IsHost || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
+            if (ev.Player?.UserId == null || ev.Player.ReferenceHub.isLocalPlayer || !ev.Player.IsVerified || Helper.IsPlayerNPC(ev.Player)) return;
 
             if (ev.Player.GameObject != null && ev.Player.GameObject.TryGetComponent<HatPlayerComponent>(out var playerComponent) && playerComponent.item != null)
             {
@@ -496,7 +496,7 @@ namespace SCPStats
             var name = ev.Target?.UserId != null ? ev.Target.Nickname : ev.Details.OriginalName;
             var ip = (SCPStats.Singleton?.Config?.LinkIpsToBans ?? false) ? Helper.HandleIP(ev.Target) : null;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id) + (ip != null ? "\",\"playerIP\":\"" + ip : "") + "\",\"message\":\""+ev.Details.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((long) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"playerName\":\""+name.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.IsHost ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.IsHost ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id) + (ip != null ? "\",\"playerIP\":\"" + ip : "") + "\",\"message\":\""+ev.Details.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((long) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"playerName\":\""+name.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
             
             Timing.RunCoroutine(UpdateLocalBanCache());
         }
@@ -521,23 +521,23 @@ namespace SCPStats
         
         internal static void OnKick(KickingEventArgs ev)
         {
-            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target) || JustJoined.Contains(ev.Target.UserId) || (SCPStats.Singleton?.Translation?.BannedMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.BannedMessage.Split('{').First())) || (SCPStats.Singleton?.Translation?.WhitelistKickMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.WhitelistKickMessage)) || (SCPStats.Singleton?.Config?.IgnoredMessages ?? IgnoredMessages).Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
+            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.ReferenceHub.isLocalPlayer || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target) || JustJoined.Contains(ev.Target.UserId) || (SCPStats.Singleton?.Translation?.BannedMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.BannedMessage.Split('{').First())) || (SCPStats.Singleton?.Translation?.WhitelistKickMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.WhitelistKickMessage)) || (SCPStats.Singleton?.Config?.IgnoredMessages ?? IgnoredMessages).Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.IsHost ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.IsHost ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
         }
 
         internal static void OnReportingCheater(ReportingCheaterEventArgs ev)
         {
-            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
+            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.ReferenceHub.isLocalPlayer || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"7\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.IsHost ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.IsHost ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"7\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
         }
 
         internal static void OnReporting(LocalReportingEventArgs ev)
         {
-            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.IsHost || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
+            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.ReferenceHub.isLocalPlayer || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"8\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.IsHost ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.IsHost ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"8\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
         }
 
         internal static void OnRecalling(FinishingRecallEventArgs ev)

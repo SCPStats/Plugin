@@ -67,7 +67,7 @@ namespace SCPStats.Commands
                         foreach (var selectedPlayer in selectedPlayers)
                         {
                             var player = Player.Get(selectedPlayer);
-                            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
+                            if (player?.UserId == null || player.ReferenceHub.isLocalPlayer || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
 
                             Helper.HandleBooleanTask(p, success, command, API.API.AddWarning(player, message, issuerID, issuerName, !displayed));
                         }
@@ -76,7 +76,7 @@ namespace SCPStats.Commands
                         foreach (var selectedPlayer in selectedPlayers)
                         {
                             var player = Player.Get(selectedPlayer);
-                            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
+                            if (player?.UserId == null || player.ReferenceHub.isLocalPlayer || !player.IsVerified || Helper.IsPlayerNPC(player)) continue;
 
                             Helper.HandleBooleanTask(p, success, command, API.API.AddNote(player, message, issuerID, issuerName));
                         }
@@ -103,7 +103,7 @@ namespace SCPStats.Commands
                     player = Player.Get(id);
                 }
 
-                if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player))
+                if (player?.UserId == null || player.ReferenceHub.isLocalPlayer || !player.IsVerified || Helper.IsPlayerNPC(player))
                 {
                     var arg = arguments.Array[1].Trim().ToLower();
 

@@ -243,7 +243,7 @@ namespace SCPStats.Websocket
         {
             var playerId = Helper.HandleId(player);
 
-            if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
+            if (player?.UserId == null || player.ReferenceHub.isLocalPlayer || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
 
             if (EventHandler.DelayedIDs.ContainsKey(playerId))
             {
