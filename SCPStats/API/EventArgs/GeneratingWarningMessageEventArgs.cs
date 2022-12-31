@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 
 using System.Collections.Generic;
+using Exiled.Events.EventArgs.Interfaces;
 using SCPStats.Websocket.Data;
 
 namespace SCPStats.API.EventArgs
@@ -13,7 +14,7 @@ namespace SCPStats.API.EventArgs
     /// <summary>
     /// Includes all of the information before a warning message is generated.
     /// </summary>
-    public class GeneratingWarningMessageEventArgs : System.EventArgs
+    public class GeneratingWarningMessageEventArgs : IExiledEvent
     {
         internal GeneratingWarningMessageEventArgs(List<Warning> warnings, string initialMessage)
         {

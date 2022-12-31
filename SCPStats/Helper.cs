@@ -16,6 +16,8 @@ using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.Loader;
 using Footprinting;
+using PlayerRoles;
+using PlayerStatsSystem;
 using SCPStats.Websocket.Data;
 using UnityEngine;
 
@@ -148,22 +150,22 @@ namespace SCPStats
         {
             var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
-            return p.Role == RoleType.Tutorial && !playerIsSh && !IsPlayerGhost(p);
+            return p.Role == RoleTypeId.Tutorial && !playerIsSh && !IsPlayerGhost(p);
         }
         
-        internal static bool IsPlayerTutorial(Player p, RoleType role)
+        internal static bool IsPlayerTutorial(Player p, RoleTypeId role)
         {
             var playerIsSh = ((List<Player>) Integrations.GetSH?.Invoke(null, null))?.Any(pl => pl.Id == p.Id) ?? false;
 
-            return role == RoleType.Tutorial && !playerIsSh && !IsPlayerGhost(p);
+            return role == RoleTypeId.Tutorial && !playerIsSh && !IsPlayerGhost(p);
         }
 
         internal static PlayerInfo GetPlayerInfo(Player p, bool tutorial = true, bool spectator = true)
         {
-            return p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
-                ? new PlayerInfo(null, RoleType.None, false)
-                : p?.UserId == null || p.IsHost || !p.IsVerified || (spectator && (p.Role == RoleType.None || p.Role == RoleType.Spectator))
-                    ? new PlayerInfo(null, RoleType.None, true)
+            return p != null && (p.ReferenceHub.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip) || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p)))
+                ? new PlayerInfo(null, RoleTypeId.None, false)
+                : p?.UserId == null || p.IsHost || !p.IsVerified || (spectator && (p.Role == RoleTypeId.None || p.Role == RoleTypeId.Spectator))
+                    ? new PlayerInfo(null, RoleTypeId.None, true)
                     : p.DoNotTrack 
                         ? new PlayerInfo(null, p.Role, true) 
                         : new PlayerInfo(Helper.HandleId(p.UserId), p.Role, true);
@@ -173,19 +175,19 @@ namespace SCPStats
         {
             if (!f.IsSet)
             {
-                return new PlayerInfo(null, RoleType.None, true);
+                return new PlayerInfo(null, RoleTypeId.None, true);
             }
             
             var p = Player.Get(f.Hub);
             
-            if(p != null && (p.NoClipEnabled || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p, f.Role))))
+            if(p != null && (p.ReferenceHub.playerStats.GetModule<AdminFlagsStat>().HasFlag(AdminFlags.Noclip) || (p.IsGodModeEnabled && !p.IsSpawnProtected) || IsPlayerNPC(p) || (tutorial && IsPlayerTutorial(p, f.Role))))
             {
-                return new PlayerInfo(null, RoleType.None, false);
+                return new PlayerInfo(null, RoleTypeId.None, false);
             }
             
-            if(p != null && (p.IsHost || !p.IsVerified || (spectator && (f.Role == RoleType.None || f.Role == RoleType.Spectator))))
+            if(p != null && (p.IsHost || !p.IsVerified || (spectator && (f.Role == RoleTypeId.None || f.Role == RoleTypeId.Spectator))))
             {
-                return new PlayerInfo(null, RoleType.None, true);
+                return new PlayerInfo(null, RoleTypeId.None, true);
             }
 
             if (p != null && !p.DoNotTrack)

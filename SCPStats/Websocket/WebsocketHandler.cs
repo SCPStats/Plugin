@@ -42,7 +42,7 @@ namespace SCPStats.Websocket
             var str = ((int) type).ToString().PadLeft(2, '0')+data;
             var message = "p" + SCPStats.ServerID + str.Length + " " + str + Helper.HmacSha256Digest(SCPStats.Secret, str + WebsocketThread.Nonce);
             
-            Log.Debug(">" + "p" + SCPStats.ServerID + str.Length + " " + str, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug(">" + "p" + SCPStats.ServerID + str.Length + " " + str);
 
             WebsocketThread.Queue.Enqueue(message);
             WebsocketThread.Signal.Set();

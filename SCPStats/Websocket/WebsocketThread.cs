@@ -162,7 +162,7 @@ namespace SCPStats.Websocket
             ws.OnClose -= OnClose;
             ws.OnError -= OnError;
 
-            Log.Debug("Restarting Websocket Client", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Restarting Websocket Client");
             CreateConnection(10000);
         }
         
@@ -214,7 +214,7 @@ namespace SCPStats.Websocket
                     return;
                 }
 
-                Log.Debug("<"+e.Data, SCPStats.Singleton?.Config?.Debug ?? false);
+                Log.Debug("<"+e.Data);
                 
                 WebsocketRequests.Enqueue(e.Data);
             }

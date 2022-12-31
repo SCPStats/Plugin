@@ -35,12 +35,12 @@ namespace SCPStats.API
         /// </summary>
         public static Exiled.Events.Events.CustomEventHandler<SendingWarningMessageEventArgs> SendingWarningMessage;
 
-        internal static void OnUserInfoReceived(UserInfoEventArgs ev) => UserInfoReceived.InvokeSafely(ev);
+        internal static void OnUserInfoReceived(UserInfoEventArgs ev) => UserInfoReceived?.InvokeSafely(ev);
 
-        internal static void OnUserInfoHandled(UserInfoEventArgs ev) => UserInfoHandled.InvokeSafely(ev);
+        internal static void OnUserInfoHandled(UserInfoEventArgs ev) => UserInfoHandled?.InvokeSafely(ev);
 
-        internal static void OnGeneratingWarningMessage(GeneratingWarningMessageEventArgs ev) => GeneratingWarningMessage.InvokeSafely(ev);
+        internal static void OnGeneratingWarningMessage(GeneratingWarningMessageEventArgs ev) => GeneratingWarningMessage?.InvokeSafely(ev);
 
-        internal static void OnSendingWarningMessage(SendingWarningMessageEventArgs ev) => SendingWarningMessage.InvokeSafely(ev);
+        internal static void OnSendingWarningMessage(SendingWarningMessageEventArgs ev) => SendingWarningMessage?.InvokeSafely(ev);
     }
 }

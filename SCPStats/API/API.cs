@@ -11,6 +11,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
+using InventorySystem;
+using InventorySystem.Items;
+using InventorySystem.Items.Pickups;
 using JetBrains.Annotations;
 using Mirror;
 using SCPStats.Hats;
@@ -83,9 +86,22 @@ namespace SCPStats.API
             if(!hat.Rotation.IsZero()) rot = hat.Rotation;
             if(hat.Scale != Vector3.one || hat.Position != Vector3.zero || !hat.Rotation.IsZero()) item = hat.Item;
 
-            var itemObj = new Item(Server.Host.Inventory.CreateItemInstance(item, false)) {Scale = scale};
+            var itemModel = InventoryItemLoader.AvailableItems[item];
 
-            var pickup = itemObj.Spawn(Vector3.zero, Quaternion.identity);
+            var psi = new PickupSyncInfo()
+            {
+                ItemId = item,
+                Serial = ItemSerialGenerator.GenerateNext(),
+                Weight = itemModel.Weight
+            };
+
+            var pickup = Object.Instantiate(itemModel.PickupDropModel, Vector3.zero, Quaternion.identity);
+            pickup.transform.localScale = scale;
+            pickup.NetworkInfo = psi;
+
+            NetworkServer.Spawn(pickup.gameObject);
+            pickup.InfoReceived(new PickupSyncInfo(), psi);
+            pickup.RefreshPositionAndRotation();
 
             SpawnHat(player, pickup, itemOffset, rot, showHat);
         }
@@ -94,11 +110,11 @@ namespace SCPStats.API
         /// Turn a pickup into a <see cref="Player"/>'s hat. It is recommended to use <see cref="SpawnHat(Exiled.API.Features.Player,ItemType)"/> over this method.
         /// </summary>
         /// <param name="player">The <see cref="Player"/> who should wear the hat.</param>
-        /// <param name="pickup">The <see cref="Pickup"/> that should be worn.</param>
+        /// <param name="pickup">The <see cref="ItemPickupBase"/> that should be worn.</param>
         /// <param name="posOffset">A <see cref="Vector3"/> that will be added to the hat's position each time it is updated.</param>
         /// <param name="rotOffset">A <see cref="Quaternion"/> that will be added to the hat's rotation each time it is updated.</param>
         /// <param name="showHat">A <see cref="bool"/> indicating if the hat should be displayed on its owner's screen.</param>
-        public static void SpawnHat(Player player, Pickup pickup, Vector3 posOffset, Quaternion rotOffset, bool showHat = false)
+        public static void SpawnHat(Player player, ItemPickupBase pickup, Vector3 posOffset, Quaternion rotOffset, bool showHat = false)
         {
             HatPlayerComponent playerComponent;
             
@@ -113,12 +129,12 @@ namespace SCPStats.API
                 playerComponent.item = null;
             }
 
-            var rigidbody = pickup.Base.gameObject.GetComponent<Rigidbody>();
+            var rigidbody = pickup.gameObject.GetComponent<Rigidbody>();
             rigidbody.useGravity = false;
             rigidbody.isKinematic = true;
 
-            playerComponent.item = pickup.Base.gameObject.AddComponent<HatItemComponent>();
-            playerComponent.item.item = pickup.Base;
+            playerComponent.item = pickup.gameObject.AddComponent<HatItemComponent>();
+            playerComponent.item.item = pickup;
             playerComponent.item.player = playerComponent;
             playerComponent.item.pos = Hats.Hats.GetHatPosForRole(player.Role);
             playerComponent.item.itemOffset = posOffset;
@@ -133,7 +149,7 @@ namespace SCPStats.API
         /// <returns>A list of all the warnings that the specified player has.</returns>
         public static async Task<List<Warning>> GetWarnings(Player player)
         {
-            return await GetWarnings(player.RawUserId);
+            return await GetWarnings(Helper.HandleId(player));
         }
 
         /// <summary>

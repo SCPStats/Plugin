@@ -10,8 +10,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Exiled.API.Features;
+using Exiled.Events.EventArgs.Player;
 using Exiled.Loader;
+using JetBrains.Annotations;
 using MEC;
+using PlayerRoles;
+using PluginAPI.Events;
 using SCPStats.API;
 using SCPStats.API.EventArgs;
 using SCPStats.Commands;
@@ -136,7 +140,7 @@ namespace SCPStats.Websocket
             var infoSplit = info.Split(' ').ToList();
             var playerId = infoSplit[0];
             
-            Log.Debug("Received user info for " + playerId, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Received user info for " + playerId);
             
             infoSplit.RemoveAt(0);
 
@@ -145,11 +149,11 @@ namespace SCPStats.Websocket
             
             var data = new UserInfoData(flags);
             
-            Log.Debug("Is discord member: " + data.IsDiscordMember, SCPStats.Singleton?.Config?.Debug ?? false);
-            Log.Debug("Is discord booster: " + data.IsBooster, SCPStats.Singleton?.Config?.Debug ?? false);
-            Log.Debug("Discord roles: " + string.Join(", ", data.DiscordRoles), SCPStats.Singleton?.Config?.Debug ?? false);
-            Log.Debug("Is banned: " + data.IsBanned, SCPStats.Singleton?.Config?.Debug ?? false);
-            Log.Debug("Has hat perms: " + data.HasHat, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Is discord member: " + data.IsDiscordMember);
+            Log.Debug("Is discord booster: " + data.IsBooster);
+            Log.Debug("Discord roles: " + string.Join(", ", data.DiscordRoles));
+            Log.Debug("Is banned: " + data.IsBanned);
+            Log.Debug("Has hat perms: " + data.HasHat);
 
             CentralAuthPreauthFlags? preauthFlags = null;
             if (EventHandler.UserInfo.TryGetValue(playerId, out var userinfo))
@@ -166,6 +170,74 @@ namespace SCPStats.Websocket
 
             RunUserInfo(player);
         }
+        
+        /// <summary>
+        /// Handles user info for a pre-authenticated player.
+        /// If a player should be kicked, a PreauthCancellationData will be returned.
+        /// </summary>
+        /// <param name="id">The handled ID of the player.</param>
+        /// <param name="ip">The handled IP of the player.</param>
+        /// <returns>A bool indicating if an action was taken.</returns>
+        internal static bool RunUserInfoPreauth(this PreAuthenticatingEventArgs ev, string id, string ip, [CanBeNull] UserInfoData data, CentralAuthPreauthFlags flags)
+        {
+            // Data is removed when we reject so it has the potential to be refreshed.
+            // This is the same behavior that happens with Joins, where a player's info is removed on leave.
+
+            if (data != null)
+            {
+                if (!IsWhitelisted(data, flags))
+                {
+                    Log.Debug("[Preauth] Player is not whitelisted. Disconnecting!");
+                    EventHandler.UserInfo.Remove(id);
+                    
+                    ev.Reject(SCPStats.Singleton?.Translation?.WhitelistKickMessage ?? "[SCPStats] You are not whitelisted on this server!", true);
+                    return true;
+                }
+
+                if ((SCPStats.Singleton?.Config?.SyncBans ?? false) && data.IsBanned && !flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreBans))
+                {
+                    Log.Debug("[Preauth] Player is banned. Disconnecting!");
+                    EventHandler.UserInfo.Remove(id);
+                    
+                    ev.RejectBanned(data.BanText, DateTime.Now.AddSeconds(data.BanLength), true);
+                    return true;
+                }
+            }
+            else
+            {
+                // With null UserInfo, we can only check bans offline.
+
+                if (SCPStats.Singleton?.Config?.SyncBans ?? false)
+                {
+                    // Try to get a ban for their ID. If there isn't one, try their IP.
+                    if (EventHandler.LocalBanCache.TryGetValue(id, out var banExpiry) ||
+                        EventHandler.LocalBanCache.TryGetValue(ip, out banExpiry))
+                    {
+
+                        // Now, let's check if the ban expires after now. If it does,
+                        // we'll send them a message, otherwise we can return.
+                        if (banExpiry > DateTimeOffset.Now.ToUnixTimeSeconds())
+                        {
+                            Log.Debug("[Preauth] Player is banned (by cache). Disconnecting!");
+                            EventHandler.UserInfo.Remove(id);
+                            
+                            
+                            ev.RejectBanned(
+                                SCPStats.Singleton?.Translation?.CacheBannedMessage ?? "[SCPStats] You have been banned from this server, but there was an error fetching the details of your ban.",
+                                DateTimeOffset.FromUnixTimeSeconds(banExpiry).DateTime,
+                                true
+                                );
+                            return true;
+                        }
+
+                        // They aren't banned, so let them pass. We'll re-query their user info though, just to be safe.
+                        WebsocketHandler.SendRequest(RequestType.UserInfo, Helper.UserInfoData(id, ip));
+                    }
+                }
+            }
+
+            return false;
+        }
 
         internal static bool RunUserInfo(Player player)
         {
@@ -173,7 +245,7 @@ namespace SCPStats.Websocket
 
             if (player?.UserId == null || player.IsHost || !player.IsVerified || Helper.IsPlayerNPC(player)) return false;
 
-            if (EventHandler.DelayedIDs.Contains(playerId))
+            if (EventHandler.DelayedIDs.ContainsKey(playerId))
             {
                 EventHandler.DelayedIDs.Remove(playerId);
             }
@@ -181,15 +253,16 @@ namespace SCPStats.Websocket
             //If the user doesn't exist, or their data is null, handle them as unconfirmed.
             if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData.Item2 == null) return HandleUnconfirmedUser(player);
 
-            Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Found player. Invoking UserInfoReceived event.");
             
             var ev = new UserInfoEventArgs(player, tupleData.Item2, tupleData.Item1);
             Events.OnUserInfoReceived(ev);
             
-            Log.Debug("Attempting whitelist and ban sync.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Attempting whitelist and ban sync.");
                 
-            if(ev.Flags.HasValue && (HandleWhitelist(player, ev.UserInfo, ev.Flags.Value) || ((SCPStats.Singleton?.Config?.SyncBans ?? false) && HandleBans(player, ev.UserInfo)))) return true;
-            Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.", SCPStats.Singleton?.Config?.Debug ?? false);
+            // No need to handle bans here as it's done in preauth.
+            if(ev.Flags.HasValue && HandleWhitelist(player, ev.UserInfo, ev.Flags.Value)) return true;
+            Log.Debug("Player whitelisted and not banned or ban sync failed, adding hat.");
 
             Timing.RunCoroutine(DelayedUserInfo(player, ev, playerId));
 
@@ -222,7 +295,7 @@ namespace SCPStats.Websocket
                 //we'll send them a message, otherwise we can return.
                 if (banExpiry > DateTimeOffset.Now.ToUnixTimeSeconds())
                 {
-                    Log.Debug("Player is banned (by cache). Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                    Log.Debug("Player is banned (by cache). Disconnecting!");
                     ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.CacheBannedMessage ?? "[SCPStats] You have been banned from this server, but there was an error fetching the details of your ban.");
                     return true;
                 }
@@ -235,7 +308,7 @@ namespace SCPStats.Websocket
             //If we don't, we should kick them.
             if (Config.WhitelistEnabled())
             {
-                Log.Debug("Player's UserInfo is not confirmed. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+                Log.Debug("Player's UserInfo is not confirmed. Disconnecting!");
                 ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.NotConfirmedKickMessage ?? "[SCPStats] An authentication error occured between the server and SCPStats! Please try again.");
                 return true;
             }
@@ -251,16 +324,19 @@ namespace SCPStats.Websocket
                     
             HandleHats(player, ev.UserInfo);
             
-            Log.Debug("Syncing roles.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Syncing roles.");
             HandleRolesync(player, ev.UserInfo);
             
-            Log.Debug("Finished handling user info. Invoking UserInfoHandled event.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Finished handling user info. Invoking UserInfoHandled event.");
             Events.OnUserInfoHandled(ev);
         }
 
-        private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
+        /// <summary>
+        /// Returns true if the player is whitelisted (or if a whitelist is not enabled).
+        /// </summary>
+        private static bool IsWhitelisted(UserInfoData data, CentralAuthPreauthFlags flags)
         {
-            if (flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) || !Config.WhitelistEnabled()) return false;
+            if (flags.HasFlagFast(CentralAuthPreauthFlags.IgnoreWhitelist) || !Config.WhitelistEnabled()) return true;
 
             var passed = false;
             
@@ -278,9 +354,14 @@ namespace SCPStats.Websocket
                 if (!SCPStats.Singleton.Config.WhitelistRequireAll) break;
             }
 
-            if (passed) return false;
-            
-            Log.Debug("Player is not whitelisted. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+            return passed;
+        }
+        
+        private static bool HandleWhitelist(Player player, UserInfoData data, CentralAuthPreauthFlags flags)
+        {
+            if (IsWhitelisted(data, flags)) return false;
+
+            Log.Debug("Player is not whitelisted. Disconnecting!");
             ServerConsole.Disconnect(player.GameObject, SCPStats.Singleton?.Translation?.WhitelistKickMessage ?? "[SCPStats] You are not whitelisted on this server!");
             return true;
         }
@@ -312,7 +393,7 @@ namespace SCPStats.Websocket
         private static bool HandleBans(Player player, UserInfoData data)
         {
             if (!data.IsBanned || player.IsStaffBypassEnabled) return false;
-            Log.Debug("Player is banned. Disconnecting!", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Player is banned. Disconnecting!");
             ServerConsole.Disconnect(player.GameObject, (SCPStats.Singleton?.Translation?.BannedMessage ?? "[SCPStats] You have been banned from this server:\nExpires in: {duration}.\nReason: {reason}.").Replace("{duration}", Helper.SecondsToString(data.BanLength)).Replace("{reason}", data.BanText));
             return true;
         }
@@ -321,14 +402,14 @@ namespace SCPStats.Websocket
         {
             if (!data.HasHat) return;
 
-            Log.Debug("User has hat. Giving permissions!", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("User has hat. Giving permissions!");
 
             var item = IDs.ItemIDToType(data.HatID);
 
             if (Enum.IsDefined(typeof(ItemType), item)) HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation), new HatInfo(item, data.HatScale, data.HatOffset, data.HatRotation), true, data.CustomHatTier);
             else HatCommand.HatPlayers[player.UserId] = new Tuple<HatInfo, HatInfo, bool, bool>(new HatInfo(ItemType.SCP268), new HatInfo(ItemType.SCP268), true, data.CustomHatTier);
 
-            if (player.Role != RoleType.None && player.Role != RoleType.Spectator)
+            if (player.Role != RoleTypeId.None && player.Role != RoleTypeId.Spectator)
             {
                 player.SpawnCurrentHat();
             }
@@ -341,11 +422,11 @@ namespace SCPStats.Websocket
 
         private static void HandleRolesync(Player player, UserInfoData data)
         {
-            Log.Debug("Started rolesync", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Started rolesync");
             
             if (SCPStats.Singleton == null || SCPStats.Singleton.Config == null || ServerStatic.PermissionsHandler == null || ServerStatic.PermissionsHandler._groups == null) return;
 
-            Log.Debug("Checking if player already has a role.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Checking if player already has a role.");
             
             if (player.Group != null && !PlayerHasGroup(player, SCPStats.Singleton.Config.BoosterRole) && !PlayerHasGroup(player, SCPStats.Singleton.Config.DiscordMemberRole) && !SCPStats.Singleton.Config.RoleSync.Any(role =>
             {
@@ -353,20 +434,20 @@ namespace SCPStats.Websocket
                 return split.Length >= 2 && split[1] != "IngameRoleName" && PlayerHasGroup(player, split[1]);
             })) return;
 
-            Log.Debug("Player does not have a role. Attempting discord rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Player does not have a role. Attempting discord rolesync.");
             
             if ((data.DiscordRoles.Length > 0 || data.Ranks.Length > 0 || data.Stats.Length > 0) && SCPStats.Singleton.Config.RoleSync.Select(x => x.Split(':')).Any(s => GiveRoleSync(player, s, data))) return;
 
-            Log.Debug("Attempting booster/discord member rolesync.", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Attempting booster/discord member rolesync.");
             
             if (data.IsBooster && !SCPStats.Singleton.Config.BoosterRole.Equals("fill this") && !SCPStats.Singleton.Config.BoosterRole.Equals("none"))
             {
-                Log.Debug("Giving booster role.", SCPStats.Singleton?.Config?.Debug ?? false);
+                Log.Debug("Giving booster role.");
                 GiveRole(player, SCPStats.Singleton.Config.BoosterRole);
             }
             else if (data.IsDiscordMember && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("fill this") && !SCPStats.Singleton.Config.DiscordMemberRole.Equals("none"))
             {
-                Log.Debug("Giving discord member role.", SCPStats.Singleton?.Config?.Debug ?? false);
+                Log.Debug("Giving discord member role.");
                 GiveRole(player, SCPStats.Singleton.Config.DiscordMemberRole);
             }
         }
@@ -444,7 +525,7 @@ namespace SCPStats.Websocket
 
         private static void GiveRole(Player player, string key)
         {
-            Log.Debug("Giving " + player.UserId + " the role " + key, SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Giving " + player.UserId + " the role " + key);
 
             if (!ServerStatic.PermissionsHandler._groups.ContainsKey(key))
             {
@@ -468,7 +549,7 @@ namespace SCPStats.Websocket
 
             Rainbow(player);
 
-            Log.Debug("Successfully gave role!", SCPStats.Singleton?.Config?.Debug ?? false);
+            Log.Debug("Successfully gave role!");
         }
 
         private static bool PlayerHasGroup(Player p, string key)
