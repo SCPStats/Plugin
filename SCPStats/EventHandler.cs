@@ -645,7 +645,7 @@ namespace SCPStats
 
             // At this point we don't have data, and we aren't going to delay to get it.
             // We should try to run the preauth user info in case this user has a ban.
-            ev.RunUserInfoPreauth(id, ip, userInfo.Item2, ev.Flags);
+            ev.RunUserInfoPreauth(id, ip, null, ev.Flags);
         }
 
         internal static IEnumerator<float> UpdateLocalBanCache()
