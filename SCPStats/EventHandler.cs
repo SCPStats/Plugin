@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using CommandSystem;
 using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.ThrowableProjectiles;
@@ -22,6 +23,7 @@ using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
 using PluginAPI.Events;
 using PluginAPI.Helpers;
+using RemoteAdmin;
 using SCPStats.Commands;
 using SCPStats.Exiled;
 using SCPStats.Hats;
@@ -474,7 +476,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.PlayerThrowProjectile)]
-        internal void OnThrow(Player player, ThrowableItem item, float forceAmount, float upwardsFactor, Vector3 torque, Vector3 velocity)
+        internal void OnThrow(Player player, ThrowableItem item, ThrowableItem.ProjectileSettings projectileSettings, bool fullForce)
         {
             if (item == null || !Helper.IsRoundRunning()) return;
             
@@ -485,7 +487,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.Scp914UpgradePickup)]
-        internal bool OnUpgrade(ItemPickupBase item)
+        internal bool OnUpgrade(ItemPickupBase item, Vector3 outputPosition)
         {
             if (item == null || item.gameObject == null) return true;
             if (item.gameObject.TryGetComponent<HatItemComponent>(out _)) return false;
@@ -558,11 +560,13 @@ namespace SCPStats
         internal static List<string> IgnoredMessagesFromIntegration = new List<string>();
         
         [PluginEvent(ServerEventType.PlayerKicked)]
-        internal void OnKick(Player target, Player issuer, string reason)
+        internal void OnKick(Player target, ICommandSender issuer, string reason)
         {
             if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target?.UserId == null || target.IsServer || !target.IsReady || Helper.IsPlayerNPC(target) || JustJoined.Contains(target.UserId) || (SCPStats.Singleton?.Translation?.BannedMessage != null && reason.StartsWith(SCPStats.Singleton.Translation.BannedMessage.Split('{').First())) || (SCPStats.Singleton?.Translation?.WhitelistKickMessage != null && reason.StartsWith(SCPStats.Singleton.Translation.WhitelistKickMessage)) || (SCPStats.Singleton?.Config?.IgnoredMessages ?? IgnoredMessages).Any(val => reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => reason.StartsWith(val))) return;
 
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(target.UserId)+"\",\"message\":\""+reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(issuer?.UserId) && !(issuer?.IsServer ?? false) ? Helper.HandleId(issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(issuer?.Nickname) && !(issuer?.IsServer ?? false) ? issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
+            var issuerPlayer = Player.Get(issuer);
+
+            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(target.UserId)+"\",\"message\":\""+reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(issuerPlayer?.UserId) && !(issuerPlayer?.IsServer ?? false) ? Helper.HandleId(issuerPlayer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(issuerPlayer?.Nickname) && !(issuerPlayer?.IsServer ?? false) ? issuerPlayer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
         }
 
         [PluginEvent(ServerEventType.PlayerCheaterReport)]
