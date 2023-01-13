@@ -260,7 +260,8 @@ namespace SCPStats
                 var playerInfo = Helper.GetPlayerInfo(player, false, false);
                 if (!playerInfo.IsAllowed || playerInfo.PlayerID == null) continue;
 
-                if (PauseRound || Helper.IsPlayerTutorial(player) || player.IsOverwatchEnabled)
+                // TODO: Update to use the API overwatch property.
+                if (PauseRound || Helper.IsPlayerTutorial(player) || player.ReferenceHub.serverRoles.IsInOverwatch)
                 {
                     winLose[playerInfo.PlayerID] = new Tuple<bool, bool, RoleTypeId>(false, true, playerInfo.PlayerRole);
                 }
