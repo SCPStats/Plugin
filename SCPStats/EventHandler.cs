@@ -445,7 +445,7 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.Use, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"itemid\":\""+ev.Item.Base.ItemTypeId.ToID()+"\"}");
         }
 
-        internal static void OnThrow(ThrownItemEventArgs ev)
+        internal static void OnThrow(ThrownProjectileEventArgs ev)
         {
             if (ev.Projectile?.Base == null || !Helper.IsRoundRunning()) return;
             

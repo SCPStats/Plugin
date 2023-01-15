@@ -112,7 +112,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Verified += EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying += EventHandler.OnLeave;
             Exiled.Events.Handlers.Player.UsedItem += EventHandler.OnUse;
-            Exiled.Events.Handlers.Player.ThrownItem += EventHandler.OnThrow;
+            Exiled.Events.Handlers.Player.ThrownProjectile += EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA += EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs += LoadConfigs;
             Exiled.Events.Handlers.Scp914.UpgradingPickup += EventHandler.OnUpgrade;
@@ -193,7 +193,7 @@ namespace SCPStats
             Exiled.Events.Handlers.Player.Verified -= EventHandler.OnJoin;
             Exiled.Events.Handlers.Player.Destroying -= EventHandler.OnLeave;
             Exiled.Events.Handlers.Player.UsedItem -= EventHandler.OnUse;
-            Exiled.Events.Handlers.Player.ThrownItem -= EventHandler.OnThrow;
+            Exiled.Events.Handlers.Player.ThrownProjectile -= EventHandler.OnThrow;
             Exiled.Events.Handlers.Server.ReloadedRA -= EventHandler.OnRAReload;
             Exiled.Events.Handlers.Server.ReloadedConfigs -= LoadConfigs;
             Exiled.Events.Handlers.Scp914.UpgradingPickup -= EventHandler.OnUpgrade;
