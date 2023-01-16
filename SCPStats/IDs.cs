@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Exiled.API.Enums;
 using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp939;
 using PlayerStatsSystem;
@@ -311,7 +312,7 @@ namespace SCPStats
             return -1;
         }
 
-        internal static int ToID(this RoleChangeReason roleChangeReason)
+        internal static int ToID(this SpawnReason roleChangeReason)
         {
             if (RoleChangeReasonIDs.TryGetValue(roleChangeReason.ToString(), out var id)) return id;
             return -1;
