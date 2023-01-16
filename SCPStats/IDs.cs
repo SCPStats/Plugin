@@ -1,4 +1,5 @@
-﻿// -----------------------------------------------------------------------
+﻿
+// -----------------------------------------------------------------------
 // <copyright file="IDs.cs" company="SCPStats.com">
 // Copyright (c) SCPStats.com. All rights reserved.
 // Licensed under the Apache v2 license.
@@ -8,8 +9,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Exiled.API.Enums;
 using PlayerRoles;
+using PlayerRoles.PlayableScps.Scp939;
 using PlayerStatsSystem;
 
 namespace SCPStats
@@ -43,13 +44,15 @@ namespace SCPStats
                 {"Explosion", 19},
                 {"Scp096", 22},
                 {"Scp173", 24},
-                {"Scp939", 25},
+                {"Scp939Lunge", 53},
                 {"Zombie", 21},
                 {"BulletWounds", 42},
                 {"Crushed", 43},
                 {"UsedAs106Bait", 1},
                 {"FriendlyFireDetector", 8},
-                {"Hypothermia", 44}
+                {"Hypothermia", 44},
+                {"CardiacArrest", 51},
+                {"Scp939Other", 52}
             };
 
             foreach (var kv in universalDeathTranslations)
@@ -61,7 +64,7 @@ namespace SCPStats
             }
         }
         
-        //Largest ID: 56
+        //Largest ID: 60
         private static readonly Dictionary<string, int> ItemIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -119,18 +122,22 @@ namespace SCPStats
             {"SCP244b", 53},
             {"Coal", 54},
             /* MolecularDisruptor */ {"ParticleDisruptor", 55},
-            {"SCP1853", 56}
+            {"SCP1853", 56},
+            {"GunCom45", 57},
+            {"SCP1576", 58},
+            {"Scp2536_2", 60}
         };
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-        //Largest ID: 46
+        //Largest ID: 54
         private static readonly int RecontainmentDamageTypeID = 27;
         private static readonly int WarheadDamageTypeID = 2;
         private static readonly int MicroHidTypeID = 18;
         private static readonly int GrenadeTypeID = 19;
         private static readonly int Scp018TypeID = 38;
         private static readonly int DisruptorTypeID = 46;
+        private static readonly int JailbirdTypeID = 54;
         
         private static readonly Dictionary<string, int> FirearmDamageTypeIDs = new Dictionary<string, int>()
         {
@@ -144,7 +151,8 @@ namespace SCPStats
             {"GunFSP9", 36},
             {"MicroHID", 18},
             {"GunRevolver", 31},
-            {"MolecularDisruptor", 45}
+            /* MolecularDisruptor */ {"ParticleDisruptor", 45},
+            {"GunCom45", 50}
         };
 
         private static readonly Dictionary<DeathTranslation, int> UniversalDamageTypeIDs = new Dictionary<DeathTranslation, int>();
@@ -156,8 +164,7 @@ namespace SCPStats
             {"Scp049", 20},
             {"Scp096", 22},
             {"Scp0492", 21},
-            {"Scp93953", 25},
-            {"Scp93989", 25}
+            {"Scp939", 25},
         };
 
         private static readonly Dictionary<string, int> Scp096DamageTypeIDs = new Dictionary<string, int>()
@@ -166,8 +173,23 @@ namespace SCPStats
             {"Slap", 22},
             {"Charge", 39}
         };
+        
+        private static readonly Dictionary<string, int> Scp939DamageTypeIDs = new Dictionary<string, int>()
+        {
+            {"None", 46},
+            {"Claw", 47},
+            {"LungeTarget", 48},
+            {"LungeSecondary", 49}
+        };
+        
+        private static readonly Dictionary<string, int> Scp049DamageTypeIDs = new Dictionary<string, int>()
+        {
+            {"Instakill", 20},
+            {"CardiacArrest", 51},
+            {"Scp0492", 21}
+        };
 
-        //Largest ID: 21
+        //Largest ID: 24
         private static readonly Dictionary<string, int> RoleIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -188,15 +210,16 @@ namespace SCPStats
             /* NtfCadet */ {"NtfPrivate", 13},
             {"Tutorial", 14},
             {"FacilityGuard", 15},
-            {"Scp93953", 16},
-            {"Scp93989", 17},
             {"ChaosRifleman", 19},
             {"ChaosRepressor", 20},
-            {"ChaosMarauder", 21}
+            {"ChaosMarauder", 21},
+            {"Scp939", 22},
+            {"CustomRole", 23},
+            {"Overwatch", 24}
         };
 
-        //Largest ID: 8
-        private static readonly Dictionary<string, int> SpawnReasonIDs = new Dictionary<string, int>()
+        //Largest ID: 9
+        private static readonly Dictionary<string, int> RoleChangeReasonIDs = new Dictionary<string, int>()
         {
             {"None", 0},
             {"RoundStart", 1},
@@ -205,8 +228,8 @@ namespace SCPStats
             {"Died", 4},
             {"Escaped", 5},
             {"Revived", 6},
-            {"ForceClass", 7},
-            {"Overwatch", 8}
+            {"RemoteAdmin", 7},
+            {"Destroyed", 9}
         };
 
         internal static int ToID(this ItemType item)
@@ -237,6 +260,8 @@ namespace SCPStats
                     return Scp018TypeID;
                 case DisruptorDamageHandler _:
                     return DisruptorTypeID;
+                case JailbirdDamageHandler _:
+                    return JailbirdTypeID;
                 case FirearmDamageHandler firearmDamageHandler:
                 {
                     var id = firearmDamageHandler.WeaponType.ToString();
@@ -262,20 +287,33 @@ namespace SCPStats
 
                     return Scp096DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
                 }
+                case Scp939DamageHandler scp939DamageHandler:
+                {
+                    var id = scp939DamageHandler._damageType.ToString();
+                    
+                    return Scp939DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                }
+                case Scp049DamageHandler scp049DamageHandler:
+                {
+                    // This is used for Scp049 and Scp049-2.
+                    var id = scp049DamageHandler.DamageSubType.ToString();
+                    
+                    return Scp049DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                }
                 default:
                     return -1;
             }
         }
 
-        internal static int ToID(this RoleTypeId roleType)
+        internal static int ToID(this RoleTypeId RoleTypeId)
         {
-            if (RoleIDs.TryGetValue(roleType.ToString(), out var id)) return id;
+            if (RoleIDs.TryGetValue(RoleTypeId.ToString(), out var id)) return id;
             return -1;
         }
 
-        internal static int ToID(this SpawnReason spawnReason)
+        internal static int ToID(this RoleChangeReason roleChangeReason)
         {
-            if (SpawnReasonIDs.TryGetValue(spawnReason.ToString(), out var id)) return id;
+            if (RoleChangeReasonIDs.TryGetValue(roleChangeReason.ToString(), out var id)) return id;
             return -1;
         }
     }
