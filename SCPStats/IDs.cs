@@ -1,4 +1,5 @@
-﻿// -----------------------------------------------------------------------
+﻿
+// -----------------------------------------------------------------------
 // <copyright file="IDs.cs" company="SCPStats.com">
 // Copyright (c) SCPStats.com. All rights reserved.
 // Licensed under the Apache v2 license.
@@ -43,13 +44,15 @@ namespace SCPStats
                 {"Explosion", 19},
                 {"Scp096", 22},
                 {"Scp173", 24},
-                {"Scp939", 25},
+                {"Scp939Lunge", 53},
                 {"Zombie", 21},
                 {"BulletWounds", 42},
                 {"Crushed", 43},
                 {"UsedAs106Bait", 1},
                 {"FriendlyFireDetector", 8},
-                {"Hypothermia", 44}
+                {"Hypothermia", 44},
+                {"CardiacArrest", 51},
+                {"Scp939Other", 52}
             };
 
             foreach (var kv in universalDeathTranslations)
@@ -127,13 +130,14 @@ namespace SCPStats
 
         private static readonly Dictionary<int, string> ItemIDsReverse = ItemIDs.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-        //Largest ID: 50
+        //Largest ID: 54
         private static readonly int RecontainmentDamageTypeID = 27;
         private static readonly int WarheadDamageTypeID = 2;
         private static readonly int MicroHidTypeID = 18;
         private static readonly int GrenadeTypeID = 19;
         private static readonly int Scp018TypeID = 38;
         private static readonly int DisruptorTypeID = 46;
+        private static readonly int JailbirdTypeID = 54;
         
         private static readonly Dictionary<string, int> FirearmDamageTypeIDs = new Dictionary<string, int>()
         {
@@ -147,7 +151,7 @@ namespace SCPStats
             {"GunFSP9", 36},
             {"MicroHID", 18},
             {"GunRevolver", 31},
-            {"MolecularDisruptor", 45},
+            /* MolecularDisruptor */ {"ParticleDisruptor", 45},
             {"GunCom45", 50}
         };
 
@@ -177,8 +181,15 @@ namespace SCPStats
             {"LungeTarget", 48},
             {"LungeSecondary", 49}
         };
+        
+        private static readonly Dictionary<string, int> Scp049DamageTypeIDs = new Dictionary<string, int>()
+        {
+            {"Instakill", 20},
+            {"CardiacArrest", 51},
+            {"Scp0492", 21}
+        };
 
-        //Largest ID: 22
+        //Largest ID: 24
         private static readonly Dictionary<string, int> RoleIDs = new Dictionary<string, int>()
         {
             {"None", -1},
@@ -202,7 +213,9 @@ namespace SCPStats
             {"ChaosRifleman", 19},
             {"ChaosRepressor", 20},
             {"ChaosMarauder", 21},
-            {"Scp939", 22}
+            {"Scp939", 22},
+            {"CustomRole", 23},
+            {"Overwatch", 24}
         };
 
         //Largest ID: 9
@@ -247,6 +260,8 @@ namespace SCPStats
                     return Scp018TypeID;
                 case DisruptorDamageHandler _:
                     return DisruptorTypeID;
+                case JailbirdDamageHandler _:
+                    return JailbirdTypeID;
                 case FirearmDamageHandler firearmDamageHandler:
                 {
                     var id = firearmDamageHandler.WeaponType.ToString();
@@ -277,6 +292,13 @@ namespace SCPStats
                     var id = scp939DamageHandler._damageType.ToString();
                     
                     return Scp939DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
+                }
+                case Scp049DamageHandler scp049DamageHandler:
+                {
+                    // This is used for Scp049 and Scp049-2.
+                    var id = scp049DamageHandler.DamageSubType.ToString();
+                    
+                    return Scp049DamageTypeIDs.TryGetValue(id, out var output) ? output : -1;
                 }
                 default:
                     return -1;
