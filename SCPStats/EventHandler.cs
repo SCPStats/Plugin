@@ -24,6 +24,7 @@ using PluginAPI.Enums;
 using PluginAPI.Events;
 using PluginAPI.Helpers;
 using RemoteAdmin;
+using Scp914;
 using SCPStats.Commands;
 using SCPStats.Exiled;
 using SCPStats.Hats;
@@ -488,7 +489,7 @@ namespace SCPStats
         }
 
         [PluginEvent(ServerEventType.Scp914UpgradePickup)]
-        internal bool OnUpgrade(ItemPickupBase item, Vector3 outputPosition)
+        internal bool OnUpgrade(ItemPickupBase item, Vector3 outputPosition, Scp914KnobSetting scp914KnobSetting)
         {
             if (item == null || item.gameObject == null) return true;
             if (item.gameObject.TryGetComponent<HatItemComponent>(out _)) return false;
