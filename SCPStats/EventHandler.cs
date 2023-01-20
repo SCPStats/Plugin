@@ -305,7 +305,7 @@ namespace SCPStats
             PauseRound = SCPStats.Singleton?.Config?.DisableRecordingStats ?? false;
         }
         
-        [PluginEvent(ServerEventType.PlayerDeath)]
+        [PluginEvent(ServerEventType.PlayerDying)]
         internal void OnKill(Player target, Player attacker, DamageHandlerBase damageHandler)
         {
             if (!Helper.IsRoundRunning()) return;
