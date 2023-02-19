@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SCPStats.Hats
 {
-    internal class HatItemComponent : MonoBehaviour
+    public class HatItemComponent : MonoBehaviour
     {
         internal HatPlayerComponent player;
         internal Vector3 pos;
