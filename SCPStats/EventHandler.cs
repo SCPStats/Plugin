@@ -569,7 +569,7 @@ namespace SCPStats
             // with local reserved slots can still get in.
 
             // Check if they have info.
-            if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null &&
+            if (UserInfo.TryGetValue(id, out var userInfo) && userInfo?.Item2 != null &&
                 userInfo.Item1.HasValue)
             {
                 // They have info.
@@ -601,7 +601,7 @@ namespace SCPStats
                               (SCPStats.Singleton?.Config?.ReservedSlots?.Count(req => req != "DiscordRoleID") ?? 0) > 0;
 
             // If we have their info, no need to do anything.
-            if (UserInfo.TryGetValue(id, out var userInfo) && userInfo.Item2 != null && userInfo.Item1.HasValue)
+            if (UserInfo.TryGetValue(id, out var userInfo) && userInfo?.Item2 != null && userInfo.Item1.HasValue)
             {
                 // We won't delay anymore, so no need to store this.
                 DelayedIDs.Remove(id);
