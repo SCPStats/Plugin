@@ -241,7 +241,7 @@ namespace SCPStats.Websocket
             }
 
             //If the user doesn't exist, or their data is null, handle them as unconfirmed.
-            if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData.Item2 == null) return HandleUnconfirmedUser(player);
+            if (!EventHandler.UserInfo.TryGetValue(playerId, out var tupleData) || tupleData?.Item2 == null) return HandleUnconfirmedUser(player);
 
             Log.Debug("Found player. Invoking UserInfoReceived event.", SCPStats.Singleton?.Config?.Debug ?? false);
             
@@ -449,7 +449,7 @@ namespace SCPStats.Websocket
         
         private static bool CheckRequirements(string req, UserInfoData data, string configType, string fullEntry)
         {
-            if (req == "DiscordRoleID") return false;
+            if (req == "DiscordRoleID" || data == null) return false;
             if (req.Contains(",")) return req.Split(',').All(subReq => CheckRequirements(subReq, data, configType, fullEntry));
 
             if (req.Contains("_"))

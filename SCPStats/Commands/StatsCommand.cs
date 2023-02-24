@@ -33,7 +33,7 @@ namespace SCPStats.Commands
             // If for whatever reason we have no UserInfoData on the player, send the no stats message.
             // We should also send it if the stats are empty.
             Tuple<CentralAuthPreauthFlags?, UserInfoData> dataTuple;
-            if (!EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out dataTuple) || dataTuple.Item2.Stats.Length < 1)
+            if (!EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out dataTuple) || dataTuple?.Item2 == null || dataTuple.Item2.Stats.Length < 1)
             {
                 response = SCPStats.Singleton?.Translation?.StatsNoStats ?? "Looks like you don't have any stats. Make sure you've signed up at https://scpstats.com to view your stats.";
                 return true;

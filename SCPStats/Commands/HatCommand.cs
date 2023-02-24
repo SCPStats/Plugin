@@ -131,7 +131,7 @@ namespace SCPStats.Commands
                 playerComponent = p.GameObject.AddComponent<HatPlayerComponent>();
             }
 
-            var hasInfo = EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out var info);
+            var hasInfo = EventHandler.UserInfo.TryGetValue(Helper.HandleId(p), out var info) && info?.Item2 != null;
 
             var command = string.Join(" ", arguments).ToLower();
 
