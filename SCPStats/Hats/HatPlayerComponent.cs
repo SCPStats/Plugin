@@ -82,7 +82,8 @@ namespace SCPStats.Hats
 
                     foreach (var player1 in Player.GetPlayers())
                     {
-                        if (player1?.UserId == null || player1.IsServer || !player1.IsReady || Helper.IsPlayerNPC(player1)) continue;
+                        // IsPlayerNPC is 2nd because it has a lot of null checks.
+                        if (player1 == null || Helper.IsPlayerNPC(player1) || player1.UserId == null || player1.IsServer || !player1.IsReady) continue;
 
                         if (player1 == player)
                         {

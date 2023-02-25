@@ -239,10 +239,13 @@ namespace SCPStats
 
         internal static bool IsPlayerNPC(Player p)
         {
-            return p.Id == 9999 || p.NetworkIdentity.connectionToClient == null || p.IPAddress == "127.0.0.WAN" || (bool) (Integrations.IsNpc?.Invoke(null, new object[]
-                {
-                    p
-                }) ?? false);
+            // These null check isn't technically correct.
+            // However, IsPlayerNPC is used to cancel actions for players that aren't
+            // real players, and null players definitely aren't real.
+            return p == null || p.ReferenceHub == null || p.GameObject == null || p.ReferenceHub.networkIdentity == null ||
+                   p.ReferenceHub.characterClassManager == null || p.ReferenceHub.characterClassManager.netIdentity == null ||
+                   p.ReferenceHub.characterClassManager.connectionToClient == null || p.Connection == null || p.UserId == null ||
+                   p.UserId.EndsWith("@server") || p.IPAddress == "127.0.0.WAN" || (bool) (Integrations.IsNpc?.Invoke(null, new object[] { p }) ?? false);
         }
         
         internal static void SendWarningMessage(Player p, string reason){
