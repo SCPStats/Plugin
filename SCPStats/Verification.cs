@@ -75,7 +75,7 @@ namespace SCPStats
                     var body = await res.Content.ReadAsStringAsync();
                     if (body == "E")
                     {
-                        Log.Warn("SCPStats Verification failed!");
+                        Log.Warn("SCPStats Verification failed (ignore this unless something's actually broken)!");
                     }
 
                     SCPStats.Singleton.ID = "";
