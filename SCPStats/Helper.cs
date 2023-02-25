@@ -198,7 +198,7 @@ namespace SCPStats
             return new PlayerInfo(null, f.Role, true);
         }
 
-        internal static bool IsRoundRunning() => !EventHandler.PauseRound && RoundSummary.RoundInProgress();
+        internal static bool IsRoundRunning() => !EventHandler.PauseRound && !(ReferenceHub.LocalHub is null) && RoundSummary.RoundInProgress();
 
         internal static string HmacSha256Digest(string secret, string message)
         {
