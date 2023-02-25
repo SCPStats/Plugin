@@ -191,7 +191,7 @@ namespace SCPStats
 
         internal static void OnRoundEnding(EndingRoundEventArgs ev)
         {
-            if (!ev.IsAllowed || !ev.IsRoundEnded) return;
+            if (!ev.IsRoundEnded || !ev.IsRoundEnded) return;
             
             SendRoundEnd(((int) ev.LeadingTeam).ToString());
         }
