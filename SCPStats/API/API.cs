@@ -46,6 +46,13 @@ namespace SCPStats.API
             var scale = Vector3.one;
             var item = hat.Item;
 
+            // TODO: Fix this when whatever NW's change is figured out.
+            if (item == ItemType.MicroHID || item == ItemType.Ammo9x19 || item == ItemType.Ammo12gauge ||
+                item == ItemType.Ammo44cal || item == ItemType.Ammo556x45 || item == ItemType.Ammo762x39)
+            {
+                return;
+            }
+
             switch (item)
             {
                 case ItemType.KeycardScientist:
