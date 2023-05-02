@@ -118,13 +118,9 @@ namespace SCPStats
             Exiled.Events.Handlers.Scp914.UpgradingPickup += EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension += EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.EscapingPocketDimension += EventHandler.OnEscapingPocketDimension;
-            Exiled.Events.Handlers.Player.Banned += EventHandler.OnBan;
-            Exiled.Events.Handlers.Player.Kicking += EventHandler.OnKick;
             Exiled.Events.Handlers.Scp049.FinishingRecall += EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.ReservedSlot += EventHandler.OnReservedSlotCheck;
             Exiled.Events.Handlers.Player.PreAuthenticating += EventHandler.OnPreauth;
-            Exiled.Events.Handlers.Server.ReportingCheater += EventHandler.OnReportingCheater;
-            Exiled.Events.Handlers.Server.LocalReporting += EventHandler.OnReporting;
             Exiled.Events.Handlers.Server.ReloadedTranslations += this.OnReloadedTranslations;
         }
 
@@ -199,20 +195,14 @@ namespace SCPStats
             Exiled.Events.Handlers.Scp914.UpgradingPickup -= EventHandler.OnUpgrade;
             Exiled.Events.Handlers.Player.EnteringPocketDimension -= EventHandler.OnEnterPocketDimension;
             Exiled.Events.Handlers.Player.EscapingPocketDimension -= EventHandler.OnEscapingPocketDimension;
-            Exiled.Events.Handlers.Player.Banned -= EventHandler.OnBan;
-            Exiled.Events.Handlers.Player.Kicking -= EventHandler.OnKick;
             Exiled.Events.Handlers.Scp049.FinishingRecall -= EventHandler.OnRecalling;
             Exiled.Events.Handlers.Player.ReservedSlot -= EventHandler.OnReservedSlotCheck;
             Exiled.Events.Handlers.Player.PreAuthenticating -= EventHandler.OnPreauth;
-            Exiled.Events.Handlers.Server.ReportingCheater -= EventHandler.OnReportingCheater;
-            Exiled.Events.Handlers.Server.LocalReporting -= EventHandler.OnReporting;
             Exiled.Events.Handlers.Server.ReloadedTranslations -= this.OnReloadedTranslations;
 
             EventHandler.Reset();
             Hats.Hats.Reset();
             Integrations.ClearReflection();
-
-            UnbanPatch.LastId = null;
 
             ServerID = null;
             Secret = null;

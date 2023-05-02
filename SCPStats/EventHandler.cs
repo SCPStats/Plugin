@@ -489,18 +489,6 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.PocketExit, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"playerrole\":\""+playerInfo.PlayerRole.ToID()+"\",\"scp106\":\""+scp106ID+"\"}");
         }
 
-        internal static void OnBan(BannedEventArgs ev)
-        {
-            if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || string.IsNullOrEmpty(ev.Details.Id) || ev.Type != BanHandler.BanType.UserId) return;
-
-            var name = ev.Target?.UserId != null ? ev.Target.Nickname : ev.Details.OriginalName;
-            var ip = (SCPStats.Singleton?.Config?.LinkIpsToBans ?? false) ? Helper.HandleIP(ev.Target) : null;
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(ev.Details.Id) + (ip != null ? "\",\"playerIP\":\"" + ip : "") + "\",\"message\":\""+ev.Details.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((long) TimeSpan.FromTicks(ev.Details.Expires-ev.Details.IssuanceTime).TotalSeconds)+",\"playerName\":\""+name.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-            
-            Timing.RunCoroutine(UpdateLocalBanCache());
-        }
-        
         private static List<string> IgnoredMessages = new List<string>()
         {
             "[SCPStats]",
@@ -518,27 +506,6 @@ namespace SCPStats
         };
         
         internal static List<string> IgnoredMessagesFromIntegration = new List<string>();
-        
-        internal static void OnKick(KickingEventArgs ev)
-        {
-            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.ReferenceHub.isLocalPlayer || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target) || JustJoined.Contains(ev.Target.UserId) || (SCPStats.Singleton?.Translation?.BannedMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.BannedMessage.Split('{').First())) || (SCPStats.Singleton?.Translation?.WhitelistKickMessage != null && ev.Reason.StartsWith(SCPStats.Singleton.Translation.WhitelistKickMessage)) || (SCPStats.Singleton?.Config?.IgnoredMessages ?? IgnoredMessages).Any(val => ev.Reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => ev.Reason.StartsWith(val))) return;
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-        }
-
-        internal static void OnReportingCheater(ReportingCheaterEventArgs ev)
-        {
-            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.ReferenceHub.isLocalPlayer || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"7\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-        }
-
-        internal static void OnReporting(LocalReportingEventArgs ev)
-        {
-            if (!ev.IsAllowed || !(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || ev.Target?.UserId == null || ev.Target.ReferenceHub.isLocalPlayer || !ev.Target.IsVerified || Helper.IsPlayerNPC(ev.Target)) return;
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"8\",\"playerId\":\""+Helper.HandleId(ev.Target.UserId)+"\",\"message\":\""+ev.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+ev.Target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(ev.Player?.UserId) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? Helper.HandleId(ev.Player) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(ev.Player?.Nickname) && !(ev.Player?.ReferenceHub.isLocalPlayer ?? false) ? ev.Player.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-        }
 
         internal static void OnRecalling(FinishingRecallEventArgs ev)
         {
