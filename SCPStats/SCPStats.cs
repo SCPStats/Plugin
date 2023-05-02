@@ -47,7 +47,7 @@ namespace SCPStats
         private CoroutineHandle _cache;
 
         [PluginPriority(LoadPriority.Lowest)]
-        [PluginEntryPoint("SCPStats", "1.6.0", "Tracks player stats and provides server management utilities.", "PintTheDragon")]
+        [PluginEntryPoint("SCPStats", "1.6.1", "Tracks player stats and provides server management utilities.", "PintTheDragon")]
         public void OnEnabled()
         {
             Singleton = this;
