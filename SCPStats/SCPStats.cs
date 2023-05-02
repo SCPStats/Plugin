@@ -161,8 +161,6 @@ namespace SCPStats
             Hats.Hats.Reset();
             Integrations.ClearReflection();
 
-            UnbanPatch.LastId = null;
-
             ServerID = null;
             Secret = null;
             Singleton = null;

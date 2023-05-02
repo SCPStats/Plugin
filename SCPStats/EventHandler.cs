@@ -527,22 +527,6 @@ namespace SCPStats
             WebsocketHandler.SendRequest(RequestType.PocketExit, "{\"playerid\":\""+playerInfo.PlayerID+"\",\"playerrole\":\""+playerInfo.PlayerRole.ToID()+"\",\"scp106\":\""+scp106ID+"\"}");
         }
 
-        [PluginEvent(ServerEventType.BanIssued)]
-        internal void OnBan(BanDetails banDetails, BanHandler.BanType banType)
-        {
-            if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || string.IsNullOrEmpty(banDetails.Id) || banType != BanHandler.BanType.UserId) return;
-
-            var target = Player.Get(banDetails.Id);
-            var issuer = Banned.GetBanningPlayer(banDetails.Issuer);
-
-            var name = target?.UserId != null ? target.Nickname : banDetails.OriginalName;
-            var ip = (SCPStats.Singleton?.Config?.LinkIpsToBans ?? false) ? Helper.HandleIP(target) : null;
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"1\",\"playerId\":\""+Helper.HandleId(banDetails.Id) + (ip != null ? "\",\"playerIP\":\"" + ip : "") + "\",\"message\":\""+banDetails.Reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"length\":"+((long) TimeSpan.FromTicks(banDetails.Expires-banDetails.IssuanceTime).TotalSeconds)+",\"playerName\":\""+name.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(issuer?.UserId) && !issuer.IsServer ? Helper.HandleId(issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(issuer?.Nickname) && !issuer.IsServer ? issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-            
-            Timing.RunCoroutine(UpdateLocalBanCache());
-        }
-        
         private static List<string> IgnoredMessages = new List<string>()
         {
             "[SCPStats]",
@@ -560,32 +544,6 @@ namespace SCPStats
         };
         
         internal static List<string> IgnoredMessagesFromIntegration = new List<string>();
-        
-        [PluginEvent(ServerEventType.PlayerKicked)]
-        internal void OnKick(Player target, ICommandSender issuer, string reason)
-        {
-            if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target?.UserId == null || target.IsServer || !target.IsReady || Helper.IsPlayerNPC(target) || JustJoined.Contains(target.UserId) || (SCPStats.Singleton?.Translation?.BannedMessage != null && reason.StartsWith(SCPStats.Singleton.Translation.BannedMessage.Split('{').First())) || (SCPStats.Singleton?.Translation?.WhitelistKickMessage != null && reason.StartsWith(SCPStats.Singleton.Translation.WhitelistKickMessage)) || (SCPStats.Singleton?.Config?.IgnoredMessages ?? IgnoredMessages).Any(val => reason.StartsWith(val)) || IgnoredMessagesFromIntegration.Any(val => reason.StartsWith(val))) return;
-
-            var issuerPlayer = Player.Get(issuer);
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"2\",\"playerId\":\""+Helper.HandleId(target.UserId)+"\",\"message\":\""+reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(issuerPlayer?.UserId) && !(issuerPlayer?.IsServer ?? false) ? Helper.HandleId(issuerPlayer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(issuerPlayer?.Nickname) && !(issuerPlayer?.IsServer ?? false) ? issuerPlayer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-        }
-
-        [PluginEvent(ServerEventType.PlayerCheaterReport)]
-        internal void OnReportingCheater(Player issuer, Player target, string reason)
-        {
-            if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target?.UserId == null || target.IsServer || !target.IsReady || Helper.IsPlayerNPC(target)) return;
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"7\",\"playerId\":\""+Helper.HandleId(target.UserId)+"\",\"message\":\""+reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(issuer?.UserId) && !(issuer?.IsServer ?? false) ? Helper.HandleId(issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(issuer?.Nickname) && !(issuer?.IsServer ?? false) ? issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-        }
-
-        [PluginEvent(ServerEventType.PlayerReport)]
-        internal void OnReporting(Player issuer, Player target, string reason)
-        {
-            if (!(SCPStats.Singleton?.Config?.ModerationLogging ?? true) || target?.UserId == null || target.IsServer || !target.IsReady || Helper.IsPlayerNPC(target)) return;
-
-            WebsocketHandler.SendRequest(RequestType.AddWarning, "{\"type\":\"8\",\"playerId\":\""+Helper.HandleId(target.UserId)+"\",\"message\":\""+reason.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"playerName\":\""+target.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"")+"\",\"issuer\":\""+(!string.IsNullOrEmpty(issuer?.UserId) && !(issuer?.IsServer ?? false) ? Helper.HandleId(issuer) : "")+"\",\"issuerName\":\""+(!string.IsNullOrEmpty(issuer?.Nickname) && !(issuer?.IsServer ?? false) ? issuer.Nickname.Replace("\\", "\\\\").Replace("\"", "\\\"") : "")+"\"}");
-        }
 
         [PluginEvent(ServerEventType.Scp049ResurrectBody)]
         internal void OnRecalling(Player scp049, Player target, BasicRagdoll body)
