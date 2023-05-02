@@ -24,7 +24,7 @@ namespace SCPStats
     {
         public override string Name { get; } = "SCPStats";
         public override string Author { get; } = "PintTheDragon";
-        public override Version Version { get; } = new Version(1, 6, 0);
+        public override Version Version { get; } = new Version(1, 6, 1);
         public override Version RequiredExiledVersion { get; } = new Version(6, 0, 0);
         public override bool IgnoreRequiredVersionCheck { get; } = true;
         public override PluginPriority Priority { get; } = PluginPriority.Last;
