@@ -1,5 +1,5 @@
 # SCPStats
-SCPStats is a stat tracking plugin for SCP: Secret Laboratory that allows players to track their stats across multiple servers and also includes some additional internet-connected features like rolesync and bansync. See below for a full list of features that SCPStats has to offer!
+SCPStats was a stat tracking plugin for SCP: Secret Laboratory that allows players to track their stats across multiple servers and also includes some additional internet-connected features like rolesync and bansync. See below for a full list of features that SCPStats has to offer!
 
 ## Features
 SCPStats includes the following features:
